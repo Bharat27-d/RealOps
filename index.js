@@ -35,27 +35,27 @@ const client = new Client({
     partials: [Partials.Channel, Partials.Message, Partials.Reaction]
 });
 
-// Load all event handlers (including interaction.js)
+// Load all event handlers
 const eventsPath = path.join(__dirname, 'events');
 fs.readdirSync(eventsPath)
-  .filter(file => file.endsWith('.js'))
-  .forEach(file => {
-    const event = require(path.join(eventsPath, file));
-    if (event.name && typeof event.execute === 'function') {
-      client.on(event.name, (...args) => event.execute(...args));
-    } else {
-      console.warn(`[WARNING] Event file ${file} does not export { name, execute }!`);
-    }
-  });
+    .filter(file => file.endsWith('.js'))
+    .forEach(file => {
+        const event = require(path.join(eventsPath, file));
+        if (event.name && typeof event.execute === 'function') {
+            client.on(event.name, (...args) => event.execute(...args));
+        } else {
+            console.warn(`[WARNING] Event file ${file} does not export { name, execute }!`);
+        }
+    });
 
 // Load all panel modules
 const panelModules = {};
 fs.readdirSync(path.join(__dirname, 'panels'))
-  .filter(file => file.endsWith('.js'))
-  .forEach(file => {
-    const key = path.parse(file).name;
-    panelModules[key] = require(path.join(__dirname, 'panels', file));
-  });
+    .filter(file => file.endsWith('.js'))
+    .forEach(file => {
+        const key = path.parse(file).name;
+        panelModules[key] = require(path.join(__dirname, 'panels', file));
+    });
 
 // Define special panel setup commands
 const panelCommands = [
@@ -120,21 +120,14 @@ async function registerCommands() {
 // When bot is ready
 client.once('ready', async () => {
     console.log(`Logged in as ${client.user.tag}!`);
-    // Register commands on startup
     await registerCommands();
-    // Setup ticket system
     setupTicketSystem(client);
 });
 
-// Add global error handler
+// Global error handler
 process.on('uncaughtException', (error) => {
     console.error('Uncaught Exception:', error);
 });
 
 // Login to Discord
 client.login(TOKEN).catch(console.error);
-
-// Add optional manual command registration
-if (process.argv.includes('--register')) {
-    registerCommands().catch(console.error);
-}
