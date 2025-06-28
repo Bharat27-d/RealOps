@@ -21,7 +21,8 @@ async function sendPanel(channel) {
             'If you would like to request a partnership with us\n' +
             'then please react with 📩 and fill out our request form'
         )
-        .setImage('https://i.postimg.cc/vZ6Z5Swh/partnership-2.png') // Replace with your actual partnership banner if different
+        .setImage('https://i.postimg.cc/vZ6Z5Swh/partnership-2.png') 
+        .setThumbnail('https://i.ibb.co/FMYFdhk/real-ops-group-logo.png')
         .setColor('#9b59b6')
         .setFooter({ 
             text: 'The Real Ops Group Tickets', 

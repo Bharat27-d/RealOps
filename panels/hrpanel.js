@@ -16,6 +16,7 @@ async function sendPanel(channel) {
         .setDescription('If you wish to report a member of staff or have a complaint then please click the button below to open a HR ticket')
         .setColor('#E74C3C')
         .setImage('https://i.ibb.co/0p9d3tCd/Z7vW5Or.png') // Replace with your contact image URL
+        .setThumbnail('https://i.postimg.cc/fy4hqtjs/real-ops-group-logo.png') // Replace with your logo URL
         .setFooter({ 
             text: 'The Real Ops Group',
             iconURL: 'https://i.postimg.cc/fy4hqtjs/real-ops-group-logo.png'

@@ -18,8 +18,9 @@ async function sendPanel(channel) {
         'If you would like more information regarding our services, then please feel free to speak with one of our Support staff who will be happy to answer your questions.\n\n' +
         'React with 🎫 to contact our support team.'
     )
-    .setImage('https://i.postimg.cc/0NmPQwdt/support.png') // attach your support image properly below
-    .setColor('#2ecc71')
+    .setImage('https://i.postimg.cc/0NmPQwdt/support.png')
+    .setThumbnail('https://i.ibb.co/FMYFdhk/real-ops-group-logo.png')
+    .setColor('#ff0000') // Set a color for the embed
     .setFooter({ text: 'The Real Ops Group', iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png' }); // optional footer icon
     
     const supportRow = new ActionRowBuilder()

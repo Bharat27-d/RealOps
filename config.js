@@ -1,5 +1,7 @@
 require('dotenv').config();
 
+console.log('Loaded BOT_TOKEN length:', process.env.BOT_TOKEN ? process.env.BOT_TOKEN.length : 'MISSING');
+
 module.exports = {
     token: process.env.BOT_TOKEN,
     clientId: process.env.CLIENT_ID,
@@ -7,7 +9,7 @@ module.exports = {
 
     // Staff roles that can see and manage tickets (use arrays for multiple roles)
     staffRoles: {
-        admin: ['1386691716945543240'],
+        admin: [''],
         moderator: ['1292218198028058674', '1300518058749853716'],
         support: ['1291394387888177193'],
         partnership: ['1300834129780150272'],

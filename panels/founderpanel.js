@@ -22,6 +22,7 @@ async function sendPanel(channel) {
             'react with 📩'
         )
         .setImage('https://i.postimg.cc/2SLGZvjv/Z7vW5Or.png') // Replace with your actual banner if different
+        .setThumbnail('https://i.ibb.co/FMYFdhk/real-ops-group-logo.png')
         .setColor('#f1c40f')
         .setFooter({ 
             text: 'The Real Ops Group Tickets', 

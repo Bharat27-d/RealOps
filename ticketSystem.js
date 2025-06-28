@@ -1170,70 +1170,63 @@ async function createTranscript(interaction) {
 }
 
 // Get roles that should see a specific ticket type
+// Get roles that should see and be notified for a specific ticket type (tags only specific roles per type)
 function getTicketRoles(ticketType) {
     const roles = [];
 
-    // Always add admin roles
-    if (Array.isArray(config.staffRoles.admin)) {
-        roles.push(...config.staffRoles.admin);
-    } else if (config.staffRoles.admin) {
-        roles.push(config.staffRoles.admin);
+    switch(ticketType) {
+        case 'joinTeam':
+            if (Array.isArray(config.staffRoles.hr)) {
+                roles.push(...config.staffRoles.hr);
+            } else if (config.staffRoles.hr) {
+                roles.push(config.staffRoles.hr);
+            }
+            break;
+        case 'bookUs':
+            if (Array.isArray(config.staffRoles.bookings)) {
+                roles.push(...config.staffRoles.bookings);
+            } else if (config.staffRoles.bookings) {
+                roles.push(config.staffRoles.bookings);
+            }
+            break;
+        case 'support':
+            if (Array.isArray(config.staffRoles.support)) {
+                roles.push(...config.staffRoles.support);
+            } else if (config.staffRoles.support) {
+                roles.push(config.staffRoles.support);
+            }
+            break;
+        case 'partnership':
+            if (Array.isArray(config.staffRoles.partnership)) {
+                roles.push(...config.staffRoles.partnership);
+            } else if (config.staffRoles.partnership) {
+                roles.push(config.staffRoles.partnership);
+            }
+            break;
+        case 'founders':
+            if (Array.isArray(config.staffRoles.founders)) {
+                roles.push(...config.staffRoles.founders);
+            } else if (config.staffRoles.founders) {
+                roles.push(config.staffRoles.founders);
+            }
+            break;
+        case 'hr':
+            if (Array.isArray(config.staffRoles.hr)) {
+                roles.push(...config.staffRoles.hr);
+            } else if (config.staffRoles.hr) {
+                roles.push(config.staffRoles.hr);
+            }
+            break;
+        // Optionally, add a default for admin if you want a fallback:
+        // default:
+        //     if (Array.isArray(config.staffRoles.admin)) {
+        //         roles.push(...config.staffRoles.admin);
+        //     } else if (config.staffRoles.admin) {
+        //         roles.push(config.staffRoles.admin);
+        //     }
+        //     break;
     }
 
-    // For HR tickets, only add HR team and admins
-    if (ticketType === 'hr') {
-        if (Array.isArray(config.staffRoles.hr)) {
-            roles.push(...config.staffRoles.hr);
-        } else if (config.staffRoles.hr) {
-            roles.push(config.staffRoles.hr);
-        }
-    } else {
-        // For other ticket types, add moderators
-        if (Array.isArray(config.staffRoles.moderator)) {
-            roles.push(...config.staffRoles.moderator);
-        } else if (config.staffRoles.moderator) {
-            roles.push(config.staffRoles.moderator);
-        }
-
-        // Add specific roles based on ticket type
-        switch(ticketType) {
-            case 'joinTeam':
-                if (Array.isArray(config.staffRoles.hr)) {
-                    roles.push(...config.staffRoles.hr);
-                } else if (config.staffRoles.hr) {
-                    roles.push(config.staffRoles.hr);
-                }
-                break;
-            case 'bookUs':
-                if (Array.isArray(config.staffRoles.bookings)) {
-                    roles.push(...config.staffRoles.bookings);
-                } else if (config.staffRoles.bookings) {
-                    roles.push(config.staffRoles.bookings);
-                }
-                break;
-            case 'support':
-                if (Array.isArray(config.staffRoles.support)) {
-                    roles.push(...config.staffRoles.support);
-                } else if (config.staffRoles.support) {
-                    roles.push(config.staffRoles.support);
-                }
-                break;
-            case 'partnership':
-                if (Array.isArray(config.staffRoles.partnership)) {
-                    roles.push(...config.staffRoles.partnership);
-                } else if (config.staffRoles.partnership) {
-                    roles.push(config.staffRoles.partnership);
-                }
-                break;
-            case 'founders':
-                if (Array.isArray(config.staffRoles.founders)) {
-                    roles.push(...config.staffRoles.founders);
-                } else if (config.staffRoles.founders) {
-                    roles.push(config.staffRoles.founders);
-                }
-                break;
-        }
-    }
     // Remove duplicates and falsey values
     return [...new Set(roles.filter(Boolean))];
 }

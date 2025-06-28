@@ -2,7 +2,7 @@ const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName('planning2')
+    .setName('staffopening')
     .setDescription('Show staff openings and recruitment information'),
   async execute(interaction) {
     try {
