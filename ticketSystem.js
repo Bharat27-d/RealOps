@@ -11,6 +11,7 @@ const { createTranscript: generateTranscript } = require('discord-html-transcrip
 const fs = require('fs');
 const path = require('path');
 const config = require('./config');
+require('dotenv').config();
 
 // File path for ticket persistence
 const TICKETS_FILE = path.join(__dirname, 'active_tickets.json');

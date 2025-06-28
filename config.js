@@ -1,12 +1,6 @@
-require('dotenv').config();
-
-console.log('Loaded BOT_TOKEN length:', process.env.BOT_TOKEN ? process.env.BOT_TOKEN.length : 'MISSING');
+// No .env or secret values here! Only static config.
 
 module.exports = {
-    token: process.env.BOT_TOKEN,
-    clientId: process.env.CLIENT_ID,
-    guildId: process.env.GUILD_ID,
-
     // Staff roles that can see and manage tickets (use arrays for multiple roles)
     staffRoles: {
         admin: [''],

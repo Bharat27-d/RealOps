@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const { 
     Client, 
     GatewayIntentBits, 
@@ -11,7 +13,16 @@ const config = require('./config');
 const { setupTicketSystem } = require('./ticketSystem');
 const fs = require('fs');
 const path = require('path');
-require('dotenv').config();
+
+// Read secrets from environment
+const TOKEN = process.env.BOT_TOKEN;
+const CLIENT_ID = process.env.CLIENT_ID;
+const GUILD_ID = process.env.GUILD_ID;
+
+if (!TOKEN || !CLIENT_ID || !GUILD_ID) {
+    console.error('Missing BOT_TOKEN, CLIENT_ID, or GUILD_ID in .env file.');
+    process.exit(1);
+}
 
 // Create client instance
 const client = new Client({
@@ -95,9 +106,9 @@ for (const cmd of panelCommands) {
 async function registerCommands() {
     try {
         console.log('Started refreshing application (/) commands.');
-        const rest = new REST({ version: '10' }).setToken(config.token);
+        const rest = new REST({ version: '10' }).setToken(TOKEN);
         await rest.put(
-            Routes.applicationGuildCommands(config.clientId, config.guildId),
+            Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID),
             { body: commandsArray }
         );
         console.log('Successfully reloaded application (/) commands.');
@@ -121,7 +132,7 @@ process.on('uncaughtException', (error) => {
 });
 
 // Login to Discord
-client.login(config.token).catch(console.error);
+client.login(TOKEN).catch(console.error);
 
 // Add optional manual command registration
 if (process.argv.includes('--register')) {

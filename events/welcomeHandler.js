@@ -1,5 +1,6 @@
 const { Events, EmbedBuilder } = require('discord.js');
 const config = require('../config');
+require
 
 module.exports = {
     name: Events.GuildMemberAdd,

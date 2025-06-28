@@ -195,8 +195,6 @@ function processSubmittedData(interaction) {
     }
 }
 
-// Function to fetch event details from TruckerMP API and send as a follow-up message
-// Function to fetch event details from TruckerMP API and send as a follow-up message
 async function sendEventDetails(channel, eventData, user) {
     try {
         // Extract event ID from data or link
