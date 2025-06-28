@@ -11,6 +11,7 @@ const config = require('./config');
 const { setupTicketSystem } = require('./ticketSystem');
 const fs = require('fs');
 const path = require('path');
+require('dotenv').config();
 
 // Create client instance
 const client = new Client({
