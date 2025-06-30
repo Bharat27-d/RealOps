@@ -31,28 +31,13 @@ function loadActiveTickets() {
             const data = fs.readFileSync(TICKETS_FILE, 'utf8');
             const tickets = JSON.parse(data);
             const ticketsMap = new Map();
-            
-            // Convert dates back from strings
             Object.entries(tickets).forEach(([key, value]) => {
-                // Make sure channel ID is properly stored as both key and channelId
-                if (!value.channelId) {
-                    value.channelId = key;
-                }
-                
-                // Convert all date strings to Date objects
-                if (value.createdAt) {
-                    value.createdAt = new Date(value.createdAt);
-                }
-                if (value.closedAt) {
-                    value.closedAt = new Date(value.closedAt);
-                }
-                if (value.reopenedAt) {
-                    value.reopenedAt = new Date(value.reopenedAt);
-                }
-                
+                if (!value.channelId) value.channelId = key;
+                if (value.createdAt) value.createdAt = new Date(value.createdAt);
+                if (value.closedAt) value.closedAt = new Date(value.closedAt);
+                if (value.reopenedAt) value.reopenedAt = new Date(value.reopenedAt);
                 ticketsMap.set(key, value);
             });
-            
             console.log(`Loaded ${ticketsMap.size} tickets from persistence file`);
             return ticketsMap;
         } catch (error) {
@@ -68,24 +53,19 @@ function loadActiveTickets() {
 // Save active tickets to file
 function saveActiveTickets(tickets) {
     try {
-        // Convert Map to object for JSON serialization
         const ticketsObj = {};
         tickets.forEach((value, key) => {
             ticketsObj[key] = value;
         });
-        
         fs.writeFileSync(TICKETS_FILE, JSON.stringify(ticketsObj, null, 2));
     } catch (error) {
         console.error('Error saving active tickets:', error);
     }
 }
 
-// Track active tickets
 const activeTickets = loadActiveTickets();
-// Track button to panel type mapping
 const buttonToPanel = {};
 
-// Format date to UTC YYYY-MM-DD HH:MM:SS
 function formatDateUTC(date) {
     const year = date.getUTCFullYear();
     const month = String(date.getUTCMonth() + 1).padStart(2, '0');
@@ -93,32 +73,24 @@ function formatDateUTC(date) {
     const hours = String(date.getUTCHours()).padStart(2, '0');
     const minutes = String(date.getUTCMinutes()).padStart(2, '0');
     const seconds = String(date.getUTCSeconds()).padStart(2, '0');
-    
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
-// Get Unix timestamp (in seconds)
 function getUnixTimestamp() {
     return Math.floor(Date.now() / 1000);
 }
 
-// Setup the ticket system
 function setupTicketSystem(client) {
-    // Create button to panel mappings
     Object.values(panelModules).forEach(panel => {
         buttonToPanel[panel.buttonId] = panel;
     });
 
-    // Verify existing ticket channels are still valid
     client.once('ready', async () => {
         console.log(`Bot is ready. Current date (UTC): ${formatDateUTC(new Date())}`);
-        
-        // Check each ticket in activeTickets to see if the channel still exists
         let removedCount = 0;
         for (const [channelId, ticketData] of activeTickets.entries()) {
             const channel = client.channels.cache.get(channelId);
             if (!channel) {
-                // Channel no longer exists, remove from active tickets
                 console.log(`Removing ticket for non-existent channel: ${channelId}`);
                 activeTickets.delete(channelId);
                 removedCount++;
@@ -126,44 +98,32 @@ function setupTicketSystem(client) {
                 console.log(`Found valid ticket channel: ${channel.name} (${channelId})`);
             }
         }
-        
-        // Save cleaned up tickets
         saveActiveTickets(activeTickets);
         console.log(`Loaded ${activeTickets.size} active tickets (removed ${removedCount} invalid entries)`);
     });
 
     client.on('interactionCreate', async (interaction) => {
         try {
-            // Handle buttons with enhanced error handling
             if (interaction.isButton()) {
                 const { customId } = interaction;
-                
-                // Check if this is a panel button
                 if (buttonToPanel[customId]) {
-                    const panel = buttonToPanel[customId];
-                    const modal = panel.createModal();
-                    await interaction.showModal(modal);
+                    await interaction.showModal(buttonToPanel[customId].createModal());
                     return;
                 }
-                
-                // Handle ticket close confirmation buttons
                 if (customId === 'ticket_close_confirm') {
                     await closeTicketConfirmed(interaction);
                     return;
                 }
-                
                 if (customId === 'ticket_close_cancel') {
                     await closeTicketCancelled(interaction);
                     return;
                 }
-                
-                // For ticket actions, add stricter validation
-                if (customId === 'ticket_close' || 
+                if (
+                    customId === 'ticket_close' || 
                     customId === 'ticket_delete' || 
                     customId === 'ticket_reopen' || 
-                    customId === 'ticket_transcript') {
-                    
-                    // Check if this is a valid ticket channel
+                    customId === 'ticket_transcript'
+                ) {
                     if (!activeTickets.has(interaction.channel.id)) {
                         await interaction.reply({
                             content: 'This channel is not set up as a ticket. If this is an error, please contact an administrator.',
@@ -171,39 +131,37 @@ function setupTicketSystem(client) {
                         });
                         return;
                     }
-                    
-                    // Now dispatch to the appropriate handler
                     if (customId === 'ticket_close') await closeTicket(interaction);
                     if (customId === 'ticket_delete') await deleteTicket(interaction);
                     if (customId === 'ticket_reopen') await reopenTicket(interaction);
                     if (customId === 'ticket_transcript') await createTranscript(interaction);
-                    
                     return;
                 }
-                
-                // Handle ticket creation buttons (legacy support)
                 if (customId.startsWith('ticket_create_')) {
                     const ticketType = customId.split('_')[2];
                     await createTicket(interaction, ticketType);
                 }
             }
-            
-            // Handle modal submissions
             if (interaction.isModalSubmit()) {
                 const { customId } = interaction;
-                
-                // Find the panel module for this modal
                 const panelModule = Object.values(panelModules).find(panel => panel.modalId === customId);
-                
                 if (panelModule) {
-                    await handlePanelModalSubmission(interaction, panelModule);
+                    if (!interaction.deferred && !interaction.replied) {
+                        await interaction.deferReply({ ephemeral: true });
+                    }
+                    try {
+                        const submittedData = panelModule.processSubmittedData(interaction);
+                        await createTicketWithFormData(interaction, panelModule.ticketType, submittedData, panelModule);
+                    } catch (error) {
+                        console.error('Error handling modal submission:', error);
+                        await interaction.editReply({ 
+                            content: 'An error occurred while processing your submission. Please try again later.'
+                        });
+                    }
                 }
             }
-            
-            // Handle slash commands
             if (interaction.isCommand()) {
                 const { commandName } = interaction;
-                
                 if (commandName === 'register-ticket') {
                     await registerExistingTicket(interaction);
                 } else if (commandName === 'debug-tickets') {
@@ -213,7 +171,6 @@ function setupTicketSystem(client) {
         } catch (error) {
             console.error('Error handling interaction:', error);
             try {
-                // Try to respond to the user
                 if (!interaction.replied && !interaction.deferred) {
                     await interaction.reply({ 
                         content: 'An error occurred while processing your request. Please try again later.',
@@ -229,10 +186,8 @@ function setupTicketSystem(client) {
             }
         }
     });
-    
     console.log('Ticket system initialized');
 }
-
 /**
  * Register an existing channel as a ticket
  * Usage: /register-ticket @user type:support
@@ -424,19 +379,14 @@ async function handlePanelModalSubmission(interaction, panelModule) {
 // Validate if string is a valid Discord ID (Snowflake)
 function isValidSnowflake(id) {
     if (!id) return false;
-    
-    // Check if the ID is a string and only contains digits
-    if (typeof id !== 'string' || !/^\d+$/.test(id)) {
-        return false;
-    }
-    
+    if (typeof id !== 'string' || !/^\d+$/.test(id)) return false;
     try {
-        // Discord IDs (Snowflakes) are always numeric and have a specific length
         return id.length >= 17 && id.length <= 19;
     } catch (error) {
         return false;
     }
 }
+
 
 // Create a ticket with form data
 async function createTicketWithFormData(interaction, ticketType, formData, panelModule) {
@@ -1172,7 +1122,6 @@ async function createTranscript(interaction) {
 // Get roles that should see and be notified for a specific ticket type (tags only specific roles per type)
 function getTicketRoles(ticketType) {
     const roles = [];
-
     switch(ticketType) {
         case 'joinTeam':
             if (Array.isArray(config.staffRoles.hr)) {
@@ -1216,30 +1165,19 @@ function getTicketRoles(ticketType) {
                 roles.push(config.staffRoles.hr);
             }
             break;
-        // Optionally, add a default for admin if you want a fallback:
-        // default:
-        //     if (Array.isArray(config.staffRoles.admin)) {
-        //         roles.push(...config.staffRoles.admin);
-        //     } else if (config.staffRoles.admin) {
-        //         roles.push(config.staffRoles.admin);
-        //     }
-        //     break;
     }
-
-    // Remove duplicates and falsey values
     return [...new Set(roles.filter(Boolean))];
 }
 
-// Get color for ticket type
 function getTicketColor(ticketType) {
     switch(ticketType) {
-        case 'joinTeam': return '#3498db'; // Blue
-        case 'bookUs': return '#e74c3c';   // Red
-        case 'support': return '#2ecc71';  // Green
-        case 'partnership': return '#9b59b6'; // Purple
-        case 'founders': return '#f1c40f'; // Yellow/Gold
-        case 'hr': return '#E74C3C';       // Red
-        default: return '#95a5a6';         // Gray
+        case 'joinTeam': return '#3498db';
+        case 'bookUs': return '#e74c3c';
+        case 'support': return '#2ecc71';
+        case 'partnership': return '#9b59b6';
+        case 'founders': return '#f1c40f';
+        case 'hr': return '#E74C3C';
+        default: return '#95a5a6';
     }
 }
 
