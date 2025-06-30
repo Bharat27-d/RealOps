@@ -1,5 +1,3 @@
-require('dotenv').config();
-
 const { 
     Client, 
     GatewayIntentBits, 
@@ -9,18 +7,14 @@ const {
     Collection,
     SlashCommandBuilder
 } = require('discord.js');
-const config = require('./config');
+const { BOT_TOKEN: TOKEN, CLIENT_ID, GUILD_ID } = require('./config');
 const { setupTicketSystem } = require('./ticketSystem');
 const fs = require('fs');
 const path = require('path');
 
-// Read secrets from environment
-const TOKEN = process.env.BOT_TOKEN;
-const CLIENT_ID = process.env.CLIENT_ID;
-const GUILD_ID = process.env.GUILD_ID;
-
+// Validate required config
 if (!TOKEN || !CLIENT_ID || !GUILD_ID) {
-    console.error('Missing BOT_TOKEN, CLIENT_ID, or GUILD_ID in .env file.');
+    console.error('Missing BOT_TOKEN, CLIENT_ID, or GUILD_ID in config.js');
     process.exit(1);
 }
 
@@ -120,9 +114,20 @@ async function registerCommands() {
 // When bot is ready
 client.once('ready', async () => {
     console.log(`Logged in as ${client.user.tag}!`);
+
+    // Set bot activity
+    client.user.setPresence({
+        activities: [{ name: 'Real Ops on YouTube', type: 3 }], // type: 3 = WATCHING
+        status: 'online'
+    });
+
+    // Set custom status (optional)
+    client.user.setActivity('Performing Real Ops for Events', { type: 0 }); // type: 0 = PLAYING
+
     await registerCommands();
     setupTicketSystem(client);
 });
+
 
 // Global error handler
 process.on('uncaughtException', (error) => {
