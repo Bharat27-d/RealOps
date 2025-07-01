@@ -18,7 +18,7 @@ module.exports = {
             // Get the optional user to tag
             const user = interaction.options.getUser('user');
 
-            // Build the embed
+
             const embed = new EmbedBuilder()
                 .setTitle('Planning stage now commencing')
                 .setDescription(
@@ -33,13 +33,13 @@ We will contact you again once this stage is completed`
                     iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'
                 });
 
-            // Notify the command user privately
+      
             await interaction.editReply({ content: '✅ Planning stage 2 notification sent.' });
 
-            // Prepare content to tag the user (if provided)
+            
             const content = user ? `<@${user.id}>` : undefined;
 
-            // Send the embed in the channel, tagging user if selected
+            
             await interaction.channel.send({ content, embeds: [embed] });
 
         } catch (error) {
