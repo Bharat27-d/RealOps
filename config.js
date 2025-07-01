@@ -1,6 +1,3 @@
-// config.js
-
-// All static config values — NO .env used!
 
 module.exports = {
     // Discord credentials
