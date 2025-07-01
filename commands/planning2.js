@@ -3,12 +3,20 @@ const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('planning2')
-        .setDescription('Send a planning stage 2 notification embed'),
+        .setDescription('Send a planning stage 2 notification embed')
+        .addUserOption(option =>
+            option
+                .setName('user')
+                .setDescription('Tag a user outside the embed')
+                .setRequired(false)
+        ),
 
     async execute(interaction) {
         try {
-            // Defer the reply so you can safely edit it later
             await interaction.deferReply({ ephemeral: true });
+
+            // Get the optional user to tag
+            const user = interaction.options.getUser('user');
 
             // Build the embed
             const embed = new EmbedBuilder()
@@ -25,11 +33,14 @@ We will contact you again once this stage is completed`
                     iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'
                 });
 
-            // Confirm to command user (ephemeral)
-            await interaction.editReply({ content: `✅ Planning stage 2 notification sent.` });
+            // Notify the command user privately
+            await interaction.editReply({ content: '✅ Planning stage 2 notification sent.' });
 
-            // Send the embed publicly in the channel
-            await interaction.channel.send({ embeds: [embed] });
+            // Prepare content to tag the user (if provided)
+            const content = user ? `<@${user.id}>` : undefined;
+
+            // Send the embed in the channel, tagging user if selected
+            await interaction.channel.send({ content, embeds: [embed] });
 
         } catch (error) {
             console.error('Error in /planning2:', error);
