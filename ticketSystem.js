@@ -5,7 +5,8 @@ const {
     ChannelType, 
     PermissionFlagsBits, 
     ButtonStyle,
-    AttachmentBuilder
+    AttachmentBuilder,
+    StringSelectMenuBuilder
 } = require('discord.js');
 const { createTranscript: generateTranscript } = require('discord-html-transcripts');
 const fs = require('fs');
@@ -104,43 +105,184 @@ function setupTicketSystem(client) {
 
     client.on('interactionCreate', async (interaction) => {
         try {
-            if (interaction.isButton()) {
-                const { customId } = interaction;
-                if (buttonToPanel[customId]) {
-                    await interaction.showModal(buttonToPanel[customId].createModal());
+    if (interaction.isButton()) {
+        const { customId } = interaction;
+        if (buttonToPanel[customId]) {
+            await interaction.showModal(buttonToPanel[customId].createModal());
+            return;
+        }
+        if (customId === 'ticket_close_confirm') {
+            await closeTicketConfirmed(interaction);
+            return;
+        }
+        if (customId === 'ticket_close_cancel') {
+            await closeTicketCancelled(interaction);
+            return;
+        }
+        if (
+            customId === 'ticket_close' || 
+            customId === 'ticket_delete' || 
+            customId === 'ticket_reopen' || 
+            customId === 'ticket_transcript'
+        ) {
+            if (!activeTickets.has(interaction.channel.id)) {
+                await interaction.reply({
+                    content: 'This channel is not set up as a ticket. If this is an error, please contact an administrator.',
+                    ephemeral: true
+                });
+                return;
+            }
+            // --- STAFF CHECK for sensitive actions ---
+            if (
+                customId === 'ticket_close' ||
+                customId === 'ticket_delete' ||
+                customId === 'ticket_reopen'
+            ) {
+                // Only staff or admins may proceed
+                const ticketData = activeTickets.get(interaction.channel.id);
+                const staffRoleIds = getTicketRoles(ticketData.type);
+                const isStaff = interaction.member.permissions.has(PermissionFlagsBits.Administrator) ||
+                    staffRoleIds.some(roleId => interaction.member.roles.cache.has(roleId));
+                if (!isStaff) {
+                    await interaction.reply({
+                        content: "Only staff members can close, delete, or reopen tickets.",
+                        ephemeral: true
+                    });
                     return;
                 }
-                if (customId === 'ticket_close_confirm') {
-                    await closeTicketConfirmed(interaction);
-                    return;
-                }
-                if (customId === 'ticket_close_cancel') {
-                    await closeTicketCancelled(interaction);
-                    return;
-                }
-                if (
-                    customId === 'ticket_close' || 
-                    customId === 'ticket_delete' || 
-                    customId === 'ticket_reopen' || 
-                    customId === 'ticket_transcript'
-                ) {
-                    if (!activeTickets.has(interaction.channel.id)) {
+            }
+            if (customId === 'ticket_close') await closeTicket(interaction);
+            if (customId === 'ticket_delete') await deleteTicket(interaction);
+            if (customId === 'ticket_reopen') await reopenTicket(interaction);
+            if (customId === 'ticket_transcript') await createTranscript(interaction);
+            return;
+        }
+        if (customId.startsWith('ticket_create_')) {
+            const ticketType = customId.split('_')[2];
+            await createTicket(interaction, ticketType);
+            return;
+        }
+
+                // --- Accept/Decline Button Logic ---
+                if (customId === 'event_accept' || customId === 'event_decline') {
+                    let ticketCreatorId = null;
+                    const ticketData = activeTickets.get(interaction.channel.id);
+                    if (ticketData && ticketData.userId) {
+                        ticketCreatorId = ticketData.userId;
+                    }
+                    // Fallback to button clicker if not found
+                    if (!ticketCreatorId) ticketCreatorId = interaction.user.id;
+
+                    if (customId === 'event_accept') {
+                        const acceptedEmbed = new EmbedBuilder()
+                            .setTitle('Real Ops Request Accepted')
+                            .setDescription(`Hello <@${ticketCreatorId}>,\n\nThank you for requesting our services at your event. Your request has been **accepted** and forwarded to our planning department.\n\nWe will contact you again before finalizing documents. Please be patient.`)
+                            .setImage('https://i.postimg.cc/J0v07zL4/Accepted-event.png')
+                            .setColor('#00b894')
+                            .setFooter({ text: 'The Real Ops Group Project Management', iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png' })
+                            .setThumbnail('https://i.ibb.co/FMYFdhk/real-ops-group-logo.png');
+                        await interaction.update({
+                            embeds: interaction.message.embeds,
+                            components: [],
+                        });
+                        await interaction.followUp({
+                            content: `✅ <@${ticketCreatorId}>`,
+                            embeds: [acceptedEmbed],
+                            ephemeral: false
+                        });
+                        return;
+                    }
+
+                    if (customId === 'event_decline') {
+                        const reasonSelect = new StringSelectMenuBuilder()
+                            .setCustomId('decline_reason_select')
+                            .setPlaceholder('Select a reason for declining')
+                            .addOptions([
+                                {
+                                    label: 'Fully booked for that month',
+                                    value: 'full_month'
+                                },
+                                {
+                                    label: 'We are not available on this date',
+                                    value: 'not_available'
+                                },
+                                {
+                                    label: 'Requirements not met',
+                                    description: 'You do not meet the requirements for Real Ops at your event',
+                                    value: 'not_requirements'
+                                },
+                                {
+                                    label: 'Partners event on this date',
+                                    value: 'partner_event'
+                                },
+                                {
+                                    label: 'Less than 4 weeks from now',
+                                    value: 'short_notice'
+                                }
+                            ]);
+                        const actionRow = new ActionRowBuilder().addComponents(reasonSelect);
+
                         await interaction.reply({
-                            content: 'This channel is not set up as a ticket. If this is an error, please contact an administrator.',
+                            content: 'Please select the reason for declining this event booking:',
+                            components: [actionRow],
                             ephemeral: true
                         });
                         return;
                     }
-                    if (customId === 'ticket_close') await closeTicket(interaction);
-                    if (customId === 'ticket_delete') await deleteTicket(interaction);
-                    if (customId === 'ticket_reopen') await reopenTicket(interaction);
-                    if (customId === 'ticket_transcript') await createTranscript(interaction);
-                    return;
                 }
-                if (customId.startsWith('ticket_create_')) {
-                    const ticketType = customId.split('_')[2];
-                    await createTicket(interaction, ticketType);
+            }
+            // --- Decline Reason Select Menu ---
+            if (interaction.isStringSelectMenu() && interaction.customId === 'decline_reason_select') {
+                let ticketCreatorId = null;
+                const ticketData = activeTickets.get(interaction.channel.id);
+                if (ticketData && ticketData.userId) {
+                    ticketCreatorId = ticketData.userId;
                 }
+                if (!ticketCreatorId) ticketCreatorId = interaction.user.id;
+
+                const selected = interaction.values[0];
+                let reasonText = '';
+                switch (selected) {
+                    case 'full_month':
+                        reasonText = 'We are fully booked for that month.';
+                        break;
+                    case 'not_available':
+                        reasonText = 'We are not available on this date.';
+                        break;
+                    case 'not_requirements':
+                        reasonText = 'You do not meet the requirements to secure Real Ops at your event.';
+                        break;
+                    case 'partner_event':
+                        reasonText = 'We have a partner’s event on this date.';
+                        break;
+                    case 'short_notice':
+                        reasonText = 'The event is scheduled less than 4 weeks from the date of this ticket.';
+                        break;
+                    default:
+                        reasonText = 'No specific reason provided.';
+                }
+
+                const declinedEmbed = new EmbedBuilder()
+                    .setTitle('Real Ops Request Declined')
+                    .setDescription(`Hello <@${ticketCreatorId}>,\n\nThank you for requesting our services. Unfortunately, we have **declined** your request for the following reason:\n\n• ${reasonText}\n\nWe encourage you to consider us again in the future.`)
+                    .setImage('https://i.imgur.com/K51VLvn.png')
+                    .setColor('#e74c3c')
+                    .setFooter({ text: 'The Real Ops Group Project Management', iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png' })
+                    .setThumbnail('https://i.ibb.co/FMYFdhk/real-ops-group-logo.png');
+
+                // Public message to channel
+                await interaction.message.channel.send({
+                    content: `❌ <@${ticketCreatorId}>, your event booking has been **declined**.`,
+                    embeds: [declinedEmbed]
+                });
+
+                // Private confirmation to selector
+                await interaction.update({
+                    content: '✅ Decline reason has been posted in the channel.',
+                    components: [],
+                    ephemeral: true
+                });
+                return;
             }
             if (interaction.isModalSubmit()) {
                 const { customId } = interaction;
@@ -442,8 +584,11 @@ async function createTicketWithFormData(interaction, ticketType, formData, panel
                 id: user.id,
                 allow: [
                     PermissionFlagsBits.ViewChannel,
-                    PermissionFlagsBits.SendMessages,
-                    PermissionFlagsBits.ReadMessageHistory
+            PermissionFlagsBits.SendMessages,
+            PermissionFlagsBits.ReadMessageHistory,
+            PermissionFlagsBits.AttachFiles,   // <-- Allow sending images
+            PermissionFlagsBits.AddReactions,  // <-- Allow adding reactions
+            PermissionFlagsBits.EmbedLinks
                 ]
             }
         ];
@@ -535,10 +680,21 @@ async function createTicketWithFormData(interaction, ticketType, formData, panel
         
         // Send welcome message and form data to the ticket channel
         await ticketChannel.send({ 
-            content: `<@${user.id}> ${validRoleMentions}`,
-            embeds: [welcomeEmbed, responseEmbed],
-            components: [ticketControls]
-        });
+    content: `<@${user.id}> ${validRoleMentions}`,
+    embeds: [welcomeEmbed, responseEmbed]
+});
+// Then send controls only for staff/admins
+if (validRoleMentions) {
+    await ticketChannel.send({
+        content: `Staff controls: ${validRoleMentions}`,
+        components: [ticketControls]
+    });
+} else {
+    await ticketChannel.send({
+        content: `Staff controls: (Admins only)`,
+        components: [ticketControls]
+    });
+}
         
         // If this is a "Book Us" ticket, fetch and send TruckerMP event details
         if (ticketType === 'bookUs' && formData && formData.eventLink) {

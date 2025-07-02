@@ -8,6 +8,9 @@ const partnershippanel = require('../panels/partnershippanel');
 const founderpanel = require('../panels/founderpanel');
 const hrpanel = require('../panels/hrpanel');
 
+// Import your ticket system where activeTickets is exported
+const { activeTickets } = require('../ticketSystem'); // Update path as needed
+
 module.exports = {
     name: Events.InteractionCreate,
     async execute(interaction) {
@@ -61,19 +64,30 @@ module.exports = {
                 }
 
                 console.log(`[COMMAND] ${commandName} executed by ${interaction.user.tag} (${interaction.user.id})`);
-                
                 await command.execute(interaction);
                 return;
             }
 
             // --- ACCEPT/DECLINE EVENT BUTTONS ---
             if (interaction.isButton()) {
+                // Get ticket creator from activeTickets
+                let ticketCreatorId = null;
+                const ticketData = activeTickets && activeTickets.get
+                    ? activeTickets.get(interaction.channel.id)
+                    : null;
+                if (ticketData && ticketData.userId) {
+                    ticketCreatorId = ticketData.userId;
+                }
+
+                // Fallback to button clicker if not found (shouldn't happen)
+                if (!ticketCreatorId) ticketCreatorId = interaction.user.id;
+
                 if (interaction.customId === 'event_accept') {
                     const updatedEmbeds = interaction.message.embeds;
 
                     const acceptedEmbed = new EmbedBuilder()
                         .setTitle('Real Ops Request Accepted')
-                        .setDescription(`Hello <@${interaction.user.id}>,\n\nThank you for requesting our services at your event. Your request has been **accepted** and forwarded to our planning department.\n\nWe will contact you again before finalizing documents. Please be patient.`)
+                        .setDescription(`Hello <@${ticketCreatorId}>,\n\nThank you for requesting our services at your event. Your request has been **accepted** and forwarded to our planning department.\n\nWe will contact you again before finalizing documents. Please be patient.`)
                         .setImage('https://i.postimg.cc/J0v07zL4/Accepted-event.png')
                         .setColor('#00b894')
                         .setFooter({ text: 'The Real Ops Group Project Management', iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png' })
@@ -85,7 +99,7 @@ module.exports = {
                     });
 
                     await interaction.followUp({
-                        content: `✅ <@${interaction.user.id}>`,
+                        content: `✅ <@${ticketCreatorId}>`,
                         embeds: [acceptedEmbed],
                         ephemeral: false
                     });
@@ -134,8 +148,18 @@ module.exports = {
 
             // --- REASON SELECTED FROM DROPDOWN ---
             if (interaction.isStringSelectMenu() && interaction.customId === 'decline_reason_select') {
-                const selected = interaction.values[0];
+                // Get ticket creator from activeTickets
+                let ticketCreatorId = null;
+                const ticketData = activeTickets && activeTickets.get
+                    ? activeTickets.get(interaction.channel.id)
+                    : null;
+                if (ticketData && ticketData.userId) {
+                    ticketCreatorId = ticketData.userId;
+                }
+                // Fallback to selector if not found (shouldn't happen)
+                if (!ticketCreatorId) ticketCreatorId = interaction.user.id;
 
+                const selected = interaction.values[0];
                 let reasonText = '';
                 switch (selected) {
                     case 'full_month':
@@ -159,7 +183,7 @@ module.exports = {
 
                 const declinedEmbed = new EmbedBuilder()
                     .setTitle('Real Ops Request Declined')
-                    .setDescription(`Hello <@${interaction.user.id}>,\n\nThank you for requesting our services. Unfortunately, we have **declined** your request for the following reason:\n\n• ${reasonText}\n\nWe encourage you to consider us again in the future.`)
+                    .setDescription(`Hello <@${ticketCreatorId}>,\n\nThank you for requesting our services. Unfortunately, we have **declined** your request for the following reason:\n\n• ${reasonText}\n\nWe encourage you to consider us again in the future.`)
                     .setImage('https://i.imgur.com/K51VLvn.png')
                     .setColor('#e74c3c')
                     .setFooter({ text: 'The Real Ops Group Project Management', iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png' })
@@ -167,7 +191,7 @@ module.exports = {
 
                 // Public message to channel
                 await interaction.message.channel.send({
-                    content: `❌ <@${interaction.user.id}>, your event booking has been **declined**.`,
+                    content: `❌ <@${ticketCreatorId}>, your event booking has been **declined**.`,
                     embeds: [declinedEmbed]
                 });
 
