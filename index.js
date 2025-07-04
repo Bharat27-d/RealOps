@@ -136,3 +136,5 @@ process.on('uncaughtException', (error) => {
 
 // Login to Discord
 client.login(TOKEN).catch(console.error);
+
+
