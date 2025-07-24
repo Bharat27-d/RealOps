@@ -13,13 +13,12 @@ const VTC_ROLES = [
   { id: '1325812176543289354', label: 'Black Pearl Trucking', emoji: '1️⃣' },
   { id: '1304544433571627119', label: 'Pean Logistics', emoji: '2️⃣' },
   { id: '1304543116329619488', label: 'GTLegion', emoji: '3️⃣' },
-  { id: '1304545662720933969', label: 'JudgeLog Group', emoji: '4️⃣' },
+  { id: '1304545662720933969', label: 'Chocolate Express', emoji: '4️⃣' },
   { id: '1323397978785976505', label: 'Güven Logistics', emoji: '5️⃣' },
   { id: '1324465123318038550', label: 'Ponc Logistics', emoji: '6️⃣' },
   { id: '1384142381825130586', label: 'Turkish Line', emoji: '7️⃣' },
   { id: '1384142745417027616', label: 'Indian Group', emoji: '8️⃣' },
-  { id: '1384143039152521397', label: 'Starcem Logistics', emoji: '9️⃣' },
-  { id: '1387745283957456907', label: 'IEG - Group', emoji: '🔟' } // <-- Replace with actual role ID
+  { id: '1384143039152521397', label: 'Starcem Logistics', emoji: '9️⃣' }
 ];
 
 const GROUP_ROLES = [
@@ -27,8 +26,10 @@ const GROUP_ROLES = [
   { id: '1304863469987823696', label: 'Elite Convoys', emoji: '🇧' },
   { id: '1304545075006668872', label: 'Need CC', emoji: '🇨' },
   { id: '1304546220341198929', label: 'Super Event', emoji: '🇩' },
-  { id: '1308548543098916864', label: 'Trucky', emoji: '🇪' },
-  { id: '1386082169910202588', label: 'Storm Media', emoji: '🇫' }
+  { id: '1397218795436900493', label: 'United Convoys', emoji: '🇪' },
+  { id: '1308548543098916864', label: 'Trucky', emoji: '🇫' },
+  { id: '1386082169910202588', label: 'Storm Media', emoji: '🇬' },
+  { id: '1387745283957456907', label: 'IEG - Group', emoji: '🇭' }
 ];
 
 // Utility function to chunk an array into smaller arrays of a given size
@@ -40,7 +41,7 @@ function chunkArray(array, chunkSize) {
   return temp;
 }
 
-// ==== EMBED CONTENT (styled per your screenshot) ====
+// ==== EMBED CONTENT ====
 // Title Icon URL
 const TITLE_ICON_URL = 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png';
 
@@ -69,8 +70,7 @@ module.exports = {
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageRoles),
   async execute(interaction) {
     const embed = new EmbedBuilder()
-      .setAuthor({ name: 'Real Ops Partner Roles', iconURL: TITLE_ICON_URL }) // Title icon and title
-      .setTitle('Partner Reaction Roles')
+      .setAuthor({ name: 'Real Ops Partner Roles', iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png' })
       .setDescription(EMBED_DESCRIPTION)
       .setThumbnail(EMBED_THUMBNAIL)
       .setImage(EMBED_IMAGE)
