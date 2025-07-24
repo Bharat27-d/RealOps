@@ -115,14 +115,26 @@ async function registerCommands() {
 client.once('ready', async () => {
     console.log(`Logged in as ${client.user.tag}!`);
 
-    // Set bot activity
-    client.user.setPresence({
-        activities: [{ name: 'Real Ops on YouTube', type: 3 }], // type: 3 = WATCHING
-        status: 'online'
-    });
+    // Attractive activities to rotate
+    const activities = [
+        { name: 'Live: Real Ops Event Support 🚦', type: 0 }, // PLAYING
+        { name: 'Performing Real Ops for Epic Events 🚨', type: 0 },
+        { name: 'Orchestrating Real Ops for Legendary Events 🎯', type: 0 },
+        { name: 'Real Ops in Action: Event Mastermind 🕹️', type: 0 },
+        { name: 'Managing tickets and events!', type: 0 },
+        { name: 'Real Ops: Bringing Events to Life 🎬', type: 0 },
+        { name: 'Real Ops on YouTube', type: 3 } // WATCHING
+    ];
 
-    // Set custom status (optional)
-    client.user.setActivity('Performing Real Ops for Events', { type: 0 }); // type: 0 = PLAYING
+    // Start with the first activity immediately
+    client.user.setActivity(activities[0]);
+
+    // Rotate every 30 seconds
+    let i = 1;
+    setInterval(() => {
+        client.user.setActivity(activities[i]);
+        i = (i + 1) % activities.length;
+    }, 30000); // 30,000 ms = 30 seconds
 
     await registerCommands();
     setupTicketSystem(client);
@@ -136,5 +148,3 @@ process.on('uncaughtException', (error) => {
 
 // Login to Discord
 client.login(TOKEN).catch(console.error);
-
-
