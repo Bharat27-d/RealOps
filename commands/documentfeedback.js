@@ -56,12 +56,6 @@ As you already have your event server, you will need to follow these steps to re
 \`\`\`
 we wish to request real ops for our event TMP link ${eventLink} [HERE](${documentLink}) is the link to our document
 \`\`\`
-
-Please add our banner to your event page:
-
-\`\`\`
-[![](https://ik.imagekit.io/RealOpsMedia1/TMP%20banners/TMP%20banners/repls.png?updatedAt=1759407884999)](https://discord.gg/realops) 
-\`\`\`
 `
         )
         .setColor('#00b894')

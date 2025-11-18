@@ -1,7 +1,11 @@
 
 module.exports = {
     // Discord credentials
+<<<<<<< HEAD
     BOT_TOKEN: 'MTM4NzAxMzIzNjQwNjM1Mzk5MQ.G2yBLK.gLd8xp4QQAY1l3lM64h54XW2YV94_ULdI_Ofq4',
+=======
+    BOT_TOKEN: 'MTM4NzAxMzIzNjQwNjM1Mzk5MQ.GjZU2t.tpByjCogJ-eeWFiFBUjZAuZF5y7rvpR_Jfwupg',
+>>>>>>> f2fd194637de26aa8b071c319ac6dd2cd0be6967
     CLIENT_ID: '1387013236406353991',
     GUILD_ID: '1291110532837015584',
 

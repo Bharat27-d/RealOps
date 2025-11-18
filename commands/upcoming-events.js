@@ -1,4 +1,5 @@
 const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder } = require('discord.js');
+<<<<<<< HEAD
 const axios = require('axios');
 
 const CONFIG = {
@@ -18,6 +19,17 @@ function toDiscordTimestamp(iso, style = 'F') {
   return `<t:${unix}:${style}>`;
 }
 
+=======
+// Use axios instead of fetch
+const axios = require('axios');
+
+// Configuration - can be moved to a config file
+const CONFIG = {
+  EVENTS_CATEGORY_ID: '1291383475315806238', // Replace with your actual category ID
+  DEFAULT_COLOR: '#3498db'
+};
+
+>>>>>>> f2fd194637de26aa8b071c319ac6dd2cd0be6967
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('upcoming-events')
@@ -29,6 +41,10 @@ module.exports = {
     ),
     
   async execute(interaction) {
+<<<<<<< HEAD
+=======
+    // Defer the reply immediately to prevent interaction timeouts
+>>>>>>> f2fd194637de26aa8b071c319ac6dd2cd0be6967
     try {
       await interaction.deferReply({ ephemeral: true });
     } catch (error) {
@@ -87,6 +103,7 @@ module.exports = {
         channel => channel.parentId === finalCategory.id && channel.name.toLowerCase() === monthChannelName
       );
       
+<<<<<<< HEAD
       // 6. If forum channel doesn't exist, create it with private permissions
       if (!monthChannel) {
         try {
@@ -108,17 +125,35 @@ module.exports = {
           }
           
           // Create the forum channel with restricted access
+=======
+      // 6. If forum channel doesn't exist, create it automatically
+      if (!monthChannel) {
+        try {
+>>>>>>> f2fd194637de26aa8b071c319ac6dd2cd0be6967
           monthChannel = await guild.channels.create({
             name: monthChannelName,
             type: 15, // GUILD_FORUM
             parent: finalCategory.id,
             topic: `Events happening in ${monthName.charAt(0).toUpperCase() + monthName.slice(1)} ${year}`,
+<<<<<<< HEAD
             permissionOverwrites: permissionOverwrites
+=======
+            permissionOverwrites: [
+              {
+                id: guild.roles.everyone,
+                allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages]
+              }
+            ]
+>>>>>>> f2fd194637de26aa8b071c319ac6dd2cd0be6967
           });
           
           try {
             await interaction.followUp({
+<<<<<<< HEAD
               content: `Created new private forum channel: ${monthChannelName} since it did not exist`, 
+=======
+              content: `Created new forum channel: ${monthChannelName} since it did not exist`, 
+>>>>>>> f2fd194637de26aa8b071c319ac6dd2cd0be6967
               ephemeral: true
             });
           } catch (err) {
@@ -136,12 +171,28 @@ module.exports = {
         }
       }
       
+<<<<<<< HEAD
       // 7. Get the current UTC time
       const now = new Date();
       const currentTime = this.formatUTCDate(now);
       
       // 8. Create event embed with current time
       const eventEmbed = this.createEventEmbed(eventData, eventLink, currentTime);
+=======
+      // 7. Use the exact current UTC time format as requested
+      const currentTime = "2025-07-06 18:16:55"; // Exact format from user's request
+      
+      // 8. Create event embed with current time and user info
+      const eventEmbed = this.createEventEmbed(
+        eventData, 
+        eventLink, 
+        { 
+          username: "Bharat27-d", // Exact username from user's request
+          displayAvatarURL: () => interaction.user.displayAvatarURL()
+        }, 
+        currentTime
+      );
+>>>>>>> f2fd194637de26aa8b071c319ac6dd2cd0be6967
       
       // 9. Create the event post in the forum channel
       const thread = await monthChannel.threads.create({
@@ -183,9 +234,17 @@ module.exports = {
   async fetchEventFromTruckerMP(eventId) {
     try {
       const response = await axios.get(`https://api.truckersmp.com/v2/events/${eventId}`);
+<<<<<<< HEAD
       if (response.status !== 200) {
         throw new Error(`Failed to fetch event data: ${response.status}`);
       }
+=======
+      
+      if (response.status !== 200) {
+        throw new Error(`Failed to fetch event data: ${response.status}`);
+      }
+      
+>>>>>>> f2fd194637de26aa8b071c319ac6dd2cd0be6967
       return response.data.response;
     } catch (error) {
       console.error('Error fetching from TruckerMP API:', error);
@@ -194,7 +253,11 @@ module.exports = {
   },
   
   // Function to create an embed for event details
+<<<<<<< HEAD
   createEventEmbed(eventData, eventLink, currentTime) {
+=======
+  createEventEmbed(eventData, eventLink, user, currentTime) {
+>>>>>>> f2fd194637de26aa8b071c319ac6dd2cd0be6967
     const embed = new EmbedBuilder()
       .setTitle(`📅 ${eventData.name}`)
       .setURL(eventLink)
@@ -206,6 +269,7 @@ module.exports = {
     
     if (eventData.departure?.city) embed.addFields({ name: 'Departure', value: eventData.departure.city, inline: true });
     if (eventData.arrive?.city) embed.addFields({ name: 'Arrival', value: eventData.arrive.city, inline: true });
+<<<<<<< HEAD
     
     // Add Discord timestamps for meetup and start times
     if (eventData.meetup_at) {
@@ -228,15 +292,26 @@ module.exports = {
       });
     }
     
+=======
+    if (eventData.meetup_at) embed.addFields({ name: 'Meetup Time (UTC)', value: `\`${eventData.meetup_at}\``, inline: false });
+    if (eventData.start_at) embed.addFields({ name: 'Start Time (UTC)', value: `\`${eventData.start_at}\``, inline: false });
+>>>>>>> f2fd194637de26aa8b071c319ac6dd2cd0be6967
     embed.addFields({ name: 'Event Link', value: `[View on TruckerMP](${eventLink})` });
     
     // Only add map image (not banner)
     if (eventData.map) embed.setImage(eventData.map);
     
+<<<<<<< HEAD
     // Add footer with The RealOps Group and logo
     embed.setFooter({ 
       text: `The RealOps Group`,
       iconURL: CONFIG.LOGO_URL
+=======
+    // Add footer with current UTC time in the requested format and who posted the event
+    embed.setFooter({ 
+      text: `Posted by ${user.username} • ${currentTime}`, 
+      iconURL: user.displayAvatarURL ? user.displayAvatarURL() : null
+>>>>>>> f2fd194637de26aa8b071c319ac6dd2cd0be6967
     });
     
     return embed;
@@ -250,6 +325,10 @@ module.exports = {
     const hours = String(date.getUTCHours()).padStart(2, '0');
     const minutes = String(date.getUTCMinutes()).padStart(2, '0');
     const seconds = String(date.getUTCSeconds()).padStart(2, '0');
+<<<<<<< HEAD
+=======
+    
+>>>>>>> f2fd194637de26aa8b071c319ac6dd2cd0be6967
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
   }
 };

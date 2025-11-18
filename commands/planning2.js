@@ -13,13 +13,20 @@ module.exports = {
 
     async execute(interaction) {
         try {
+<<<<<<< HEAD
             // Always defer immediately!
+=======
+>>>>>>> f2fd194637de26aa8b071c319ac6dd2cd0be6967
             await interaction.deferReply({ ephemeral: true });
 
             // Get the optional user to tag
             const user = interaction.options.getUser('user');
 
+<<<<<<< HEAD
             // Build the embed
+=======
+
+>>>>>>> f2fd194637de26aa8b071c319ac6dd2cd0be6967
             const embed = new EmbedBuilder()
                 .setTitle('Planning stage now commencing')
                 .setDescription(
@@ -34,6 +41,7 @@ We will contact you again once this stage is completed`
                     iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'
                 });
 
+<<<<<<< HEAD
             // Notify the command user privately
             await interaction.editReply({ content: '✅ Planning stage 2 notification sent.' });
 
@@ -41,10 +49,20 @@ We will contact you again once this stage is completed`
             const content = user ? `<@${user.id}>` : undefined;
 
             // Send the embed in the channel, tagging user if selected
+=======
+      
+            await interaction.editReply({ content: '✅ Planning stage 2 notification sent.' });
+
+            
+            const content = user ? `<@${user.id}>` : undefined;
+
+            
+>>>>>>> f2fd194637de26aa8b071c319ac6dd2cd0be6967
             await interaction.channel.send({ content, embeds: [embed] });
 
         } catch (error) {
             console.error('Error in /planning2:', error);
+<<<<<<< HEAD
             // Only reply if NOT already replied or deferred
             if (!interaction.replied && !interaction.deferred) {
                 try {
@@ -60,6 +78,17 @@ We will contact you again once this stage is completed`
                 }
             }
             // If already replied, do nothing
+=======
+            try {
+                if (!interaction.replied && !interaction.deferred) {
+                    await interaction.reply({ content: 'An error occurred while sending the notification.', ephemeral: true });
+                } else if (interaction.deferred && !interaction.replied) {
+                    await interaction.editReply({ content: 'An error occurred while sending the notification.' });
+                }
+            } catch (err) {
+                console.error('Error sending error message:', err);
+            }
+>>>>>>> f2fd194637de26aa8b071c319ac6dd2cd0be6967
         }
     }
 };

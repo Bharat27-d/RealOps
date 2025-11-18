@@ -27,10 +27,14 @@ const GROUP_ROLES = [
   { id: '1397218795436900493', label: 'United Convoys', emoji: '🇪' },
   { id: '1308548543098916864', label: 'Trucky', emoji: '🇫' },
   { id: '1386082169910202588', label: 'Storm Media', emoji: '🇬' },
+<<<<<<< HEAD
   { id: '1429442654005104720', label: 'OCSC', emoji: '🇭' },
   { id: '1409566158201421926', label: 'Vanguard Convoy Control', emoji: '🇮' },
   { id: '1409595767014035597', label: 'Convoy Escort Service PL', emoji: '🇯' },
   { id: '1431313765449601124', label: 'NextGen CC', emoji: '🇰' } 
+=======
+  { id: '1387745283957456907', label: 'IEG - Group', emoji: '🇭' }
+>>>>>>> f2fd194637de26aa8b071c319ac6dd2cd0be6967
 ];
 
 function chunkArray(array, chunkSize) {
@@ -41,6 +45,11 @@ function chunkArray(array, chunkSize) {
   return temp;
 }
 
+<<<<<<< HEAD
+=======
+// ==== EMBED CONTENT ====
+// Title Icon URL
+>>>>>>> f2fd194637de26aa8b071c319ac6dd2cd0be6967
 const TITLE_ICON_URL = 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png';
 
 const EMBED_TITLE = `**<:realops:${TITLE_ICON_URL}> Real Ops Partner Roles**`;
@@ -67,8 +76,18 @@ module.exports = {
     .setDescription('Post an embed with buttons for partner/team role assignment')
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageRoles),
   async execute(interaction) {
+<<<<<<< HEAD
     try {
       await interaction.deferReply({ ephemeral: true });
+=======
+    const embed = new EmbedBuilder()
+      .setAuthor({ name: 'Real Ops Partner Roles', iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png' })
+      .setDescription(EMBED_DESCRIPTION)
+      .setThumbnail(EMBED_THUMBNAIL)
+      .setImage(EMBED_IMAGE)
+      .setColor('#191C21')
+      .setFooter({ text: EMBED_FOOTER_TEXT, iconURL: EMBED_FOOTER_ICON });
+>>>>>>> f2fd194637de26aa8b071c319ac6dd2cd0be6967
 
       const embed = new EmbedBuilder()
         .setAuthor({ name: 'Real Ops Partner Roles', iconURL: TITLE_ICON_URL })

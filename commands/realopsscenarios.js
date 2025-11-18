@@ -109,7 +109,11 @@ module.exports = {
           image: interaction.options.getString('ro4image')
         }
       ];
+<<<<<<< HEAD
 
+=======
+      // Optionals
+>>>>>>> f2fd194637de26aa8b071c319ac6dd2cd0be6967
       if (interaction.options.getString('ro5text') || interaction.options.getString('ro5image')) {
         scenarios.push({
           text: interaction.options.getString('ro5text'),
@@ -123,6 +127,7 @@ module.exports = {
         });
       }
 
+<<<<<<< HEAD
       // Intro embed
       const introEmbed = new EmbedBuilder()
         .setTitle('Real Ops Event Scenarios')
@@ -151,6 +156,26 @@ module.exports = {
           return embed;
         })
       ];
+=======
+      // Create an embed per scenario
+      const embeds = scenarios.map((sc, idx) => {
+        const embed = new EmbedBuilder()
+          .setTitle(`Scenario ${idx + 1}`)
+          .setDescription(sc.text ? sc.text : 'No description provided.')
+          .setColor('#00b894')
+          .setThumbnail('https://i.ibb.co/FMYFdhk/real-ops-group-logo.png')
+          .setFooter({
+            text: 'The Real Ops Group',
+            iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'
+          });
+        if (sc.image && sc.image.match(/^https?:\/\/.*\.(png|jpg|jpeg|gif|webp)$/i)) {
+          embed.setImage(sc.image);
+        } else if (sc.image) {
+          embed.addFields({ name: 'Image link', value: `[View Image](${sc.image})` });
+        }
+        return embed;
+      });
+>>>>>>> f2fd194637de26aa8b071c319ac6dd2cd0be6967
 
       await interaction.editReply({ content: `📄 Event scenarios sent for <@${user.id}>.` });
       await interaction.channel.send({ content: `<@${user.id}>`, embeds });

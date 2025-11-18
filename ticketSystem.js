@@ -299,7 +299,11 @@ function setupTicketSystem(client) {
                     customId === 'ticket_close' || 
                     customId === 'ticket_delete' || 
                     customId === 'ticket_reopen' || 
+<<<<<<< HEAD
                     customId === 'ticket_transcript'
+=======
+                    customId === 'ticket_transcript'  // ADDED TRANSCRIPT to permission check
+>>>>>>> f2fd194637de26aa8b071c319ac6dd2cd0be6967
                 ) {
                     ensureTicketsLoaded(); // Ensure tickets are loaded
                     
@@ -314,7 +318,12 @@ function setupTicketSystem(client) {
                     if (
                         customId === 'ticket_close' ||
                         customId === 'ticket_delete' ||
+<<<<<<< HEAD
                         customId === 'ticket_reopen'
+=======
+                        customId === 'ticket_reopen' ||
+                        customId === 'ticket_transcript'  // ADDED TRANSCRIPT to permission check
+>>>>>>> f2fd194637de26aa8b071c319ac6dd2cd0be6967
                     ) {
                         // Only staff or admins may proceed
                         const ticketData = activeTickets.get(interaction.channel.id);
@@ -323,7 +332,11 @@ function setupTicketSystem(client) {
                             staffRoleIds.some(roleId => interaction.member.roles.cache.has(roleId));
                         if (!isStaff) {
                             await safeReply(interaction, {
+<<<<<<< HEAD
                                 content: "Only staff members can close, delete, or reopen tickets.",
+=======
+                                content: "Only staff members can use ticket management buttons.",
+>>>>>>> f2fd194637de26aa8b071c319ac6dd2cd0be6967
                                 ephemeral: true
                             });
                             return;
@@ -374,7 +387,11 @@ function setupTicketSystem(client) {
                             .setDescription(`Hello <@${ticketCreatorId}>,\n\nThank you for requesting our services at your event. Your request has been **accepted** and forwarded to our planning department.\n\nWe will contact you again before finalizing documents. Please be patient.`)
                             .setImage('https://i.postimg.cc/J0v07zL4/Accepted-event.png')
                             .setColor('#00b894')
+<<<<<<< HEAD
                             .setFooter({ text: `The RealOps Group`, iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png' })
+=======
+                            .setFooter({ text: `Posted by Bharat27-d • 2025-07-09 10:32:02`, iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png' })
+>>>>>>> f2fd194637de26aa8b071c319ac6dd2cd0be6967
                             .setThumbnail('https://i.ibb.co/FMYFdhk/real-ops-group-logo.png');
 
                         try {
@@ -485,7 +502,11 @@ function setupTicketSystem(client) {
                         .setDescription(`Hello <@${ticketCreatorId}>,\n\nThank you for requesting our services. Unfortunately, we have **declined** your request for the following reason:\n\n• ${reasonText}\n\nWe encourage you to consider us again in the future.`)
                         .setImage('https://i.imgur.com/K51VLvn.png')
                         .setColor('#e74c3c')
+<<<<<<< HEAD
                         .setFooter({ text: `The RealOps Group`, iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png' })
+=======
+                        .setFooter({ text: `Posted by Bharat27-d • 2025-07-09 10:32:02`, iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png' })
+>>>>>>> f2fd194637de26aa8b071c319ac6dd2cd0be6967
                         .setThumbnail('https://i.ibb.co/FMYFdhk/real-ops-group-logo.png');
 
                     // Public message to channel
@@ -525,6 +546,7 @@ function setupTicketSystem(client) {
                         }
                         
                         const submittedData = panelModule.processSubmittedData(interaction);
+<<<<<<< HEAD
 
                         // Lead-time enforcement for Book Us using TruckerMP event date (no manual date entry)
                         if (panelModule.ticketType === 'bookUs') {
@@ -572,6 +594,8 @@ function setupTicketSystem(client) {
                         }
 
                         // Proceed with normal ticket creation
+=======
+>>>>>>> f2fd194637de26aa8b071c319ac6dd2cd0be6967
                         await createTicketWithFormData(interaction, panelModule.ticketType, submittedData, panelModule);
                     } catch (error) {
                         console.error('Error handling modal submission:', error);
@@ -811,8 +835,13 @@ async function createTicketWithFormData(interaction, ticketType, formData, panel
                     PermissionFlagsBits.ViewChannel,
                     PermissionFlagsBits.SendMessages,
                     PermissionFlagsBits.ReadMessageHistory,
+<<<<<<< HEAD
                     PermissionFlagsBits.AttachFiles,
                     PermissionFlagsBits.AddReactions,
+=======
+                    PermissionFlagsBits.AttachFiles,   // <-- Allow sending images
+                    PermissionFlagsBits.AddReactions,  // <-- Allow adding reactions
+>>>>>>> f2fd194637de26aa8b071c319ac6dd2cd0be6967
                     PermissionFlagsBits.EmbedLinks
                 ]
             }
@@ -872,7 +901,11 @@ async function createTicketWithFormData(interaction, ticketType, formData, panel
             .setDescription(`Thank you for your submission, ${user}!\nOur team will assist you shortly.`)
             .setColor(getTicketColor(ticketType))
             .setFooter({ 
+<<<<<<< HEAD
                 text: `The RealOps Group`, 
+=======
+                text: `Posted by Bharat27-d • 2025-07-09 10:32:02`, 
+>>>>>>> f2fd194637de26aa8b071c319ac6dd2cd0be6967
                 iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'
             })
             .setTimestamp();
@@ -886,8 +919,9 @@ async function createTicketWithFormData(interaction, ticketType, formData, panel
             .map(roleId => `<@&${roleId}>`)
             .join(' ');
         
-        // Send welcome message and form data to the ticket channel
+        // Send welcome message and form data to the ticket channel - FIXED: REMOVED STAFF MENTIONS
         await ticketChannel.send({ 
+<<<<<<< HEAD
             content: `<@${user.id}> ${validRoleMentions}`,
             embeds: [welcomeEmbed, responseEmbed]
         });
@@ -895,7 +929,24 @@ async function createTicketWithFormData(interaction, ticketType, formData, panel
         // Then send controls only for staff/admins
         await ticketChannel.send({
             components: [ticketControls]
+=======
+            content: `<@${user.id}>`,  // FIXED: Removed staff mentions from here
+            embeds: [welcomeEmbed, responseEmbed]
+>>>>>>> f2fd194637de26aa8b071c319ac6dd2cd0be6967
         });
+        
+        // Then send controls only for staff/admins
+        if (validRoleMentions) {
+            await ticketChannel.send({
+                content: `Staff controls: ${validRoleMentions}`,  // Staff mentions only here
+                components: [ticketControls]
+            });
+        } else {
+            await ticketChannel.send({
+                content: `Staff controls: (Admins only)`,
+                components: [ticketControls]
+            });
+        }
         
         // If this is a "Book Us" ticket, fetch and send TruckerMP event details
         if (ticketType === 'bookUs' && formData && formData.eventLink) {
@@ -909,7 +960,11 @@ async function createTicketWithFormData(interaction, ticketType, formData, panel
                         console.error('Error in delayed event details sending:', innerError);
                         ticketChannel.send('There was an error fetching event details. Please provide the event details manually.').catch(console.error);
                     }
+<<<<<<< HEAD
                 }, 1500);
+=======
+                }, 1500); // Slightly longer delay to ensure the first message is sent
+>>>>>>> f2fd194637de26aa8b071c319ac6dd2cd0be6967
             } catch (eventError) {
                 console.error('Error queuing event details send:', eventError);
             }
@@ -990,8 +1045,13 @@ async function createTicket(interaction, ticketType) {
                     PermissionFlagsBits.ViewChannel,
                     PermissionFlagsBits.SendMessages,
                     PermissionFlagsBits.ReadMessageHistory,
+<<<<<<< HEAD
                     PermissionFlagsBits.AttachFiles,
                     PermissionFlagsBits.AddReactions
+=======
+                    PermissionFlagsBits.AttachFiles,   // <-- Allow sending images
+                    PermissionFlagsBits.AddReactions   // <-- Allow adding reactions
+>>>>>>> f2fd194637de26aa8b071c319ac6dd2cd0be6967
                 ]
             }
         ];
@@ -1047,11 +1107,19 @@ async function createTicket(interaction, ticketType) {
             .addFields(
                 { name: 'User', value: `<@${user.id}>`, inline: true },
                 { name: 'Type', value: formatTicketType(ticketType), inline: true },
+<<<<<<< HEAD
                 { name: 'Created', value: `<t:${getUnixTimestamp()}:F>`, inline: true }
             )
             .setColor(getTicketColor(ticketType))
             .setFooter({ 
                 text: `The RealOps Group`, 
+=======
+                { name: 'Created', value: `2025-07-09 10:32:02`, inline: true }
+            )
+            .setColor(getTicketColor(ticketType))
+            .setFooter({ 
+                text: `Posted by Bharat27-d • 2025-07-09 10:32:02`, 
+>>>>>>> f2fd194637de26aa8b071c319ac6dd2cd0be6967
                 iconURL: guild.iconURL() 
             })
             .setTimestamp();
@@ -1062,12 +1130,19 @@ async function createTicket(interaction, ticketType) {
             .map(roleId => `<@&${roleId}>`)
             .join(' ');
         
-        // Send welcome message to the ticket channel
+        // Send welcome message to the ticket channel - FIXED: REMOVED STAFF MENTIONS
         await ticketChannel.send({ 
-            content: `<@${user.id}> ${validRoleMentions}`,
+            content: `<@${user.id}>`,  // FIXED: Removed staff mentions from here
             embeds: [welcomeEmbed],
             components: [ticketControls]
         });
+        
+        // Add separate staff notification message
+        if (validRoleMentions) {
+            await ticketChannel.send({
+                content: `Staff: ${validRoleMentions}`,
+            });
+        }
         
         // Log ticket creation
         logTicketAction(guild, user, ticketType, 'created', ticketChannel.id);
@@ -1107,7 +1182,11 @@ async function closeTicket(interaction) {
             .setDescription(`${user}, are you sure you want to close this ticket?`)
             .setColor('#f39c12')
             .setFooter({ 
+<<<<<<< HEAD
                 text: `The RealOps Group`,
+=======
+                text: `Posted by Bharat27-d • 2025-07-09 10:32:02`,
+>>>>>>> f2fd194637de26aa8b071c319ac6dd2cd0be6967
                 iconURL: user.displayAvatarURL()
             })
             .setTimestamp();
@@ -1180,7 +1259,11 @@ async function closeTicketConfirmed(interaction) {
             .setDescription(`This ticket was closed by <@${user.id}>`)
             .setColor('#f39c12')
             .setFooter({ 
+<<<<<<< HEAD
                 text: `The RealOps Group`,
+=======
+                text: `Posted by Bharat27-d • 2025-07-09 10:32:02`,
+>>>>>>> f2fd194637de26aa8b071c319ac6dd2cd0be6967
                 iconURL: user.displayAvatarURL()
             })
             .setTimestamp();
@@ -1272,7 +1355,11 @@ async function reopenTicket(interaction) {
             .setDescription(`This ticket was reopened by <@${user.id}>`)
             .setColor('#2ecc71')
             .setFooter({ 
+<<<<<<< HEAD
                 text: `The RealOps Group`,
+=======
+                text: `Posted by Bharat27-d • 2025-07-09 10:32:02`,
+>>>>>>> f2fd194637de26aa8b071c319ac6dd2cd0be6967
                 iconURL: user.displayAvatarURL()
             })
             .setTimestamp();
@@ -1383,7 +1470,7 @@ async function createTranscriptForDeletion(channel, user, ticketData) {
         fileName: fileName,
         poweredBy: false,
         saveImages: true,
-        footerText: `Transcript saved before deletion by ${user.tag} | ${formatDateUTC(new Date())}`,
+        footerText: `Transcript saved before deletion by ${user.tag} | 2025-07-09 10:32:02`,
         headerText: `Ticket Transcript - ${formatTicketType(ticketData.type)} (Deleted)`
     });
     
@@ -1396,11 +1483,19 @@ async function createTranscriptForDeletion(channel, user, ticketData) {
                 { name: 'Ticket', value: channel.name, inline: true },
                 { name: 'User', value: `<@${user.id}> (${user.tag})`, inline: true },
                 { name: 'Type', value: formatTicketType(ticketData.type), inline: true },
+<<<<<<< HEAD
                 { name: 'Deleted At', value: `<t:${getUnixTimestamp()}:F>`, inline: true }
             )
             .setColor('#e74c3c')
             .setFooter({ 
                 text: `The RealOps Group`,
+=======
+                { name: 'Deleted At', value: `2025-07-09 10:32:02`, inline: true }
+            )
+            .setColor('#e74c3c')
+            .setFooter({ 
+                text: `Posted by Bharat27-d • 2025-07-09 10:32:02`,
+>>>>>>> f2fd194637de26aa8b071c319ac6dd2cd0be6967
                 iconURL: user.displayAvatarURL()
             })
             .setTimestamp();
@@ -1445,7 +1540,7 @@ async function createTranscript(interaction) {
             fileName: fileName,
             poweredBy: false, // Remove the "Powered by discord-html-transcripts" text
             saveImages: true, // Save images
-            footerText: `Transcript saved by ${user.tag} | ${formatDateUTC(new Date())}`,
+            footerText: `Transcript saved by ${user.tag} | 2025-07-09 10:32:02`,
             headerText: `Ticket Transcript - ${formatTicketType(ticketData.type)}`
         });
         
@@ -1472,11 +1567,19 @@ async function createTranscript(interaction) {
                     { name: 'Ticket', value: channel.name, inline: true },
                     { name: 'User', value: `<@${user.id}> (${user.tag})`, inline: true },
                     { name: 'Type', value: formatTicketType(ticketData.type), inline: true },
+<<<<<<< HEAD
                     { name: 'Created At', value: `<t:${getUnixTimestamp()}:F>`, inline: true }
                 )
                 .setColor('#3498db')
                 .setFooter({ 
                     text: `The RealOps Group`,
+=======
+                    { name: 'Created At', value: `2025-07-09 10:32:02`, inline: true }
+                )
+                .setColor('#3498db')
+                .setFooter({ 
+                    text: `Posted by Bharat27-d • 2025-07-09 10:32:02`,
+>>>>>>> f2fd194637de26aa8b071c319ac6dd2cd0be6967
                     iconURL: user.displayAvatarURL()
                 })
                 .setTimestamp();
@@ -1585,11 +1688,13 @@ function formatTicketType(ticketType) {
 }
 
 // Log ticket actions to a designated channel
+// Log ticket actions to a designated channel
 function logTicketAction(guild, user, ticketType, action, ticketId, formData = null) {
     const logChannel = guild.channels.cache.get(config.logChannel);
     if (!logChannel) return;
     
-    // Use Discord timestamp for user's local time
+    // Use current time
+    const currentTime = '2025-07-09 10:36:02'; // Current UTC time
     const timestamp = getUnixTimestamp();
     
     const logEmbed = new EmbedBuilder()
@@ -1603,7 +1708,11 @@ function logTicketAction(guild, user, ticketType, action, ticketId, formData = n
         )
         .setColor(action === 'created' ? '#2ecc71' : action === 'closed' ? '#f39c12' : '#e74c3c')
         .setFooter({ 
+<<<<<<< HEAD
             text: `The RealOps Group`,
+=======
+            text: `Posted by Bharat27-d • ${currentTime}`,
+>>>>>>> f2fd194637de26aa8b071c319ac6dd2cd0be6967
             iconURL: user.displayAvatarURL()
         })
         .setTimestamp();
