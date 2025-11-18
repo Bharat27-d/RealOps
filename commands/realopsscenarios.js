@@ -1,17 +1,18 @@
-const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
+const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder } = require('discord.js');
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('realopsscenarios')
-    .setDescription('Send Real Ops scenarios to a user with scenario images and text (up to 6).')
+    .setDescription('Send Real Ops scenarios to a user with scenario images and text (up to 6, using image links).')
     .addUserOption(option =>
       option.setName('user')
         .setDescription('The user to send the scenarios to')
         .setRequired(true)
     )
-    .addAttachmentOption(option =>
+    // Scenario 1
+    .addStringOption(option =>
       option.setName('ro1image')
-        .setDescription('Image for Scenario 1')
+        .setDescription('Image link for Scenario 1 (must be a valid image URL)')
         .setRequired(true)
     )
     .addStringOption(option =>
@@ -19,9 +20,10 @@ module.exports = {
         .setDescription('Text for Scenario 1')
         .setRequired(true)
     )
-    .addAttachmentOption(option =>
+    // Scenario 2
+    .addStringOption(option =>
       option.setName('ro2image')
-        .setDescription('Image for Scenario 2')
+        .setDescription('Image link for Scenario 2 (must be a valid image URL)')
         .setRequired(true)
     )
     .addStringOption(option =>
@@ -29,9 +31,10 @@ module.exports = {
         .setDescription('Text for Scenario 2')
         .setRequired(true)
     )
-    .addAttachmentOption(option =>
+    // Scenario 3
+    .addStringOption(option =>
       option.setName('ro3image')
-        .setDescription('Image for Scenario 3')
+        .setDescription('Image link for Scenario 3 (must be a valid image URL)')
         .setRequired(true)
     )
     .addStringOption(option =>
@@ -39,9 +42,10 @@ module.exports = {
         .setDescription('Text for Scenario 3')
         .setRequired(true)
     )
-    .addAttachmentOption(option =>
+    // Scenario 4
+    .addStringOption(option =>
       option.setName('ro4image')
-        .setDescription('Image for Scenario 4')
+        .setDescription('Image link for Scenario 4 (must be a valid image URL)')
         .setRequired(true)
     )
     .addStringOption(option =>
@@ -49,9 +53,10 @@ module.exports = {
         .setDescription('Text for Scenario 4')
         .setRequired(true)
     )
-    .addAttachmentOption(option =>
+    // Optional Scenario 5
+    .addStringOption(option =>
       option.setName('ro5image')
-        .setDescription('Image for Optional Scenario 5')
+        .setDescription('Image link for Optional Scenario 5 (valid image URL)')
         .setRequired(false)
     )
     .addStringOption(option =>
@@ -59,9 +64,10 @@ module.exports = {
         .setDescription('Text for Optional Scenario 5')
         .setRequired(false)
     )
-    .addAttachmentOption(option =>
+    // Optional Scenario 6
+    .addStringOption(option =>
       option.setName('ro6image')
-        .setDescription('Image for Optional Scenario 6')
+        .setDescription('Image link for Optional Scenario 6 (valid image URL)')
         .setRequired(false)
     )
     .addStringOption(option =>
@@ -69,10 +75,14 @@ module.exports = {
         .setDescription('Text for Optional Scenario 6')
         .setRequired(false)
     )
-    .setDefaultMemberPermissions(PermissionFlagsBits.ManageRoles), // Adjust as needed
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageRoles),
 
   async execute(interaction) {
     try {
+      // Log to verify execution timing (debugging)
+      console.log("Received interaction for /realopsscenarios at:", new Date().toISOString());
+
+      // Defer reply right away!
       await interaction.deferReply({ ephemeral: true });
 
       const user = interaction.options.getUser('user');
@@ -80,79 +90,82 @@ module.exports = {
         return await interaction.editReply({ content: 'User not found.' });
       }
 
-      // Required scenarios
-      const ro1image = interaction.options.getAttachment('ro1image');
-      const ro1text = interaction.options.getString('ro1text');
-      const ro2image = interaction.options.getAttachment('ro2image');
-      const ro2text = interaction.options.getString('ro2text');
-      const ro3image = interaction.options.getAttachment('ro3image');
-      const ro3text = interaction.options.getString('ro3text');
-      const ro4image = interaction.options.getAttachment('ro4image');
-      const ro4text = interaction.options.getString('ro4text');
-
-      // Optionals
-      const ro5image = interaction.options.getAttachment('ro5image');
-      const ro5text = interaction.options.getString('ro5text');
-      const ro6image = interaction.options.getAttachment('ro6image');
-      const ro6text = interaction.options.getString('ro6text');
-
-      // Build description with each scenario's text immediately followed by its image link
-      let description =
-`Our planning team have completed the scenarios for your event, please look over these and let us know if you would like any changes.
-
-**Scenario 1**
-${ro1text}
-[View Image](${ro1image.url})
-
-**Scenario 2**
-${ro2text}
-[View Image](${ro2image.url})
-
-**Scenario 3**
-${ro3text}
-[View Image](${ro3image.url})
-
-**Scenario 4**
-${ro4text}
-[View Image](${ro4image.url})
-`;
-
-      // Optionals
-      if (ro5text || ro5image || ro6text || ro6image) {
-        description += '\n**Optional Extras**\n';
-        if (ro5text || ro5image) {
-          description += `\n**Scenario 5**\n${ro5text ? ro5text : ''}`;
-          if (ro5image) description += `\n[View Image](${ro5image.url})\n`;
+      // Collect scenarios
+      const scenarios = [
+        {
+          text: interaction.options.getString('ro1text'),
+          image: interaction.options.getString('ro1image')
+        },
+        {
+          text: interaction.options.getString('ro2text'),
+          image: interaction.options.getString('ro2image')
+        },
+        {
+          text: interaction.options.getString('ro3text'),
+          image: interaction.options.getString('ro3image')
+        },
+        {
+          text: interaction.options.getString('ro4text'),
+          image: interaction.options.getString('ro4image')
         }
-        if (ro6text || ro6image) {
-          description += `\n**Scenario 6**\n${ro6text ? ro6text : ''}`;
-          if (ro6image) description += `\n[View Image](${ro6image.url})\n`;
-        }
+      ];
+
+      if (interaction.options.getString('ro5text') || interaction.options.getString('ro5image')) {
+        scenarios.push({
+          text: interaction.options.getString('ro5text'),
+          image: interaction.options.getString('ro5image')
+        });
+      }
+      if (interaction.options.getString('ro6text') || interaction.options.getString('ro6image')) {
+        scenarios.push({
+          text: interaction.options.getString('ro6text'),
+          image: interaction.options.getString('ro6image')
+        });
       }
 
-      const { EmbedBuilder } = require('discord.js');
-      const embed = new EmbedBuilder()
+      // Intro embed
+      const introEmbed = new EmbedBuilder()
         .setTitle('Real Ops Event Scenarios')
-        .setDescription(description)
-        .setImage('https://i.imgur.com/Dr5htQb.png')
-        .setColor('#00b894')
-        .setThumbnail('https://i.ibb.co/FMYFdhk/real-ops-group-logo.png')
-        .setFooter({
-          text: 'The Real Ops Group',
-          iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'
-        });
+        .setDescription('Our planning team have completed the scenarios for your event, please look over these and let us know if you would like any changes.')
+        .setColor('#23272A')
+        .setThumbnail('https://i.ibb.co/FMYFdhk/real-ops-group-logo.png');
+
+      // Create embeds per scenario
+      const embeds = [
+        introEmbed,
+        ...scenarios.map((sc, idx) => {
+          const embed = new EmbedBuilder()
+            .setTitle(`Scenario ${idx + 1}`)
+            .setDescription(sc.text ? sc.text : 'No description provided.')
+            .setColor('#00b894')
+            .setThumbnail('https://i.ibb.co/FMYFdhk/real-ops-group-logo.png')
+            .setFooter({
+              text: 'The Real Ops Group',
+              iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'
+            });
+          if (sc.image && sc.image.match(/^https?:\/\/.*\.(png|jpg|jpeg|gif|webp)$/i)) {
+            embed.setImage(sc.image);
+          } else if (sc.image) {
+            embed.addFields({ name: 'Image link', value: `[View Image](${sc.image})` });
+          }
+          return embed;
+        })
+      ];
 
       await interaction.editReply({ content: `📄 Event scenarios sent for <@${user.id}>.` });
-      await interaction.channel.send({ content: `<@${user.id}>`, embeds: [embed] });
+      await interaction.channel.send({ content: `<@${user.id}>`, embeds });
     } catch (error) {
       console.error('Error in /realopsscenarios:', error);
-      try {
-        if (!interaction.replied && !interaction.deferred) {
+      // Only reply if not already replied or deferred
+      if (!interaction.replied && !interaction.deferred) {
+        try {
           await interaction.reply({ content: 'An error occurred while sending the scenarios.', ephemeral: true });
-        } else if (interaction.deferred && !interaction.replied) {
+        } catch (err) {}
+      } else if (!interaction.replied && interaction.deferred) {
+        try {
           await interaction.editReply({ content: 'An error occurred while sending the scenarios.' });
-        }
-      } catch (err) {}
+        } catch (err) {}
+      }
     }
   }
 };

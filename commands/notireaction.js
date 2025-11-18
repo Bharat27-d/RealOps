@@ -44,7 +44,7 @@ module.exports = {
       .setDescription(EMBED_DESCRIPTION)
       .setThumbnail(TITLE_ICON_URL)
       .setImage(SIDE_IMAGE_URL)
-      .setColor('#191C21')
+      .setColor('#FF0000')
       .setFooter({ text: 'The Real Ops Group', iconURL: TITLE_ICON_URL });
 
     const row = new ActionRowBuilder().addComponents(

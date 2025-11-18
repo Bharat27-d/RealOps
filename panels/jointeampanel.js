@@ -50,6 +50,14 @@ function createModal() {
         .setRequired(true)
         .setMaxLength(100);
     
+    const truckermpIdInput = new TextInputBuilder()
+        .setCustomId('truckermp_id_input')
+        .setLabel('Your TruckerMP ID')
+        .setStyle(TextInputStyle.Short)
+        .setRequired(true)
+        .setMaxLength(20)
+        .setPlaceholder('e.g., 12345678');
+    
     const experienceInput = new TextInputBuilder()
         .setCustomId('experience_input')
         .setLabel('What Experience Do You Have For This Role?')
@@ -70,21 +78,14 @@ function createModal() {
         .setStyle(TextInputStyle.Paragraph)
         .setRequired(true)
         .setMaxLength(200);
-    
-    const aboutYourselfInput = new TextInputBuilder()
-        .setCustomId('about_yourself_input')
-        .setLabel('Please Tell Us A Little Bit About Yourself!')
-        .setStyle(TextInputStyle.Paragraph)
-        .setRequired(true)
-        .setMaxLength(1000);
 
     // Add inputs to rows
     modal.addComponents(
         new ActionRowBuilder().addComponents(positionInput),
+        new ActionRowBuilder().addComponents(truckermpIdInput),
         new ActionRowBuilder().addComponents(experienceInput),
         new ActionRowBuilder().addComponents(whyChooseInput),
-        new ActionRowBuilder().addComponents(timeInput),
-        new ActionRowBuilder().addComponents(aboutYourselfInput)
+        new ActionRowBuilder().addComponents(timeInput)
     );
 
     return modal;
@@ -121,6 +122,11 @@ function createResponseEmbed(user, data, ticketId) {
         data.position,
         '```',
         '',
+        '**Your TruckerMP ID**',
+        '```',
+        data.truckermpId,
+        '```',
+        '',
         '**What experiance do you have for this role ?**',
         '```',
         data.experience,
@@ -134,11 +140,6 @@ function createResponseEmbed(user, data, ticketId) {
         '**How much time can you dedicate to this role ?**',
         '```',
         data.timeCommitment,
-        '```',
-        '',
-        '**Please tell us a little bit about yourself !**',
-        '```',
-        data.aboutYourself,
         '```',
         '',
         `**Discord Username:** ${user.tag}`,
@@ -162,10 +163,10 @@ function createResponseEmbed(user, data, ticketId) {
 function processSubmittedData(interaction) {
     return {
         position: interaction.fields.getTextInputValue('position_input'),
+        truckermpId: interaction.fields.getTextInputValue('truckermp_id_input'),
         experience: interaction.fields.getTextInputValue('experience_input'),
         whyChoose: interaction.fields.getTextInputValue('why_choose_input'),
         timeCommitment: interaction.fields.getTextInputValue('time_input'),
-        aboutYourself: interaction.fields.getTextInputValue('about_yourself_input'),
         submittedAt: formatDateUTC(new Date()),
         timestamp: getUnixTimestamp()
     };

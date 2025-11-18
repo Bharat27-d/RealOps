@@ -1,17 +1,22 @@
-// No .env or secret values here! Only static config.
 
 module.exports = {
-    // Staff roles that can see and manage tickets (use arrays for multiple roles)
+    // Discord credentials
+    BOT_TOKEN: 'MTM4NzAxMzIzNjQwNjM1Mzk5MQ.G2yBLK.gLd8xp4QQAY1l3lM64h54XW2YV94_ULdI_Ofq4',
+    CLIENT_ID: '1387013236406353991',
+    GUILD_ID: '1291110532837015584',
+
+    // Staff roles that can see and manage tickets
     staffRoles: {
         admin: [''],
         moderator: ['1292218198028058674', '1300518058749853716'],
         support: ['1291394387888177193'],
         partnership: ['1300834129780150272'],
-        founders: ['1291116832308068448','1291139504786378823'],
+        founders: ['1291116832308068448', '1291139504786378823'],
         hr: ['1292896422949163120'],
-        bookings: ['1292218198028058674', '1300518058749853716'],
+        bookings: ['1292218198028058674', '1300518058749853716']
     },
 
+    // Ticket panel category IDs
     ticketCategories: {
         joinTeam: '1292866127549956107',
         bookUs: '1292859420333707294',
@@ -21,6 +26,7 @@ module.exports = {
         hr: '1292867139593834597'
     },
 
+    // Channel configuration
     logChannel: '1291495743277895751',
     transcriptChannel: '1291495743277895751',
     WELCOME_CHANNEL_ID: '1374056199518945462',
@@ -30,6 +36,7 @@ module.exports = {
         staffOpenings: '1291739954791059527'
     },
 
+    // Emoji configuration
     emojis: {
         joinTeam: '👥',
         bookUs: '📅',
@@ -41,6 +48,7 @@ module.exports = {
         delete: '🗑️'
     },
 
+    // Role IDs used across the bot
     ROLES: {
         JNR_PLANNER: '1345496957082406972',
         DEVELOPER: '1386691716945543240',
@@ -55,6 +63,6 @@ module.exports = {
         ES: '1291122540864864348',
         PL: '1291818052744253612',
         M: '1296423697711894528',
-        STAFF: '1291122795190812774',
+        STAFF: '1291122795190812774'
     }
 };

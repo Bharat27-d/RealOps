@@ -79,34 +79,35 @@ function getUnixTimestamp() {
     return Math.floor(Date.now() / 1000);
 }
 
+// Convert UTC date string to Unix timestamp
+function dateStringToUnixTimestamp(dateString) {
+    try {
+        const date = new Date(dateString);
+        return Math.floor(date.getTime() / 1000);
+    } catch (error) {
+        console.error('Error converting date string to timestamp:', error);
+        return null;
+    }
+}
+
 // Extract event ID from TruckerMP event link
 function extractEventId(eventLink) {
     if (!eventLink || typeof eventLink !== 'string') {
         console.log('Invalid event link provided');
         return null;
     }
-    
     try {
-        // Common patterns for TruckerMP event links
         const patterns = [
             /truckersmp\.com\/events\/(\d+)/i,
             /truckersmp\.com\/en\/events\/(\d+)/i,
             /truckersmp\.com\/[a-z]{2}\/events\/(\d+)/i,
         ];
-        
         for (const pattern of patterns) {
             const match = eventLink.match(pattern);
-            if (match && match[1]) {
-                return match[1];
-            }
+            if (match && match[1]) return match[1];
         }
-        
-        // If no match, try to find any numeric ID in the URL
         const numericMatch = eventLink.match(/(\d+)/);
-        if (numericMatch && numericMatch[1]) {
-            return numericMatch[1];
-        }
-        
+        if (numericMatch && numericMatch[1]) return numericMatch[1];
         console.log('No event ID found in link:', eventLink);
         return null;
     } catch (error) {
@@ -115,13 +116,30 @@ function extractEventId(eventLink) {
     }
 }
 
+// NEW: Fetch meetup/start times from TruckerMP API for a given event link
+async function getEventTimeInfo(eventLink) {
+    const eventId = extractEventId(eventLink);
+    if (!eventId) return null;
+    try {
+        const response = await axios.get(`https://api.truckersmp.com/v2/events/${eventId}`);
+        const apiData = response.data;
+        if (!apiData?.response) return null;
+        const event = apiData.response;
+        const meetup_at = event.meetup_at || null;
+        const start_at = event.start_at || null;
+        const meetupTs = meetup_at ? dateStringToUnixTimestamp(meetup_at) : null;
+        const startTs = start_at ? dateStringToUnixTimestamp(start_at) : null;
+        return { eventId, meetup_at, start_at, meetupTs, startTs };
+    } catch (err) {
+        console.error('Error fetching event time info:', err?.message || err);
+        return null;
+    }
+}
+
 // Format submitted data into an embed
 function createResponseEmbed(user, data, ticketId) {
-    // Get Unix timestamp for Discord timestamp
     const timestamp = getUnixTimestamp();
-    
-    // Create the base description with questions as headers and answers in code blocks
-    const description = [
+    const descriptionParts = [
         `Request submitted by <@${user.id}>`,
         '',
         '**Your Discord name**',
@@ -137,17 +155,29 @@ function createResponseEmbed(user, data, ticketId) {
         '**TruckerMP event link**',
         '```',
         data.eventLink || 'Not provided',
-        '```',
+        '```'
+    ];
+
+    // Include event date info if present (fetched earlier in the flow)
+    if (data.eventStartAt || data.eventMeetupAt) {
+        if (data.eventStartAt && data.eventStartTs) {
+            descriptionParts.push('', '**Start Time**', '```', `${data.eventStartAt}`, '```', `<t:${data.eventStartTs}:F> (<t:${data.eventStartTs}:R>)`);
+        }
+        if (data.eventMeetupAt && data.eventMeetupTs) {
+            descriptionParts.push('', '**Meetup Time**', '```', `${data.eventMeetupAt}`, '```', `<t:${data.eventMeetupTs}:F> (<t:${data.eventMeetupTs}:R>)`);
+        }
+    }
+
+    descriptionParts.push(
         '',
         `**Discord Username:** ${user.tag}`,
         `**Discord ID:** ${user.id}`,
-        `**Submitted At:** <t:${timestamp}:F>` // Discord timestamp that shows in user's local time
-    ].join('\n');
-    
-    // Create embed with base information
-    const embed = new EmbedBuilder()
+        `**Submitted At:** <t:${timestamp}:F>`
+    );
+
+    return new EmbedBuilder()
         .setTitle('Book Us Request')
-        .setDescription(description)
+        .setDescription(descriptionParts.join('\n'))
         .setColor('#e74c3c')
         .setFooter({ 
             text: `Ticket ID: ${ticketId}`, 
@@ -155,24 +185,16 @@ function createResponseEmbed(user, data, ticketId) {
         })
         .setThumbnail(user.displayAvatarURL())
         .setTimestamp();
-    
-    return embed;
 }
 
 // Process the submitted data
 function processSubmittedData(interaction) {
     const timestamp = getUnixTimestamp();
-    
     try {
         const discordName = interaction.fields.getTextInputValue('discord_name') || '';
         const vtcRole = interaction.fields.getTextInputValue('vtc_role') || '';
         const eventLink = interaction.fields.getTextInputValue('event_link') || '';
-        
-        console.log(`Processing data: Discord Name: ${discordName}, VTC Role: ${vtcRole}, Event Link: ${eventLink}`);
-        
-        // Get event ID from the link
         const eventId = extractEventId(eventLink);
-        
         return {
             discordName,
             vtcRole,
@@ -183,8 +205,6 @@ function processSubmittedData(interaction) {
         };
     } catch (error) {
         console.error('Error processing submitted data:', error);
-        
-        // Return default values to prevent undefined errors
         return {
             discordName: 'Error retrieving data',
             vtcRole: 'Error retrieving data',
@@ -197,14 +217,11 @@ function processSubmittedData(interaction) {
 
 async function sendEventDetails(channel, eventData, user) {
     try {
-        // Extract event ID from data or link
         let eventId = eventData.eventId;
         if (!eventId && eventData.eventLink) {
             eventId = extractEventId(eventData.eventLink);
         }
-        
         if (!eventId) {
-            console.log('No valid event ID found in data');
             await channel.send({
                 embeds: [
                     new EmbedBuilder()
@@ -215,15 +232,9 @@ async function sendEventDetails(channel, eventData, user) {
             });
             return;
         }
-        
-        console.log(`Fetching event details for ID: ${eventId}`);
-        
-        // Use axios for API request
         const response = await axios.get(`https://api.truckersmp.com/v2/events/${eventId}`);
         const apiData = response.data;
-        
         if (!apiData.response) {
-            console.error('Invalid API response structure:', apiData);
             await channel.send({
                 embeds: [
                     new EmbedBuilder()
@@ -234,12 +245,8 @@ async function sendEventDetails(channel, eventData, user) {
             });
             return;
         }
-        
-        // Get the event data from the response
         const event = apiData.response;
-        console.log('Event data fetched:', event.name);
-        
-        // === 1. Main Event Details Embed ===
+
         const eventEmbed = new EmbedBuilder()
             .setTitle(`📅 TruckerMP Event Details`)
             .setColor('#3498db')
@@ -252,17 +259,34 @@ async function sendEventDetails(channel, eventData, user) {
         if (event.departure?.city) {
             eventEmbed.addFields({ name: 'Departure City', value: event.departure.city, inline: true });
         }
-
         if (event.arrive?.city) {
             eventEmbed.addFields({ name: 'Arrival City', value: event.arrive.city, inline: true });
         }
 
         if (event.meetup_at) {
-            eventEmbed.addFields({ name: 'Meetup Time (UTC)', value: `\`${event.meetup_at}\``, inline: false });
+            const meetupTimestamp = dateStringToUnixTimestamp(event.meetup_at);
+            if (meetupTimestamp) {
+                eventEmbed.addFields({ 
+                    name: 'Meetup Time', 
+                    value: `<t:${meetupTimestamp}:F> (<t:${meetupTimestamp}:R>)`, 
+                    inline: false 
+                });
+            } else {
+                eventEmbed.addFields({ name: 'Meetup Time (UTC)', value: `\`${event.meetup_at}\``, inline: false });
+            }
         }
 
         if (event.start_at) {
-            eventEmbed.addFields({ name: 'Start Time (UTC)', value: `\`${event.start_at}\``, inline: false });
+            const startTimestamp = dateStringToUnixTimestamp(event.start_at);
+            if (startTimestamp) {
+                eventEmbed.addFields({ 
+                    name: 'Start Time', 
+                    value: `<t:${startTimestamp}:F> (<t:${startTimestamp}:R>)`, 
+                    inline: false 
+                });
+            } else {
+                eventEmbed.addFields({ name: 'Start Time (UTC)', value: `\`${event.start_at}\``, inline: false });
+            }
         }
 
         eventEmbed.addFields({
@@ -271,38 +295,30 @@ async function sendEventDetails(channel, eventData, user) {
             inline: false
         });
 
-        // === 2. Banner Embed ===
         const bannerEmbed = new EmbedBuilder()
             .setTitle('📢 Event Banner')
             .setColor('#2ecc71')
             .setImage(event.banner || 'https://via.placeholder.com/800x200?text=No+Banner+Available');
 
-        // === 3. Map Embed ===
         const mapEmbed = new EmbedBuilder()
             .setTitle('🗺️ Event Map')
             .setColor('#e67e22')
             .setImage(event.map || 'https://via.placeholder.com/800x200?text=No+Map+Available');
 
-            const actionRow = new ActionRowBuilder()
+        const actionRow = new (require('discord.js').ActionRowBuilder)()
             .addComponents(
-                new ButtonBuilder()
+                new (require('discord.js').ButtonBuilder)()
                     .setCustomId('event_accept')
                     .setLabel('Accept')
-                    .setStyle(ButtonStyle.Success),
-                new ButtonBuilder()
+                    .setStyle((require('discord.js').ButtonStyle).Success),
+                new (require('discord.js').ButtonBuilder)()
                     .setCustomId('event_decline')
                     .setLabel('Decline')
-                    .setStyle(ButtonStyle.Danger)
+                    .setStyle((require('discord.js').ButtonStyle).Danger)
             );
 
-        // === Send all 3 embeds ===
         await channel.send({ embeds: [eventEmbed, bannerEmbed] });
-
-        await channel.send({
-    embeds: [mapEmbed],
-    components: [actionRow]
-});
-
+        await channel.send({ embeds: [mapEmbed], components: [actionRow] });
 
     } catch (error) {
         console.error('Error processing event details:', error);
@@ -317,13 +333,13 @@ async function sendEventDetails(channel, eventData, user) {
     }
 }
 
-
 module.exports = {
     sendPanel,
     createModal,
     createResponseEmbed,
     processSubmittedData,
     sendEventDetails,
+    getEventTimeInfo, // <-- export new helper
     ticketType: 'bookUs',
     buttonId: 'bookus_button',
     modalId: 'bookus_modal'

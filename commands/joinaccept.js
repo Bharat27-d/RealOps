@@ -12,8 +12,11 @@ module.exports = {
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageRoles), // Adjust permission as needed
 
   async execute(interaction) {
+    // Always defer immediately!
     try {
+      console.log("About to defer reply"); // Debug log
       await interaction.deferReply({ ephemeral: true });
+      console.log("Deferred reply"); // Debug log
 
       const user = interaction.options.getUser('user');
       if (!user) {
@@ -37,7 +40,7 @@ module.exports = {
     } catch (error) {
       console.error('Error in /joinaccept:', error);
       try {
-        if (!interaction.replied && !interaction.deferred) {
+        if (!interaction.deferred && !interaction.replied) {
           await interaction.reply({ content: 'An error occurred while processing the acceptance.', ephemeral: true });
         } else if (interaction.deferred && !interaction.replied) {
           await interaction.editReply({ content: 'An error occurred while processing the acceptance.' });

@@ -1,6 +1,13 @@
 const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } = require('discord.js');
 const axios = require('axios');
 
+// Helper to format ISO date as Discord timestamp
+function toDiscordTimestamp(iso, style = 'F') {
+    if (!iso) return 'N/A';
+    const unix = Math.floor(new Date(iso).getTime() / 1000);
+    return `<t:${unix}:${style}>`;
+}
+
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('staff-resources')
@@ -68,8 +75,8 @@ module.exports = {
 
         if (eventData.departure?.city) embed.addFields({ name: 'Departure', value: eventData.departure.city, inline: true });
         if (eventData.arrive?.city) embed.addFields({ name: 'Arrival', value: eventData.arrive.city, inline: true });
-        if (eventData.meetup_at) embed.addFields({ name: 'Meetup Time (UTC)', value: `\`${eventData.meetup_at}\``, inline: false });
-        if (eventData.start_at) embed.addFields({ name: 'Start Time (UTC)', value: `\`${eventData.start_at}\``, inline: false });
+        if (eventData.meetup_at) embed.addFields({ name: 'Meetup Time', value: toDiscordTimestamp(eventData.meetup_at, 'F'), inline: false });
+        if (eventData.start_at) embed.addFields({ name: 'Start Time', value: toDiscordTimestamp(eventData.start_at, 'F'), inline: false });
 
         embed.addFields({ name: 'Event Link', value: `[View on TruckerMP](https://truckersmp.com/events/${eventId})` });
 

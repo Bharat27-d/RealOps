@@ -33,6 +33,13 @@ module.exports = {
         }
         if (!eventData) return interaction.editReply('❌ Event not found!');
 
+        // Helper to convert ISO 8601 UTC string to Discord timestamp
+        function toDiscordTimestamp(isoString) {
+            if (!isoString) return 'N/A';
+            const unix = Math.floor(new Date(isoString).getTime() / 1000);
+            return `<t:${unix}:F>`; // F = full date/time, you can use other formats if you want
+        }
+
         // 3. Prepare embed for event details (with map image, no banner)
         const embed = new EmbedBuilder()
             .setTitle(`📅 ${eventData.name}`)
@@ -44,8 +51,8 @@ module.exports = {
             );
         if (eventData.departure?.city) embed.addFields({ name: 'Departure', value: eventData.departure.city, inline: true });
         if (eventData.arrive?.city) embed.addFields({ name: 'Arrival', value: eventData.arrive.city, inline: true });
-        if (eventData.meetup_at) embed.addFields({ name: 'Meetup Time (UTC)', value: `\`${eventData.meetup_at}\``, inline: false });
-        if (eventData.start_at) embed.addFields({ name: 'Start Time (UTC)', value: `\`${eventData.start_at}\``, inline: false });
+        if (eventData.meetup_at) embed.addFields({ name: 'Meetup Time', value: toDiscordTimestamp(eventData.meetup_at), inline: false });
+        if (eventData.start_at) embed.addFields({ name: 'Start Time', value: toDiscordTimestamp(eventData.start_at), inline: false });
         embed.addFields({ name: 'Event Link', value: `[View on TruckerMP](https://truckersmp.com/events/${eventId})` });
         // Only add map image (not banner)
         if (eventData.map) embed.setImage(eventData.map);
