@@ -128,7 +128,7 @@ module.exports = {
       const introEmbed = new EmbedBuilder()
         .setTitle('Real Ops Event Scenarios')
         .setDescription('Our planning team have completed the scenarios for your event, please look over these and let us know if you would like any changes.')
-        .setColor('#23272A')
+        .setColor('#00b894')
         .setThumbnail('https://i.ibb.co/FMYFdhk/real-ops-group-logo.png');
 
       // Create embeds per scenario
