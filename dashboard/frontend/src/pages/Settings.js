@@ -392,8 +392,7 @@ function Settings() {
       const response = await auth.changePassword(currentPassword, newPassword);
 
       if (response.data.success) {
-        toast.success('Password change initiated successfully!');
-        toast.info(`Update .env file with: ADMIN_PASSWORD=${response.data.newPassword}`, { autoClose: 10000 });
+        toast.success('Password changed successfully! You can now use your new password to login.');
         setCurrentPassword('');
         setNewPassword('');
         setConfirmPassword('');
@@ -513,7 +512,7 @@ function Settings() {
             </div>
 
             <div style={{ marginTop: '15px', padding: '10px', background: '#2C2F33', borderRadius: '4px', fontSize: '13px', color: '#dcddde' }}>
-              <strong>Note:</strong> After changing the password, you'll need to update the <code>ADMIN_PASSWORD</code> in your server's <code>.env</code> file and restart the backend for the change to take effect.
+              <strong>Note:</strong> The password will be updated immediately and persisted to the server configuration. You can use the new password right away.
             </div>
           </form>
         )}

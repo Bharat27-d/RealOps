@@ -4,6 +4,8 @@ const session = require('express-session');
 const { passport, isAuthenticated } = require('./auth');
 const botManager = require('./discordManager');
 const reminderScheduler = require('./reminderScheduler');
+const fs = require('fs');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
@@ -85,11 +87,21 @@ app.post('/auth/change-password', isAuthenticated, async (req, res) => {
       return res.status(400).json({ error: 'New password must be at least 8 characters long' });
     }
 
-    // Note: In production, you would update the password in a secure location
-    // For now, we'll return success but note that .env needs manual update
+    // Update .env file
+    const envPath = path.join(__dirname, '.env');
+    let envContent = fs.readFileSync(envPath, 'utf8');
+    const updatedContent = envContent.replace(
+      /ADMIN_PASSWORD=.*/,
+      `ADMIN_PASSWORD=${newPassword}`
+    );
+    fs.writeFileSync(envPath, updatedContent, 'utf8');
+    
+    // Update the environment variable in memory
+    process.env.ADMIN_PASSWORD = newPassword;
+
     res.json({ 
       success: true, 
-      message: 'Password verified. Please update ADMIN_PASSWORD in your .env file on the server and restart the application.',
+      message: 'Password updated successfully! You can now login with your new password.',
       newPassword: newPassword
     });
   } catch (error) {
