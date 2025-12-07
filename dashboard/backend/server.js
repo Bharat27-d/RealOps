@@ -65,6 +65,39 @@ app.get('/auth/user', isAuthenticated, (req, res) => {
   res.json(req.user);
 });
 
+// Change password route
+app.post('/auth/change-password', isAuthenticated, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    // Only allow admin to change password
+    if (req.user.id !== 'admin') {
+      return res.status(403).json({ error: 'Only admin can change password' });
+    }
+
+    // Verify current password
+    if (currentPassword !== process.env.ADMIN_PASSWORD) {
+      return res.status(401).json({ error: 'Current password is incorrect' });
+    }
+
+    // Validate new password
+    if (!newPassword || newPassword.length < 8) {
+      return res.status(400).json({ error: 'New password must be at least 8 characters long' });
+    }
+
+    // Note: In production, you would update the password in a secure location
+    // For now, we'll return success but note that .env needs manual update
+    res.json({ 
+      success: true, 
+      message: 'Password verified. Please update ADMIN_PASSWORD in your .env file on the server and restart the application.',
+      newPassword: newPassword
+    });
+  } catch (error) {
+    console.error('Change password error:', error);
+    res.status(500).json({ error: 'Failed to change password' });
+  }
+});
+
 // API Routes
 app.use('/api/events', require('./routes/events'));
 app.use('/api/tickets', require('./routes/tickets'));

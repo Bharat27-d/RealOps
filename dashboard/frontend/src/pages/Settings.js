@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { toast } from 'react-toastify';
 import { FaCog, FaSave, FaDiscord, FaSearch } from 'react-icons/fa';
-import { config as configApi } from '../services/api';
+import { config as configApi, auth } from '../services/api';
 
 // Role Selector Component
 function RoleSelector({ roleKey, label, selectedRoleIds, discordRoles, updateConfig }) {
@@ -305,6 +305,13 @@ function Settings() {
   const [discordChannels, setDiscordChannels] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  
+  // Password change states
+  const [showPasswordSection, setShowPasswordSection] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [changingPassword, setChangingPassword] = useState(false);
 
   useEffect(() => {
     fetchConfig();
@@ -367,6 +374,40 @@ function Settings() {
     }
   };
 
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    
+    if (newPassword !== confirmPassword) {
+      toast.error('New passwords do not match');
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      toast.error('Password must be at least 8 characters long');
+      return;
+    }
+
+    setChangingPassword(true);
+    try {
+      const response = await auth.changePassword(currentPassword, newPassword);
+
+      if (response.data.success) {
+        toast.success('Password change initiated successfully!');
+        toast.info(`Update .env file with: ADMIN_PASSWORD=${response.data.newPassword}`, { autoClose: 10000 });
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+        setShowPasswordSection(false);
+      }
+    } catch (error) {
+      console.error('Password change error:', error);
+      const errorMessage = error.response?.data?.error || error.message || 'Failed to change password';
+      toast.error(errorMessage);
+    } finally {
+      setChangingPassword(false);
+    }
+  };
+
   const updateConfig = (path, value) => {
     setConfig(prev => {
       const newConfig = { ...prev };
@@ -394,6 +435,88 @@ function Settings() {
         <button onClick={handleSave} className="btn" disabled={saving}>
           <FaSave /> {saving ? 'Saving...' : 'Save Configuration'}
         </button>
+      </div>
+
+      {/* Password Change Section */}
+      <div className="card" style={{ marginBottom: '20px' }}>
+        <h3 style={{ marginBottom: '15px', color: '#FFD700' }}>
+          Change Admin Password
+        </h3>
+        
+        {!showPasswordSection ? (
+          <button 
+            onClick={() => setShowPasswordSection(true)}
+            className="btn"
+            style={{ background: '#5865F2' }}
+          >
+            Change Password
+          </button>
+        ) : (
+          <form onSubmit={handleChangePassword}>
+            <div className="form-group">
+              <label>Current Password</label>
+              <input
+                type="password"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                required
+                placeholder="Enter current password"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>New Password</label>
+              <input
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+                minLength={8}
+                placeholder="Enter new password (min 8 characters)"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Confirm New Password</label>
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                minLength={8}
+                placeholder="Confirm new password"
+              />
+            </div>
+
+            <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
+              <button 
+                type="submit" 
+                className="btn"
+                disabled={changingPassword}
+                style={{ background: '#43b581' }}
+              >
+                {changingPassword ? 'Changing...' : 'Update Password'}
+              </button>
+              <button 
+                type="button"
+                onClick={() => {
+                  setShowPasswordSection(false);
+                  setCurrentPassword('');
+                  setNewPassword('');
+                  setConfirmPassword('');
+                }}
+                className="btn"
+                style={{ background: '#f04747' }}
+              >
+                Cancel
+              </button>
+            </div>
+
+            <div style={{ marginTop: '15px', padding: '10px', background: '#2C2F33', borderRadius: '4px', fontSize: '13px', color: '#dcddde' }}>
+              <strong>Note:</strong> After changing the password, you'll need to update the <code>ADMIN_PASSWORD</code> in your server's <code>.env</code> file and restart the backend for the change to take effect.
+            </div>
+          </form>
+        )}
       </div>
 
       <div className="card">

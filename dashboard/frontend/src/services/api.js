@@ -14,7 +14,8 @@ const api = axios.create({
 export const auth = {
   getUser: () => api.get('/auth/user'),
   logout: () => api.get('/auth/logout'),
-  emailLogin: (email, password) => api.post('/auth/login', { email, password })
+  emailLogin: (email, password) => api.post('/auth/login', { email, password }),
+  changePassword: (currentPassword, newPassword) => api.post('/auth/change-password', { currentPassword, newPassword })
 };
 
 // Events endpoints
