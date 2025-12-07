@@ -10,6 +10,7 @@ function Roles() {
   const [channels, setChannels] = useState([]);
   const [discordRoles, setDiscordRoles] = useState([]);
   const [members, setMembers] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('analytics'); // 'analytics', 'auto', 'nickname'
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, ruleId: null });
 
