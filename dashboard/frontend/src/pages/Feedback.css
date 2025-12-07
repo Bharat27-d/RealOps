@@ -1,0 +1,132 @@
+/* Simple Yellow and Black Theme - No animations */
+.feedback-page {
+  background: #000;
+  min-height: 100vh;
+}
+
+.page-header {
+  background: #FFD700;
+  border: 2px solid #FFA500;
+}
+
+.doc-card {
+  background: #1a1a1a;
+  border: 2px solid #FFD700;
+  transition: all 0.3s ease;
+}
+
+.doc-card:hover {
+  transform: translateY(-5px);
+  border-color: #FFA500;
+}
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #1a1a1a;
+  border: 2px solid #FFD700;
+  border-radius: 10px;
+  max-width: 550px;
+  width: 90%;
+  overflow: hidden;
+}
+
+.modal-header {
+  background: #FFD700;
+  padding: 20px 25px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: #000;
+  font-size: 20px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.close-btn {
+  background: rgba(0, 0, 0, 0.2);
+  border: none;
+  color: #000;
+  font-size: 28px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 700;
+}
+
+.close-btn:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.btn-primary {
+  background: #FFD700;
+  color: #000;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-primary:hover {
+  background: #FFA500;
+}
+
+.input-field {
+  width: 100%;
+  background: #000;
+  border: 2px solid #333;
+  color: #FFD700;
+  padding: 12px 15px;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.input-field:focus {
+  border-color: #FFD700;
+}
+
+.channel-item {
+  width: 100%;
+  background: #000;
+  border: 2px solid #333;
+  color: #888;
+  padding: 12px 15px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  margin-bottom: 10px;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.channel-item:hover {
+  border-color: #FFD700;
+  color: #FFD700;
+}
