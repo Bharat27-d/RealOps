@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { partnerships, discord } from '../services/api';
 import { toast } from 'react-toastify';
-import { FaHandshake, FaPlus, FaPaperPlane, FaBullhorn } from 'react-icons/fa';
+import { FaHandshake, FaBullhorn } from 'react-icons/fa';
 import ConfirmDialog from '../components/ConfirmDialog';
 
 function Partnerships() {
@@ -63,6 +63,7 @@ function Partnerships() {
 
 
 
+  // eslint-disable-next-line no-unused-vars
   const handleStatusUpdate = async (id, newStatus, notes = '') => {
     try {
       await partnerships.updateStatus(id, newStatus, notes);
@@ -157,6 +158,7 @@ function Partnerships() {
     }
   };
 
+  // eslint-disable-next-line no-unused-vars
   const getStatusColor = (status) => {
     const colors = {
       pending: '#ffc107',

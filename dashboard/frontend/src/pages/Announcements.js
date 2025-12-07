@@ -779,20 +779,6 @@ function Announcements() {
     }
   };
 
-  const toggleChannelSelection = (channelId) => {
-    if (broadcastData.channelIds.includes(channelId)) {
-      setBroadcastData({
-        ...broadcastData,
-        channelIds: broadcastData.channelIds.filter(id => id !== channelId)
-      });
-    } else {
-      setBroadcastData({
-        ...broadcastData,
-        channelIds: [...broadcastData.channelIds, channelId]
-      });
-    }
-  };
-
   const getStatusColor = (status) => {
     const colors = {
       scheduled: '#FFD700',

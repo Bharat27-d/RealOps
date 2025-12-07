@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { discord, embeds, staff } from '../services/api';
 import { toast } from 'react-toastify';
-import { FaBook, FaPaperPlane, FaFileAlt, FaUserPlus, FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
+import { FaBook, FaPaperPlane, FaFileAlt, FaUserPlus } from 'react-icons/fa';
 import './Feedback.css';
 
 function Feedback() {
@@ -147,6 +147,7 @@ function Feedback() {
     if (showCreateOpening && discordRoles.length > 0 && openingForm.roles.length === 0) {
       initializeRoles();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showCreateOpening, discordRoles]);
 
   const handleSendMessage = async () => {
