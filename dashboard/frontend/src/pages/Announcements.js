@@ -582,7 +582,9 @@ function Announcements() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('broadcast'); // 'broadcast' or 'scheduled'
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, messageId: null });
+  const [savedTemplates, setSavedTemplates] = useState([]);
   const [broadcastData, setBroadcastData] = useState({
+    templateName: '',
     channelIds: [],
     mentions: [],
     embedData: {
@@ -605,6 +607,7 @@ function Announcements() {
   const embedAuthorRef = useRef(null);
 
   const [scheduleData, setScheduleData] = useState({
+    templateName: '',
     channelIds: [],
     mentions: [],
     scheduleTime: '',
@@ -779,6 +782,68 @@ function Announcements() {
     }
   };
 
+  const saveTemplate = (data, type) => {
+    if (!data.templateName) {
+      toast.error('Please enter a template name');
+      return;
+    }
+
+    const template = {
+      name: data.templateName,
+      type: type, // 'broadcast' or 'schedule'
+      data: {
+        embedData: data.embedData,
+        mentions: data.mentions || [],
+        channelIds: data.channelIds || [],
+        ...(type === 'schedule' && { repeat: data.repeat })
+      },
+      createdAt: new Date().toISOString()
+    };
+
+    const templates = JSON.parse(localStorage.getItem('announcementTemplates') || '[]');
+    templates.push(template);
+    localStorage.setItem('announcementTemplates', JSON.stringify(templates));
+    setSavedTemplates(templates);
+    toast.success('Template saved successfully!');
+  };
+
+  const loadTemplate = (template) => {
+    if (template.type === 'broadcast') {
+      setBroadcastData({
+        ...broadcastData,
+        templateName: template.name,
+        embedData: template.data.embedData,
+        mentions: template.data.mentions || [],
+        channelIds: template.data.channelIds || []
+      });
+      setActiveTab('broadcast');
+    } else if (template.type === 'schedule') {
+      setScheduleData({
+        ...scheduleData,
+        templateName: template.name,
+        embedData: template.data.embedData,
+        mentions: template.data.mentions || [],
+        channelIds: template.data.channelIds || [],
+        repeat: template.data.repeat || 'none'
+      });
+      setActiveTab('scheduled');
+    }
+    toast.success(`Template "${template.name}" loaded!`);
+  };
+
+  const deleteTemplate = (index) => {
+    const templates = JSON.parse(localStorage.getItem('announcementTemplates') || '[]');
+    templates.splice(index, 1);
+    localStorage.setItem('announcementTemplates', JSON.stringify(templates));
+    setSavedTemplates(templates);
+    toast.success('Template deleted');
+  };
+
+  useEffect(() => {
+    const templates = JSON.parse(localStorage.getItem('announcementTemplates') || '[]');
+    setSavedTemplates(templates);
+  }, []);
+
   const getStatusColor = (status) => {
     const colors = {
       scheduled: '#FFD700',
@@ -834,6 +899,25 @@ function Announcements() {
             <div style={{ padding: '20px' }}>
             
             <div style={{ display: 'grid', gap: '24px' }}>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label>📝 Template Name (Optional)</label>
+                <input
+                  type="text"
+                  value={broadcastData.templateName}
+                  onChange={(e) => setBroadcastData({ ...broadcastData, templateName: e.target.value })}
+                  placeholder="My Announcement Template"
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    backgroundColor: '#2a2a2a',
+                    border: '1px solid #3a3a3a',
+                    borderRadius: '6px',
+                    color: '#ccc',
+                    fontSize: '14px'
+                  }}
+                />
+              </div>
+
               <div className="form-group" style={{ marginBottom: 0 }}>
                 <label>
                   📍 Select Channels
@@ -1350,7 +1434,27 @@ function Announcements() {
                   </div>
                 </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px' }}>
+                <button 
+                  className="btn" 
+                  onClick={() => saveTemplate(broadcastData, 'broadcast')}
+                  style={{
+                    padding: '14px 28px',
+                    backgroundColor: '#5865F2',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    transition: 'all 0.2s',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}
+                >
+                  💾 Save as Template
+                </button>
                 <button 
                   className="btn btn-primary btn-large" 
                   onClick={handleBroadcast}
@@ -1510,6 +1614,27 @@ function Announcements() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 400px', gap: '24px' }}>
               {/* Form Section */}
               <div style={{ display: 'grid', gap: '24px' }}>
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label style={{ display: 'block', marginBottom: '10px', fontWeight: '500', color: '#ccc', fontSize: '14px' }}>
+                    📝 Template Name (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={scheduleData.templateName}
+                    onChange={(e) => setScheduleData({ ...scheduleData, templateName: e.target.value })}
+                    placeholder="Enter a name to save this as a template"
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      backgroundColor: '#2a2a2a',
+                      border: '1px solid #444',
+                      borderRadius: '8px',
+                      color: '#fff',
+                      fontSize: '14px'
+                    }}
+                  />
+                </div>
+
                 <div className="form-group" style={{ marginBottom: 0 }}>
                 <label style={{ display: 'block', marginBottom: '10px', fontWeight: '500', color: '#ccc', fontSize: '14px' }}>
                   📍 Select Channels *
@@ -2229,7 +2354,7 @@ function Announcements() {
               </div>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '24px' }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '24px' }}>
               <button 
                 className="btn btn-success btn-large" 
                 onClick={handleSchedule}
@@ -2250,6 +2375,27 @@ function Announcements() {
                 }}
               >
                 <FaCalendarAlt /> Schedule Message
+              </button>
+              <button
+                className="btn btn-secondary"
+                onClick={() => saveTemplate(scheduleData, 'schedule')}
+                disabled={!scheduleData.templateName}
+                style={{
+                  padding: '14px 20px',
+                  backgroundColor: scheduleData.templateName ? '#4a4a4a' : '#2a2a2a',
+                  color: scheduleData.templateName ? '#fff' : '#666',
+                  border: '1px solid #555',
+                  borderRadius: '8px',
+                  cursor: scheduleData.templateName ? 'pointer' : 'not-allowed',
+                  fontSize: '15px',
+                  fontWeight: '600',
+                  transition: 'all 0.2s',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}
+              >
+                💾 Save as Template
               </button>
             </div>
           </div>
@@ -2478,6 +2624,124 @@ function Announcements() {
               </div>
             )}
           </div>
+
+          {/* Saved Templates Section */}
+          {savedTemplates.length > 0 && (
+            <div style={{ marginTop: '30px' }}>
+              <h3 style={{ 
+                fontSize: '20px', 
+                fontWeight: '600', 
+                color: '#ffffff',
+                marginBottom: '20px',
+                borderBottom: '2px solid #40444b',
+                paddingBottom: '12px'
+              }}>
+                💾 Saved Templates
+              </h3>
+              <div style={{ display: 'grid', gap: '16px' }}>
+                {savedTemplates.map((template, index) => (
+                  <div key={index} style={{
+                    backgroundColor: '#2C2F33',
+                    borderRadius: '12px',
+                    padding: '20px',
+                    border: '1px solid #40444b'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                          <h4 style={{ 
+                            fontSize: '16px', 
+                            fontWeight: '600',
+                            color: '#ffffff',
+                            margin: 0
+                          }}>
+                            {template.name}
+                          </h4>
+                          <span style={{
+                            padding: '4px 12px',
+                            backgroundColor: template.type === 'broadcast' ? '#5865F2' : '#FFD700',
+                            color: template.type === 'broadcast' ? '#fff' : '#000',
+                            borderRadius: '12px',
+                            fontSize: '12px',
+                            fontWeight: '600'
+                          }}>
+                            {template.type === 'broadcast' ? '📢 Broadcast' : '📅 Schedule'}
+                          </span>
+                        </div>
+                        
+                        <div style={{ marginBottom: '12px' }}>
+                          {template.data.embedData?.title && (
+                            <div style={{ 
+                              fontSize: '14px',
+                              fontWeight: '500',
+                              color: '#b9bbbe',
+                              marginBottom: '4px'
+                            }}>
+                              Title: {template.data.embedData.title}
+                            </div>
+                          )}
+                          {template.data.embedData?.description && (
+                            <div style={{ 
+                              color: '#72767d', 
+                              fontSize: '13px'
+                            }}>
+                              {template.data.embedData.description.substring(0, 100)}
+                              {template.data.embedData.description.length > 100 ? '...' : ''}
+                            </div>
+                          )}
+                        </div>
+
+                        <div style={{ color: '#72767d', fontSize: '12px' }}>
+                          Created: {new Date(template.createdAt).toLocaleString()}
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '8px', marginLeft: '16px' }}>
+                        <button
+                          onClick={() => loadTemplate(template)}
+                          style={{
+                            padding: '8px 16px',
+                            backgroundColor: '#5865F2',
+                            color: '#fff',
+                            border: 'none',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            fontSize: '13px',
+                            fontWeight: '600',
+                            transition: 'all 0.2s',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px'
+                          }}
+                        >
+                          📥 Load
+                        </button>
+                        <button
+                          onClick={() => deleteTemplate(index)}
+                          style={{
+                            padding: '8px 16px',
+                            backgroundColor: '#ED4245',
+                            color: '#fff',
+                            border: 'none',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            fontSize: '13px',
+                            fontWeight: '600',
+                            transition: 'all 0.2s',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px'
+                          }}
+                        >
+                          🗑️ Delete
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
