@@ -1,8 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const session = require('express-session');
-const FirebaseStore = require('connect-session-firebase')(session);
-const admin = require('firebase-admin');
 const { passport, isAuthenticated } = require('./auth');
 const botManager = require('./discordManager');
 const reminderScheduler = require('./reminderScheduler');
@@ -23,9 +21,6 @@ app.use(express.urlencoded({ extended: true }));
 
 // Session
 app.use(session({
-  store: new FirebaseStore({
-    database: admin.database()
-  }),
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
