@@ -1586,6 +1586,95 @@ function Announcements() {
                 </p>
               )}
             </div>
+
+            {/* Broadcast Templates */}
+            <div style={{ marginTop: '30px' }}>
+              <h3 style={{ 
+                fontSize: '16px', 
+                fontWeight: '600', 
+                color: '#ffffff',
+                marginBottom: '15px',
+                borderBottom: '2px solid #40444b',
+                paddingBottom: '10px'
+              }}>
+                💾 Saved Broadcast Templates
+              </h3>
+              <div style={{ display: 'grid', gap: '12px', maxHeight: '400px', overflowY: 'auto' }}>
+                {savedTemplates.filter(t => t.type === 'broadcast').length > 0 ? (
+                  savedTemplates.filter(t => t.type === 'broadcast').map((template, index) => (
+                    <div key={index} style={{
+                      backgroundColor: '#23272A',
+                      borderRadius: '8px',
+                      padding: '12px',
+                      border: '1px solid #40444b'
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ 
+                            fontSize: '14px', 
+                            fontWeight: '600',
+                            color: '#ffffff',
+                            marginBottom: '4px',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
+                          }}>
+                            {template.name}
+                          </div>
+                          {template.data.embedData?.title && (
+                            <div style={{ 
+                              color: '#72767d', 
+                              fontSize: '12px',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap'
+                            }}>
+                              {template.data.embedData.title}
+                            </div>
+                          )}
+                        </div>
+                        <div style={{ display: 'flex', gap: '6px', marginLeft: '12px' }}>
+                          <button
+                            onClick={() => loadTemplate(template)}
+                            style={{
+                              padding: '6px 12px',
+                              backgroundColor: '#5865F2',
+                              color: '#fff',
+                              border: 'none',
+                              borderRadius: '4px',
+                              cursor: 'pointer',
+                              fontSize: '12px',
+                              fontWeight: '600'
+                            }}
+                          >
+                            📥
+                          </button>
+                          <button
+                            onClick={() => deleteTemplate(savedTemplates.indexOf(template))}
+                            style={{
+                              padding: '6px 12px',
+                              backgroundColor: '#ED4245',
+                              color: '#fff',
+                              border: 'none',
+                              borderRadius: '4px',
+                              cursor: 'pointer',
+                              fontSize: '12px',
+                              fontWeight: '600'
+                            }}
+                          >
+                            🗑️
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p style={{ color: '#72767d', textAlign: 'center', padding: '20px', fontSize: '13px' }}>
+                    No broadcast templates saved
+                  </p>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -2351,6 +2440,95 @@ function Announcements() {
                     Start building your embed to see a preview...
                   </p>
                 )}
+
+                {/* Scheduled Templates */}
+                <div style={{ marginTop: '30px' }}>
+                  <h3 style={{ 
+                    fontSize: '16px', 
+                    fontWeight: '600', 
+                    color: '#ffffff',
+                    marginBottom: '15px',
+                    borderBottom: '2px solid #40444b',
+                    paddingBottom: '10px'
+                  }}>
+                    💾 Saved Schedule Templates
+                  </h3>
+                  <div style={{ display: 'grid', gap: '12px', maxHeight: '400px', overflowY: 'auto' }}>
+                    {savedTemplates.filter(t => t.type === 'schedule').length > 0 ? (
+                      savedTemplates.filter(t => t.type === 'schedule').map((template, index) => (
+                        <div key={index} style={{
+                          backgroundColor: '#23272A',
+                          borderRadius: '8px',
+                          padding: '12px',
+                          border: '1px solid #40444b'
+                        }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ 
+                                fontSize: '14px', 
+                                fontWeight: '600',
+                                color: '#ffffff',
+                                marginBottom: '4px',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap'
+                              }}>
+                                {template.name}
+                              </div>
+                              {template.data.embedData?.title && (
+                                <div style={{ 
+                                  color: '#72767d', 
+                                  fontSize: '12px',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  whiteSpace: 'nowrap'
+                                }}>
+                                  {template.data.embedData.title}
+                                </div>
+                              )}
+                            </div>
+                            <div style={{ display: 'flex', gap: '6px', marginLeft: '12px' }}>
+                              <button
+                                onClick={() => loadTemplate(template)}
+                                style={{
+                                  padding: '6px 12px',
+                                  backgroundColor: '#5865F2',
+                                  color: '#fff',
+                                  border: 'none',
+                                  borderRadius: '4px',
+                                  cursor: 'pointer',
+                                  fontSize: '12px',
+                                  fontWeight: '600'
+                                }}
+                              >
+                                📥
+                              </button>
+                              <button
+                                onClick={() => deleteTemplate(savedTemplates.indexOf(template))}
+                                style={{
+                                  padding: '6px 12px',
+                                  backgroundColor: '#ED4245',
+                                  color: '#fff',
+                                  border: 'none',
+                                  borderRadius: '4px',
+                                  cursor: 'pointer',
+                                  fontSize: '12px',
+                                  fontWeight: '600'
+                                }}
+                              >
+                                🗑️
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <p style={{ color: '#72767d', textAlign: 'center', padding: '20px', fontSize: '13px' }}>
+                        No schedule templates saved
+                      </p>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -2624,124 +2802,6 @@ function Announcements() {
               </div>
             )}
           </div>
-
-          {/* Saved Templates Section */}
-          {savedTemplates.length > 0 && (
-            <div style={{ marginTop: '30px' }}>
-              <h3 style={{ 
-                fontSize: '20px', 
-                fontWeight: '600', 
-                color: '#ffffff',
-                marginBottom: '20px',
-                borderBottom: '2px solid #40444b',
-                paddingBottom: '12px'
-              }}>
-                💾 Saved Templates
-              </h3>
-              <div style={{ display: 'grid', gap: '16px' }}>
-                {savedTemplates.map((template, index) => (
-                  <div key={index} style={{
-                    backgroundColor: '#2C2F33',
-                    borderRadius: '12px',
-                    padding: '20px',
-                    border: '1px solid #40444b'
-                  }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                          <h4 style={{ 
-                            fontSize: '16px', 
-                            fontWeight: '600',
-                            color: '#ffffff',
-                            margin: 0
-                          }}>
-                            {template.name}
-                          </h4>
-                          <span style={{
-                            padding: '4px 12px',
-                            backgroundColor: template.type === 'broadcast' ? '#5865F2' : '#FFD700',
-                            color: template.type === 'broadcast' ? '#fff' : '#000',
-                            borderRadius: '12px',
-                            fontSize: '12px',
-                            fontWeight: '600'
-                          }}>
-                            {template.type === 'broadcast' ? '📢 Broadcast' : '📅 Schedule'}
-                          </span>
-                        </div>
-                        
-                        <div style={{ marginBottom: '12px' }}>
-                          {template.data.embedData?.title && (
-                            <div style={{ 
-                              fontSize: '14px',
-                              fontWeight: '500',
-                              color: '#b9bbbe',
-                              marginBottom: '4px'
-                            }}>
-                              Title: {template.data.embedData.title}
-                            </div>
-                          )}
-                          {template.data.embedData?.description && (
-                            <div style={{ 
-                              color: '#72767d', 
-                              fontSize: '13px'
-                            }}>
-                              {template.data.embedData.description.substring(0, 100)}
-                              {template.data.embedData.description.length > 100 ? '...' : ''}
-                            </div>
-                          )}
-                        </div>
-
-                        <div style={{ color: '#72767d', fontSize: '12px' }}>
-                          Created: {new Date(template.createdAt).toLocaleString()}
-                        </div>
-                      </div>
-
-                      <div style={{ display: 'flex', gap: '8px', marginLeft: '16px' }}>
-                        <button
-                          onClick={() => loadTemplate(template)}
-                          style={{
-                            padding: '8px 16px',
-                            backgroundColor: '#5865F2',
-                            color: '#fff',
-                            border: 'none',
-                            borderRadius: '6px',
-                            cursor: 'pointer',
-                            fontSize: '13px',
-                            fontWeight: '600',
-                            transition: 'all 0.2s',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '6px'
-                          }}
-                        >
-                          📥 Load
-                        </button>
-                        <button
-                          onClick={() => deleteTemplate(index)}
-                          style={{
-                            padding: '8px 16px',
-                            backgroundColor: '#ED4245',
-                            color: '#fff',
-                            border: 'none',
-                            borderRadius: '6px',
-                            cursor: 'pointer',
-                            fontSize: '13px',
-                            fontWeight: '600',
-                            transition: 'all 0.2s',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '6px'
-                          }}
-                        >
-                          🗑️ Delete
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       )}
 
