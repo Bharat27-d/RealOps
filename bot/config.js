@@ -32,6 +32,7 @@ module.exports = {
     transcriptChannel: '1291495743277895751',
     WELCOME_CHANNEL_ID: '1374056199518945462',
     STAFF_CHANGES_CHANNEL_ID: '1292927159958114336',
+    STAFF_AVAILABILITY_CHANNEL_ID: '1291128212079771880', // Channel for staff availability checks
 
     channels: {
         staffOpenings: '1291739954791059527'

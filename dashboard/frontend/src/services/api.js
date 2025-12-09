@@ -83,7 +83,8 @@ export const discord = {
   getMembers: (roleIds) => api.get('/api/discord/members', { params: { roleIds: roleIds?.join(',') } }),
   sendDM: (userId, content, embed) => api.post('/api/discord/dm', { userId, content, embed }),
   addRole: (userId, roleId) => api.post(`/api/discord/members/${userId}/roles/add`, { roleId }),
-  removeRole: (userId, roleId) => api.post(`/api/discord/members/${userId}/roles/remove`, { roleId })
+  removeRole: (userId, roleId) => api.post(`/api/discord/members/${userId}/roles/remove`, { roleId }),
+  postStaffAvailability: (data) => api.post('/api/discord/staff-availability', data)
 };
 
 // Analytics endpoints

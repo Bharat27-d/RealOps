@@ -4,7 +4,7 @@ import {
   FaPlus, FaTrash, FaArrowUp, FaArrowDown, FaPaperPlane, FaCalendar, 
   FaClock, FaBell, FaCopy, FaLock, FaArchive,
   FaGripVertical, FaList, FaTable, FaCalendarAlt,
-  FaCheckCircle, FaChevronLeft, FaChevronRight
+  FaCheckCircle, FaChevronLeft, FaChevronRight, FaUsers
 } from 'react-icons/fa';
 import { events, discord } from '../services/api';
 import ConfirmDialog from '../components/ConfirmDialog';
@@ -494,6 +494,26 @@ function Events() {
     }
   };
 
+  const postStaffAvailability = async (event) => {
+    if (!event.truckerMpData) {
+      toast.error('No TruckerMP data available for this event');
+      return;
+    }
+
+    const eventLink = `https://truckersmp.com/events/${event.truckerMpData.id}`;
+    
+    try {
+      setLoading(true);
+      await discord.postStaffAvailability({ eventLink });
+      toast.success('Staff availability check posted successfully!');
+    } catch (error) {
+      console.error('Error posting staff availability:', error);
+      toast.error(error.response?.data?.error || 'Failed to post staff availability');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Forum management handlers
   // Commented out - available for future use
   // const createEventForum = async (eventTitle, truckerMpLink = null) => {
@@ -728,6 +748,17 @@ function Events() {
                               title="Announce Event"
                             >
                               <FaBell />
+                            </button>
+                            <button 
+                              className="btn btn-sm btn-success"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                postStaffAvailability(event);
+                              }}
+                              style={{ padding: '2px 6px', fontSize: '10px' }}
+                              title="Staff Availability"
+                            >
+                              <FaUsers />
                             </button>
                           </div>
                         )}
