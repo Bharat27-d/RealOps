@@ -16,6 +16,12 @@ const path = require('path');
 const config = require('./config');
 const firebase = require('./firebase');
 
+// Ensure Firebase is initialized
+if (!firebase) {
+  console.error('❌ Firebase is not configured. Please check your configuration.');
+  process.exit(1);
+}
+
 // Import all panel modules
 const panelModules = {
     joinTeam: require('./panels/jointeampanel'),
@@ -130,119 +136,37 @@ async function processNextSave() {
 
 // Sync tickets to Firebase for dashboard access
 async function syncTicketsToFirebase(tickets) {
-    if (!firebase || !firebase.collections) return;
-    
-    try {
-        const batch = firebase.db.batch();
-        let batchCount = 0;
-        const MAX_BATCH = 500; // Firestore batch limit
-        
-        for (const [channelId, ticketData] of tickets.entries()) {
-            const ticketRef = firebase.collections.tickets.doc(channelId);
-            
-            // Prepare ticket data for Firebase
-            const firestoreData = {
-                id: channelId,
-                channelId: channelId,
-                userId: ticketData.userId || 'unknown',
-                username: ticketData.username || null,
-                type: ticketData.type || 'support',
-                department: ticketData.type || 'General',
-                subject: ticketData.formData?.eventLink || ticketData.formData?.position || 'Support Ticket',
-                status: ticketData.closedAt ? 'closed' : (ticketData.reopenedAt ? 'open' : 'open'),
-                createdAt: ticketData.createdAt ? ticketData.createdAt.toISOString() : new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-                closedAt: ticketData.closedAt ? ticketData.closedAt.toISOString() : null,
-                reopenedAt: ticketData.reopenedAt ? ticketData.reopenedAt.toISOString() : null,
-                assignedTo: ticketData.assignedTo || null,
-                formData: ticketData.formData || {},
-                transcript: ticketData.transcript || []
-            };
-            
-            batch.set(ticketRef, firestoreData, { merge: true });
-            batchCount++;
-            
-            // Commit batch if reaching limit
-            if (batchCount >= MAX_BATCH) {
-                await batch.commit();
-                batchCount = 0;
-            }
-        }
-        
-        // Commit remaining
-        if (batchCount > 0) {
-            await batch.commit();
-        }
-        
-        console.log(`✅ Synced ${tickets.size} tickets to Firebase`);
-    } catch (error) {
-        console.error('Error syncing tickets to Firebase:', error);
-    }
+  if (!firebase || !firebase.collections) return;
+
+  try {
+    const batch = firebase.db.batch();
+    tickets.forEach((ticket, channelId) => {
+      const ticketRef = firebase.collections.tickets.doc(channelId);
+      batch.set(ticketRef, ticket);
+    });
+    await batch.commit();
+    console.log(`✅ Synced ${tickets.size} tickets to Firebase`);
+  } catch (error) {
+    console.error('Error syncing tickets to Firebase:', error);
+  }
 }
 
 // Sync single ticket to Firebase
 async function syncSingleTicketToFirebase(channelId, ticketData) {
-    console.log(`🔄 Attempting to sync ticket ${channelId} to Firebase...`);
-    
-    if (!firebase || !firebase.collections) {
-        console.warn('⚠️ Firebase not available - ticket not synced to cloud');
-        console.log('Firebase object:', firebase);
-        return;
-    }
-    
-    if (!firebase.collections.tickets) {
-        console.error('❌ Firebase tickets collection not found!');
-        console.log('Available collections:', Object.keys(firebase.collections || {}));
-        return;
-    }
-    
-    try {
-        const firestoreData = {
-            id: channelId,
-            channelId: channelId,
-            userId: ticketData.userId || 'unknown',
-            username: ticketData.username || null,
-            type: ticketData.type || 'support',
-            department: ticketData.type || 'General',
-            subject: ticketData.formData?.eventLink || ticketData.formData?.position || 'Support Ticket',
-            status: ticketData.closedAt ? 'closed' : (ticketData.reopenedAt ? 'open' : 'open'),
-            createdAt: ticketData.createdAt ? ticketData.createdAt.toISOString() : new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            closedAt: ticketData.closedAt ? ticketData.closedAt.toISOString() : null,
-            reopenedAt: ticketData.reopenedAt ? ticketData.reopenedAt.toISOString() : null,
-            assignedTo: ticketData.assignedTo || null,
-            formData: ticketData.formData || {},
-            transcript: ticketData.transcript || [],
-            transcriptHtml: ticketData.transcriptHtml || null,
-            transcriptGenerated: ticketData.transcriptGenerated || null
-        };
-        
-        console.log(`📝 Firestore data to save:`, {
-            id: firestoreData.id,
-            status: firestoreData.status,
-            type: firestoreData.type,
-            closedAt: firestoreData.closedAt,
-            hasTranscript: !!firestoreData.transcriptHtml
-        });
-        
-        await firebase.collections.tickets.doc(channelId).set(firestoreData, { merge: true });
-        console.log(`✅ Closed ticket synced to Firebase dashboard: ${channelId}`);
-    } catch (error) {
-        console.error('❌ Error syncing closed ticket to Firebase:', error);
-        console.error('Error details:', error.message, error.stack);
-    }
-}
+  console.log(`🔄 Attempting to sync ticket ${channelId} to Firebase...`);
 
-// Delete ticket from Firebase
-async function deleteTicketFromFirebase(channelId) {
-    if (!firebase || !firebase.collections) return;
-    
-    try {
-        await firebase.collections.tickets.doc(channelId).delete();
-        console.log(`🗑️ Deleted ticket ${channelId} from Firebase`);
-    } catch (error) {
-        console.error('Error deleting ticket from Firebase:', error);
-    }
+  if (!firebase || !firebase.collections) {
+    console.error('❌ Firebase is not configured. Cannot sync ticket.');
+    return;
+  }
+
+  try {
+    const ticketRef = firebase.collections.tickets.doc(channelId);
+    await ticketRef.set(ticketData, { merge: true });
+    console.log(`✅ Synced ticket ${channelId} to Firebase`);
+  } catch (error) {
+    console.error(`Error syncing ticket ${channelId} to Firebase:`, error);
+  }
 }
 
 const activeTickets = loadActiveTickets();
