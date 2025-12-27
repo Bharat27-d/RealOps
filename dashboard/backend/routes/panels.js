@@ -6,7 +6,7 @@ const { isStaff } = require('../auth');
 const fs = require('fs').promises;
 const path = require('path');
 
-// Bot panel default configurations
+// Bot panel default configurations (core/built-in panels)
 const BOT_PANEL_DEFAULTS = {
   support: {
     type: 'support',
@@ -67,15 +67,69 @@ const BOT_PANEL_DEFAULTS = {
     image: 'https://i.postimg.cc/2SLGZvjv/Z7vW5Or.png',
     footer: { text: 'The Real Ops Group Tickets', iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png' },
     buttons: [{ customId: 'founders_button', label: 'Contact Founders', style: 'Primary', emoji: '👑' }]
+  },
+  bookslot: {
+    type: 'bookslot',
+    title: '🎉 Book Your Slot',
+    description: 'Book your slot for our special event!\n\nClick the button below to reserve your spot and join us for an amazing experience.\n\n📅 Limited slots available - First come, first served!',
+    color: '#FFD700',
+    thumbnail: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png',
+    image: 'https://i.postimg.cc/VLHsv1MV/Book-us.png',
+    footer: { text: 'The Real Ops Group', iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png' },
+    buttons: [{ customId: 'bookslot_button', label: 'Book Slot', style: 'Success', emoji: '🎉' }]
   }
 };
 
-// Get all panels (directly from bot config)
+// Get all panels (built-in + custom panels from Firestore)
 router.get('/', isStaff, async (req, res) => {
   try {
-    const panels = Object.values(BOT_PANEL_DEFAULTS);
-    res.json(panels);
+    // Get panel states from Firestore
+    const panelStatesSnapshot = await collections.settings.doc('panelStates').get();
+    const panelStates = panelStatesSnapshot.exists ? panelStatesSnapshot.data() : {};
+    
+    // Get built-in panels with their enabled states
+    const builtInPanels = Object.values(BOT_PANEL_DEFAULTS).map(p => ({
+      ...p,
+      isBuiltIn: true,
+      enabled: panelStates[p.type] !== false // Default to enabled if not set
+    }));
+    
+    // Get custom panels from Firestore
+    const customPanelsSnapshot = await collections.panels.get();
+    const customPanels = customPanelsSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      isBuiltIn: false
+    }));
+    
+    // Combine both
+    const allPanels = [...builtInPanels, ...customPanels];
+    
+    res.json(allPanels);
   } catch (error) {
+    console.error('Error fetching panels:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Update panel state (enable/disable)
+router.put('/:panelId/state', isStaff, async (req, res) => {
+  try {
+    const { panelId } = req.params;
+    const { enabled } = req.body;
+
+    // Update panel state in Firestore
+    const statesRef = collections.settings.doc('panelStates');
+    await statesRef.set({
+      [panelId]: enabled
+    }, { merge: true });
+
+    res.json({ 
+      success: true, 
+      message: `Panel ${enabled ? 'enabled' : 'disabled'} successfully!`
+    });
+  } catch (error) {
+    console.error('Error updating panel state:', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -188,15 +242,28 @@ router.post('/', isStaff, async (req, res) => {
 router.post('/:type/deploy', isStaff, async (req, res) => {
   try {
     const { type } = req.params;
-    const { channelId } = req.body;
+    const { channelId, customPanelId } = req.body;
 
     if (!type || !channelId) {
       return res.status(400).json({ error: 'Panel type and channel ID are required' });
     }
 
-    const panel = BOT_PANEL_DEFAULTS[type];
-    if (!panel) {
-      return res.status(404).json({ error: 'Panel type not found' });
+    let panel;
+    
+    // Check if it's a built-in panel or custom panel
+    if (customPanelId) {
+      // Fetch custom panel from Firestore
+      const panelDoc = await collections.panels.doc(customPanelId).get();
+      if (!panelDoc.exists) {
+        return res.status(404).json({ error: 'Custom panel not found' });
+      }
+      panel = panelDoc.data();
+    } else {
+      // Use built-in panel
+      panel = BOT_PANEL_DEFAULTS[type];
+      if (!panel) {
+        return res.status(404).json({ error: 'Panel type not found' });
+      }
     }
 
     if (!botManager.client) {
@@ -267,6 +334,87 @@ router.post('/:type/deploy', isStaff, async (req, res) => {
     });
   } catch (error) {
     console.error('Error deploying panel:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Create a new custom panel
+router.post('/custom', isStaff, async (req, res) => {
+  try {
+    const { name, title, description, color, thumbnail, image, footer, buttons, enabled } = req.body;
+
+    if (!name || !title || !description) {
+      return res.status(400).json({ error: 'Name, title, and description are required' });
+    }
+
+    // Create panel data
+    const panelData = {
+      type: name.toLowerCase().replace(/\s+/g, '_'),
+      name,
+      title,
+      description,
+      color: color || '#5865F2',
+      thumbnail: thumbnail || '',
+      image: image || '',
+      footer: footer || { text: 'The Real Ops Group', iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png' },
+      buttons: buttons || [],
+      enabled: enabled !== undefined ? enabled : true,
+      isCustom: true,
+      createdAt: new Date().toISOString()
+    };
+
+    // Save to Firestore
+    const docRef = await collections.panels.add(panelData);
+
+    res.json({ 
+      success: true, 
+      message: 'Custom panel created successfully!',
+      id: docRef.id,
+      data: { id: docRef.id, ...panelData }
+    });
+  } catch (error) {
+    console.error('Error creating custom panel:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Update custom panel (enable/disable or edit)
+router.put('/custom/:id', isStaff, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+
+    // Update in Firestore
+    await collections.panels.doc(id).update({
+      ...updateData,
+      updatedAt: new Date().toISOString()
+    });
+
+    res.json({ 
+      success: true, 
+      message: 'Custom panel updated successfully!',
+      data: { id, ...updateData }
+    });
+  } catch (error) {
+    console.error('Error updating custom panel:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Delete custom panel
+router.delete('/custom/:id', isStaff, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Delete from Firestore
+    await collections.panels.doc(id).delete();
+
+    res.json({ 
+      success: true, 
+      message: 'Custom panel deleted successfully!'
+    });
+  } catch (error) {
+    console.error('Error deleting custom panel:', error);
     res.status(500).json({ error: error.message });
   }
 });

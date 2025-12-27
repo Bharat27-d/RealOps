@@ -4,7 +4,7 @@ import {
   FaPlus, FaTrash, FaArrowUp, FaArrowDown, FaPaperPlane, FaCalendar, 
   FaClock, FaBell, FaCopy, FaLock, FaArchive,
   FaGripVertical, FaList, FaTable, FaCalendarAlt,
-  FaCheckCircle, FaChevronLeft, FaChevronRight, FaUsers
+  FaCheckCircle, FaChevronLeft, FaChevronRight, FaUsers, FaComments
 } from 'react-icons/fa';
 import { events, discord } from '../services/api';
 import ConfirmDialog from '../components/ConfirmDialog';
@@ -182,19 +182,17 @@ function Events() {
 
   // Scenario Pack handlers
   const addScenario = () => {
-    const newId = scenarios.length + 1;
-    if (newId <= 6) {
-      setScenarios([...scenarios, {
-        id: newId,
-        title: `Scenario ${newId}`,
-        description: '',
-        image: '',
-        color: '#00b894',
-        required: false
-      }]);
-    } else {
-      toast.warning('Maximum 6 scenarios allowed');
-    }
+    const newId = Math.max(...scenarios.map(s => s.id), 0) + 1;
+    setScenarios([...scenarios, {
+      id: newId,
+      title: `Scenario ${scenarios.length + 1}`,
+      description: '',
+      image: '',
+      color: '#00b894',
+      required: false,
+      collapsed: false
+    }]);
+    toast.success('Scenario added successfully');
   };
 
   const removeScenario = (id) => {
@@ -515,64 +513,27 @@ function Events() {
   };
 
   // Forum management handlers
-  // Commented out - available for future use
-  // const createEventForum = async (eventTitle, truckerMpLink = null) => {
-  //   if (!forumConfig.forumId) {
-  //     toast.error('Please select a forum channel');
-  //     return;
-  //   }
+  const createEventForum = async (eventTitle, message = '') => {
+    if (!forumConfig.forumId) {
+      toast.error('Please select a forum channel first');
+      return;
+    }
 
-  //   setLoading(true);
-  //   try {
-  //     let eventData = null;
-  //     if (truckerMpLink) {
-  //       eventData = await fetchTruckerMpEvent(truckerMpLink);
-  //     }
-
-  //     await events.createForum({
-  //       forumId: forumConfig.forumId,
-  //       title: eventTitle,
-  //       truckerMpData: eventData
-  //     });
-  //     toast.success('Forum thread created successfully');
-  //     fetchForums();
-  //   } catch (error) {
-  //     console.error('Error creating forum:', error);
-  //     toast.error('Failed to create forum thread');
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-  // const createMonthForum = async (eventDate) => {
-  //   if (!forumConfig.forumId) {
-  //     toast.error('Please select a parent category for forums');
-  //     return;
-  //   }
-
-  //   setLoading(true);
-  //   try {
-  //     const date = new Date(eventDate);
-  //     const monthName = date.toLocaleString('en-US', { month: 'long' }).toLowerCase();
-  //     const year = date.getFullYear();
-  //     const channelName = `${monthName}-${year}`;
-
-  //     await events.createForum({
-  //       type: 'month_forum',
-  //       categoryId: forumConfig.forumId,
-  //       channelName: channelName,
-  //       month: monthName,
-  //       year: year
-  //     });
-  //     toast.success(`Forum channel ${channelName} created successfully`);
-  //     fetchForums();
-  //   } catch (error) {
-  //     console.error('Error creating month forum:', error);
-  //     toast.error('Failed to create month forum');
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+    setLoading(true);
+    try {
+      await events.createForum({
+        forumId: forumConfig.forumId,
+        title: eventTitle,
+        message: message || `Event discussion for: ${eventTitle}`
+      });
+      toast.success('Forum thread created successfully!');
+    } catch (error) {
+      console.error('Error creating forum:', error);
+      toast.error(error.response?.data?.error || 'Failed to create forum thread');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const saveForumConfig = async () => {
     setLoading(true);
@@ -621,9 +582,18 @@ function Events() {
       </div>
 
       <div className="card" style={{ marginTop: '30px' }}>
-        <h2>Recent Events</h2>
+        <h2>Upcoming Events</h2>
         <div className="events-list">
-          {eventsList.slice(0, 5).map(event => (
+          {eventsList
+            .filter(event => {
+              const eventDate = event.date ? new Date(event.date) : null;
+              const today = new Date();
+              today.setHours(0, 0, 0, 0);
+              return eventDate && eventDate >= today;
+            })
+            .sort((a, b) => new Date(a.date) - new Date(b.date))
+            .slice(0, 4)
+            .map(event => (
             <div key={event.id} className="event-item">
               <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
                 {event.image && (
@@ -646,8 +616,13 @@ function Events() {
               </div>
             </div>
           ))}
-          {eventsList.length === 0 && (
-            <p style={{ textAlign: 'center', color: '#aaa', padding: '40px 0' }}>No events yet. Create your first event!</p>
+          {eventsList.filter(event => {
+            const eventDate = event.date ? new Date(event.date) : null;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            return eventDate && eventDate >= today;
+          }).length === 0 && (
+            <p style={{ textAlign: 'center', color: '#aaa', padding: '40px 0' }}>No upcoming events scheduled.</p>
           )}
         </div>
       </div>
@@ -726,7 +701,7 @@ function Events() {
                         </div>
                         {event.time && <div style={{ fontSize: '10px', color: '#aaa' }}>{event.time}</div>}
                         {event.truckerMpData && (
-                          <div style={{ display: 'flex', gap: '5px', marginTop: '5px' }}>
+                          <div style={{ display: 'flex', gap: '5px', marginTop: '5px', flexWrap: 'wrap' }}>
                             <button 
                               className="btn btn-sm btn-outline"
                               onClick={(e) => {
@@ -759,6 +734,17 @@ function Events() {
                               title="Staff Availability"
                             >
                               <FaUsers />
+                            </button>
+                            <button 
+                              className="btn btn-sm btn-danger"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                deleteEvent(event.id);
+                              }}
+                              style={{ padding: '2px 6px', fontSize: '10px' }}
+                              title="Delete Event"
+                            >
+                              <FaTrash />
                             </button>
                           </div>
                         )}
@@ -984,35 +970,33 @@ function Events() {
               ))}
             </div>
 
-            {scenarios.length < 6 && (
-              <button 
-                className="btn" 
-                onClick={addScenario} 
-                style={{ 
-                  marginBottom: '24px', 
-                  width: '100%',
-                  background: 'linear-gradient(135deg, #FFD700, #FFA500)',
-                  color: '#000',
-                  fontWeight: '600',
-                  padding: '14px 24px',
-                  fontSize: '15px',
-                  border: 'none',
-                  boxShadow: '0 4px 12px rgba(255, 215, 0, 0.3)',
-                  transition: 'all 0.3s ease'
-                }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = '0 6px 16px rgba(255, 215, 0, 0.5)';
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(255, 215, 0, 0.3)';
-                }}
-              >
-                <FaPlus style={{ marginRight: '8px' }} /> 
-                Add Optional Scenario ({scenarios.length}/6)
-              </button>
-            )}
+            <button 
+              className="btn" 
+              onClick={addScenario} 
+              style={{ 
+                marginBottom: '24px', 
+                width: '100%',
+                background: 'linear-gradient(135deg, #FFD700, #FFA500)',
+                color: '#000',
+                fontWeight: '600',
+                padding: '14px 24px',
+                fontSize: '15px',
+                border: 'none',
+                boxShadow: '0 4px 12px rgba(255, 215, 0, 0.3)',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 6px 16px rgba(255, 215, 0, 0.5)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(255, 215, 0, 0.3)';
+              }}
+            >
+              <FaPlus style={{ marginRight: '8px' }} /> 
+              Add Optional Scenario ({scenarios.length})
+            </button>
 
             <div className="grid grid-2" style={{ marginBottom: '20px' }}>
               <div className="form-group">
@@ -1470,6 +1454,90 @@ function Events() {
                     min="1"
                   />
                 </div>
+              )}
+            </div>
+
+            {/* Create Forum Post Section */}
+            <div style={{ 
+              marginTop: '25px', 
+              padding: '20px', 
+              background: 'rgba(88, 101, 242, 0.1)', 
+              border: '1px solid rgba(88, 101, 242, 0.3)',
+              borderRadius: '12px' 
+            }}>
+              <h4 style={{ marginBottom: '15px', color: '#5865F2' }}>
+                <FaComments /> Create Forum Post
+              </h4>
+              
+              <div className="form-group">
+                <label>Thread Title *</label>
+                <input 
+                  type="text"
+                  placeholder="Event title or topic..."
+                  onChange={(e) => {
+                    const title = e.target.value;
+                    e.target.form.dataset.forumTitle = title;
+                  }}
+                  style={{
+                    background: '#2C2F33',
+                    border: '1px solid #40444b',
+                    borderRadius: '8px',
+                    padding: '10px',
+                    color: '#dcddde'
+                  }}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Message (optional)</label>
+                <textarea 
+                  name="forumMessage"
+                  placeholder="Thread content..."
+                  rows={3}
+                  style={{
+                    background: '#2C2F33',
+                    border: '1px solid #40444b',
+                    borderRadius: '8px',
+                    padding: '10px',
+                    color: '#dcddde',
+                    resize: 'vertical',
+                    fontFamily: 'inherit'
+                  }}
+                />
+              </div>
+
+              <button 
+                className="btn" 
+                onClick={(e) => {
+                  const form = e.target.closest('.modal');
+                  const title = form.querySelector('input[placeholder*="Event title"]')?.value;
+                  const message = form.querySelector('textarea[name="forumMessage"]')?.value;
+                  if (!title) {
+                    toast.error('Please enter a thread title');
+                    return;
+                  }
+                  createEventForum(title, message);
+                }}
+                disabled={!forumConfig.forumId || loading}
+                style={{ 
+                  width: '100%',
+                  background: 'linear-gradient(135deg, #5865F2, #4752C4)',
+                  opacity: !forumConfig.forumId ? 0.5 : 1
+                }}
+              >
+                <FaPlus style={{ marginRight: '8px' }} /> 
+                {loading ? 'Creating...' : 'Create Forum Thread'}
+              </button>
+
+              {!forumConfig.forumId && (
+                <p style={{ 
+                  marginTop: '10px', 
+                  fontSize: '12px', 
+                  color: '#f04747',
+                  textAlign: 'center'
+                }}>
+                  ⚠️ Please select a forum channel first
+                </p>
               )}
             </div>
 

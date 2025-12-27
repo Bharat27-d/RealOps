@@ -71,8 +71,12 @@ export const panels = {
   getAll: () => api.get('/api/panels'),
   getByType: (type) => api.get(`/api/panels/${type}`),
   save: (data) => api.post('/api/panels', data),
-  deploy: (id, channelId) => api.post(`/api/panels/${id}/deploy`, { channelId }),
-  delete: (id) => api.delete(`/api/panels/${id}`)
+  deploy: (id, channelId, customPanelId) => api.post(`/api/panels/${id}/deploy`, { channelId, customPanelId }),
+  delete: (id) => api.delete(`/api/panels/${id}`),
+  createCustom: (data) => api.post('/api/panels/custom', data),
+  updateCustom: (id, data) => api.put(`/api/panels/custom/${id}`, data),
+  deleteCustom: (id) => api.delete(`/api/panels/custom/${id}`),
+  updatePanelState: (panelId, enabled) => api.put(`/api/panels/${panelId}/state`, { enabled })
 };
 
 // Discord endpoints

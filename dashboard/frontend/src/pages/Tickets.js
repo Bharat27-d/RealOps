@@ -26,9 +26,9 @@ function Tickets() {
       const response = await tickets.getAll();
       console.log('Fetched tickets:', response.data);
       
-      // Filter: Only show CLOSED tickets with transcripts
+      // Filter: Show CLOSED tickets (transcripts are optional)
       const closedTickets = (response.data || []).filter(ticket => 
-        ticket.status === 'closed' && (ticket.transcriptHtml || (ticket.transcript && ticket.transcript.length > 0))
+        ticket.status === 'closed' || ticket.closedAt
       );
       
       // Sort by closed date, newest first
@@ -37,7 +37,7 @@ function Tickets() {
       );
       
       setTicketList(sorted);
-      console.log(`Displaying ${sorted.length} closed tickets with transcripts`);
+      console.log(`Displaying ${sorted.length} closed tickets`);
     } catch (error) {
       toast.error('Failed to load tickets');
       console.error('Error fetching tickets:', error);

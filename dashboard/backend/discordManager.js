@@ -62,9 +62,16 @@ class DiscordBotManager {
 
       // Validate and normalize color to 6-digit hex
       let color = embedData.color || '#00b894';
-      if (color.startsWith('#')) {
+      
+      // Convert to string if it's a number
+      if (typeof color === 'number') {
+        color = color.toString(16).padStart(6, '0');
+      } else if (typeof color !== 'string') {
+        color = '00b894';
+      } else if (color.startsWith('#')) {
         color = color.substring(1);
       }
+      
       // Ensure it's exactly 6 characters, pad with 0s or use default
       if (!/^[0-9A-Fa-f]{6}$/.test(color)) {
         console.log(`Invalid color format: ${embedData.color}, using default #00b894`);

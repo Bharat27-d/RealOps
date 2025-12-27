@@ -9,7 +9,8 @@ const PANEL_TYPES = [
   { id: 'partnership', name: 'Partnership Panel' },
   { id: 'founder', name: 'Founder Panel' },
   { id: 'bookus', name: 'Book Us Panel' },
-  { id: 'jointeam', name: 'Join Team Panel' }
+  { id: 'jointeam', name: 'Join Team Panel' },
+  { id: 'bookslot', name: 'Book Slot Panel' }
 ];
 
 function Panels() {

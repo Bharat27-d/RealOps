@@ -117,7 +117,6 @@ app.use('/api/tickets', require('./routes/tickets'));
 app.use('/api/staff', require('./routes/staff'));
 app.use('/api/embeds', require('./routes/embeds'));
 app.use('/api/panels', require('./routes/panels'));
-app.use('/api/panels/sync', require('./routes/panelSync'));
 app.use('/api/discord', require('./routes/discord'));
 app.use('/api/analytics', require('./routes/analytics'));
 app.use('/api/partnerships', require('./routes/partnerships'));

@@ -19,7 +19,7 @@ const serviceAccount = {
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  databaseURL: `https://${process.env.FIREBASE_PROJECT_ID}-default-rtdb.firebaseio.com`
+  databaseURL: `https://realops-777-default-rtdb.europe-west1.firebasedatabase.app`
 });
 
 const db = admin.firestore();
