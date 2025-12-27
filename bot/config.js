@@ -2,7 +2,7 @@ require('dotenv').config();
 
 module.exports = {
     // Discord credentials
-    BOT_TOKEN: process.env.BOT_TOKEN || 'MTM4NzAxMzIzNjQwNjM1Mzk5MQ.Ghhyo5.RKWl1b27YRvlG_yaF0Ak2GkSzgzE2jhvXCbwN4',
+    BOT_TOKEN: process.env.BOT_TOKEN || 'MTM4NzAxMzIzNjQwNjM1Mzk5MQ.G6KvXw.C-jdFKtCkgNTOjSAs7_E6EqKFXr9jNmROtAXUg',
     CLIENT_ID: process.env.CLIENT_ID || '1387013236406353991',
     GUILD_ID: process.env.GUILD_ID || '1291110532837015584',
 
