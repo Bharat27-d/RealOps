@@ -47,6 +47,9 @@ class DiscordBotManager {
       ]
     });
 
+    // Debug log for Discord bot token
+    console.log('DEBUG: DISCORD_BOT_TOKEN used for login:', token);
+
     this.client.login(token);
 
     this.client.on('ready', () => {
