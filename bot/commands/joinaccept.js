@@ -12,15 +12,20 @@ module.exports = {
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageRoles), // Adjust permission as needed
 
   async execute(interaction) {
-    // Always defer immediately!
     try {
-      console.log("About to defer reply"); // Debug log
-      await interaction.deferReply({ flags: 64 });
-      console.log("Deferred reply"); // Debug log
+      // Only defer if not already acknowledged
+      if (!interaction.deferred && !interaction.replied) {
+        console.log("About to defer reply");
+        await interaction.deferReply({ flags: 64 });
+        console.log("Deferred reply");
+      }
 
       const user = interaction.options.getUser('user');
       if (!user) {
-        return await interaction.editReply({ content: 'User not found.' });
+        if (!interaction.replied) {
+          await interaction.editReply({ content: 'User not found.' });
+        }
+        return;
       }
 
       const embed = new EmbedBuilder()
@@ -34,8 +39,9 @@ module.exports = {
           iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'
         });
 
-      await interaction.editReply({ content: `✅ Application accepted for <@${user.id}>.` });
-      // Tag the user outside the embed
+      if (!interaction.replied) {
+        await interaction.editReply({ content: `✅ Application accepted for <@${user.id}>.` });
+      }
       await interaction.channel.send({ content: `<@${user.id}>`, embeds: [embed] });
     } catch (error) {
       console.error('Error in /joinaccept:', error);
