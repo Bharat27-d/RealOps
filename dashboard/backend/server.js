@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const session = require('express-session');
+const RedisStore = require('connect-redis').default;
+const { createClient } = require('redis');
 const { passport, isAuthenticated } = require('./auth');
 const botManager = require('./discordManager');
 const reminderScheduler = require('./reminderScheduler');
@@ -19,8 +21,15 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Session
+
+// Redis client setup
+const redisClient = createClient({
+  url: process.env.REDIS_URL || 'redis://localhost:6379'
+});
+redisClient.connect().catch(console.error);
+
 app.use(session({
+  store: new RedisStore({ client: redisClient }),
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
