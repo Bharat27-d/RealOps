@@ -100,9 +100,11 @@ function getDailyTickets(tickets) {
     date.setDate(date.getDate() - i);
     const dateStr = date.toISOString().split('T')[0];
     
-    const count = tickets.filter(t => 
-      t.createdAt && t.createdAt.startsWith(dateStr)
-    ).length;
+    const count = tickets.filter(t => {
+      if (!t.createdAt) return false;
+      const createdAtStr = typeof t.createdAt === 'string' ? t.createdAt : (t.createdAt instanceof Date ? t.createdAt.toISOString() : String(t.createdAt));
+      return createdAtStr.startsWith(dateStr);
+    }).length;
 
     last7Days.push({ date: dateStr, count });
   }
@@ -122,11 +124,17 @@ function calculateLast7DaysActivity(ticketSnapshot, eventSnapshot) {
     let count = 0;
     ticketSnapshot.forEach(doc => {
       const data = doc.data();
-      if (data.createdAt && data.createdAt.startsWith(dateStr)) count++;
+      if (data.createdAt) {
+        const createdAtStr = typeof data.createdAt === 'string' ? data.createdAt : (data.createdAt instanceof Date ? data.createdAt.toISOString() : String(data.createdAt));
+        if (createdAtStr.startsWith(dateStr)) count++;
+      }
     });
     eventSnapshot.forEach(doc => {
       const data = doc.data();
-      if (data.createdAt && data.createdAt.startsWith(dateStr)) count++;
+      if (data.createdAt) {
+        const createdAtStr = typeof data.createdAt === 'string' ? data.createdAt : (data.createdAt instanceof Date ? data.createdAt.toISOString() : String(data.createdAt));
+        if (createdAtStr.startsWith(dateStr)) count++;
+      }
     });
 
     activities.push({ date: dateStr, count });
