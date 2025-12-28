@@ -176,9 +176,16 @@ const buttonToPanel = {};
 async function safeReply(interaction, options, isEdit = false) {
     try {
         if (isEdit) {
+            if (!interaction.replied && !interaction.deferred) {
+                await interaction.deferReply({ ephemeral: true }).catch(() => {});
+            }
             return await interaction.editReply(options);
         } else {
-            return await interaction.reply(options);
+            if (!interaction.replied && !interaction.deferred) {
+                return await interaction.reply(options);
+            } else {
+                return await interaction.editReply(options);
+            }
         }
     } catch (error) {
         console.error(`Error ${isEdit ? 'editing' : 'sending'} reply:`, error);
@@ -192,27 +199,47 @@ async function safeInteractionHandler(interaction, handler) {
         await handler(interaction);
     } catch (error) {
         console.error(`Error handling ${interaction.type} interaction:`, error);
-        
-        if (!interaction.replied && !interaction.deferred) {
-            try {
-                await interaction.reply({ 
-                    content: 'An error occurred while processing your request.',
-                    flags: MessageFlags.Ephemeral
-                }).catch(() => {});
-            } catch (replyError) {
-                // Silent fail - interaction may have expired
+        try {
+            await handler(interaction);
+        } catch (error) {
+            console.error(`Error handling ${interaction.type} interaction:`, error);
+            if (!interaction.replied && !interaction.deferred) {
+                try {
+                    await interaction.reply({ 
+                        content: 'An error occurred while processing your request.',
+                        flags: MessageFlags.Ephemeral
+                    });
+                } catch (replyError) {
+                    console.error('Failed to send error reply:', replyError);
+                }
             }
         }
     }
 }
 
-// Sanitize channel names for Discord's requirements
+// Utility function to sanitize channel names
 function sanitizeChannelName(name) {
-    return name.toLowerCase()
-        .replace(/[^\w\s-]/g, '')  // Remove special chars
-        .replace(/\s+/g, '-')      // Replace spaces with dashes
-        .replace(/-+/g, '-')       // Replace multiple dashes with a single dash
-        .substring(0, 90);         // Trim to a reasonable length
+    return name
+        .toLowerCase()
+        .replace(/[^a-z0-9-]/g, '-') // Replace invalid chars with dash
+        .replace(/-+/g, '-') // Replace multiple dashes with single dash
+        .replace(/^-|-$/g, ''); // Trim dashes from start/end
+}
+
+// Utility function to format bytes as human-readable string
+function formatBytes(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+// Utility function to truncate long strings with ellipsis
+function truncateString(str, maxLength = 100) {
+    if (typeof str !== 'string') return '';
+    if (str.length <= maxLength) return str;
+    return str.slice(0, maxLength - 3) + '...';
 }
 
 function formatDateUTC(date) {
@@ -343,7 +370,7 @@ function setupTicketSystem(client) {
         console.warn('⚠️ Firebase not configured - tickets will only save locally');
     }
 
-    client.once('ready', async () => {
+    client.once('clientReady', async () => {
         console.log(`Bot is ready. Current date (UTC): ${formatDateUTC(new Date())}`);
         
         // Check if we need to rebuild tickets (file was corrupted/empty)

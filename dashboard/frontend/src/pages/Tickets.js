@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { toLocaleStringSafe } from '../utils/dateUtils';
 import { toast } from 'react-toastify';
 import { 
   FaEye, FaDownload, FaUser, FaCalendar, 
@@ -83,35 +84,35 @@ function Tickets() {
     
     // Fallback to text transcript
     const content = `═══════════════════════════════════════════════════════
-REALOPS TICKET #${ticket.id}
-═══════════════════════════════════════════════════════
+  REALOPS TICKET #${ticket.id}
+  ═══════════════════════════════════════════════════════
 
-Department: ${ticket.department || ticket.type || 'N/A'}
-Subject: ${ticket.subject || 'N/A'}
-User: ${ticket.username || ticket.userId || 'Unknown'}
-User ID: ${ticket.userId || 'N/A'}
+  Department: ${ticket.department || ticket.type || 'N/A'}
+  Subject: ${ticket.subject || 'N/A'}
+  User: ${ticket.username || ticket.userId || 'Unknown'}
+  User ID: ${ticket.userId || 'N/A'}
 
-Created: ${new Date(ticket.createdAt).toLocaleString()}
-${ticket.closedAt ? `Closed: ${new Date(ticket.closedAt).toLocaleString()}` : ''}
-Status: ${ticket.status || 'open'}
+  Created: ${toLocaleStringSafe(ticket.createdAt)}
+  ${ticket.closedAt ? `Closed: ${toLocaleStringSafe(ticket.closedAt)}` : ''}
+  Status: ${ticket.status || 'open'}
 
-${ticket.formData && Object.keys(ticket.formData).length > 0 ? `─────────────────────────────────────────────────────
-FORM DATA:
-─────────────────────────────────────────────────────
-${Object.entries(ticket.formData).map(([key, value]) => `${key}: ${value}`).join('\n')}
+  ${ticket.formData && Object.keys(ticket.formData).length > 0 ? `─────────────────────────────────────────────────────
+  FORM DATA:
+  ─────────────────────────────────────────────────────
+  ${Object.entries(ticket.formData).map(([key, value]) => `${key}: ${value}`).join('\n')}
 
-` : ''}═══════════════════════════════════════════════════════
-TRANSCRIPT (${ticket.transcript?.length || 0} messages)
-═══════════════════════════════════════════════════════
+  ` : ''}═══════════════════════════════════════════════════════
+  TRANSCRIPT (${ticket.transcript?.length || 0} messages)
+  ═══════════════════════════════════════════════════════
 
-${ticket.transcript?.map(t => `[${new Date(t.timestamp).toLocaleString()}] ${t.author}
-${t.message}
-${'─'.repeat(60)}`).join('\n\n') || 'No messages in transcript'}
+  ${ticket.transcript?.map(t => `[${toLocaleStringSafe(t.timestamp)}] ${t.author}
+  ${t.message}
+  ${'─'.repeat(60)}`).join('\n\n') || 'No messages in transcript'}
 
-═══════════════════════════════════════════════════════
-End of Ticket #${ticket.id}
-Generated: ${new Date().toLocaleString()}
-═══════════════════════════════════════════════════════`;
+  ═══════════════════════════════════════════════════════
+  End of Ticket #${ticket.id}
+  Generated: ${toLocaleStringSafe(Date.now())}
+  ═══════════════════════════════════════════════════════`;
     
     const blob = new Blob([content], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -259,11 +260,11 @@ Generated: ${new Date().toLocaleString()}
                 </div>
                 <div className="ticket-info-row">
                   <FaCalendar style={{ color: '#b9bbbe' }} />
-                  <span>{new Date(ticket.createdAt).toLocaleDateString()}</span>
+                  <span>{toLocaleStringSafe(ticket.createdAt).split(',')[0]}</span>
                 </div>
                 <div className="ticket-info-row">
                   <FaClock style={{ color: '#b9bbbe' }} />
-                  <span>{new Date(ticket.createdAt).toLocaleTimeString()}</span>
+                  <span>{toLocaleStringSafe(ticket.createdAt).split(',')[1]}</span>
                 </div>
                 {ticket.transcript && ticket.transcript.length > 0 && (
                   <div className="ticket-info-row">
@@ -345,7 +346,7 @@ Generated: ${new Date().toLocaleString()}
                 </div>
                 <div className="info-item">
                   <label>Created</label>
-                  <span>{new Date(selectedTicket.createdAt).toLocaleString()}</span>
+                  <span>{toLocaleStringSafe(selectedTicket.createdAt)}</span>
                 </div>
                 <div className="info-item">
                   <label>Department</label>
