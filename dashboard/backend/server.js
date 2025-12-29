@@ -34,15 +34,15 @@ redisClient.connect().catch(console.error);
 
 app.use(session({
   store: new RedisStore({ client: redisClient }),
-  secret: process.env.SESSION_SECRET,
+  secret: process.env.SESSION_SECRET || 'realops-secret-key-change-in-production',
   resave: false,
-  saveUninitialized: false,
+  saveUninitialized: true, // Changed to true
   cookie: {
-    maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000,
+    httpOnly: false,
     secure: false,
     sameSite: 'lax',
-    domain: undefined // Allow any domain
+    path: '/'
   }
 }));
 
