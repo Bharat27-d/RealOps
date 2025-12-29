@@ -1,12 +1,28 @@
+
 const { Events, EmbedBuilder } = require('discord.js');
 const config = require('../config');
-require
+
+// In-memory cache for debouncing duplicate welcome messages
+const welcomeCache = new Map();
 
 module.exports = {
     name: Events.GuildMemberAdd,
     async execute(member) {
         const channel = member.guild.channels.cache.get(config.WELCOME_CHANNEL_ID);
         if (!channel) return;
+
+        // Debounce: prevent duplicate welcome messages for the same user within 10 seconds
+        const cacheKey = `${member.id}`;
+        const nowTs = Date.now();
+        const lastSent = welcomeCache.get(cacheKey);
+        if (lastSent && nowTs - lastSent < 10000) {
+            return; // Skip duplicate
+        }
+        welcomeCache.set(cacheKey, nowTs);
+        // Clean up old cache entries
+        for (const [key, ts] of welcomeCache.entries()) {
+            if (nowTs - ts > 60000) welcomeCache.delete(key);
+        }
 
         const embed = new EmbedBuilder()
             .setAuthor({ name: 'The Real Ops Group', iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png' })

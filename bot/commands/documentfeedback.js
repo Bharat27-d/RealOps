@@ -23,7 +23,9 @@ module.exports = {
 
   async execute(interaction) {
     try {
-      await interaction.deferReply({ flags: 64 });
+      if (!interaction.replied && !interaction.deferred) {
+        await interaction.deferReply({ flags: 64 });
+      }
 
       const user = interaction.options.getUser('user');
       const documentLink = interaction.options.getString('documentlink');

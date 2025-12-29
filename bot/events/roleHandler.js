@@ -1,6 +1,9 @@
 const { Events, EmbedBuilder } = require('discord.js');
 const config = require('../config');
 
+// In-memory cache for debouncing duplicate staff change messages
+const staffChangeCache = new Map();
+
 const ROLE_DISPLAY_NAMES = {
     [config.ROLES.JNR_PLANNER]: "Jnr Planner",
     [config.ROLES.DEVELOPER]: "Developer",
@@ -40,6 +43,19 @@ module.exports = {
         );
 
         if (addedRoles.size === 0 && removedRoles.size === 0) return;
+
+        // Debounce: prevent duplicate messages for the same user/roles within 10 seconds
+        const cacheKey = `${newMember.id}|${[...addedRoles.keys()].join(',')}|${[...removedRoles.keys()].join(',')}`;
+        const nowTs = Date.now();
+        const lastSent = staffChangeCache.get(cacheKey);
+        if (lastSent && nowTs - lastSent < 10000) {
+            return; // Skip duplicate
+        }
+        staffChangeCache.set(cacheKey, nowTs);
+        // Clean up old cache entries
+        for (const [key, ts] of staffChangeCache.entries()) {
+            if (nowTs - ts > 60000) staffChangeCache.delete(key);
+        }
 
         const now = new Date();
         const dateStr = `${now.getDate().toString().padStart(2, '0')}-${(now.getMonth()+1).toString().padStart(2, '0')}-${now.getFullYear()} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;

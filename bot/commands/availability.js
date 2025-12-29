@@ -6,7 +6,9 @@ module.exports = {
     .setDescription('Show the current Real Ops Group event availability for 2025/2026.'),
   async execute(interaction) {
     try {
-      await interaction.deferReply();
+      if (!interaction.replied && !interaction.deferred) {
+        await interaction.deferReply();
+      }
 
       const embed = new EmbedBuilder()
         .setTitle('Our Availability 2025/2026')
@@ -51,7 +53,7 @@ Media Group Partnerships now open.
           iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'
         });
 
-      // Attach the image referenced as image
+      await interaction.editReply({ embeds: [embed] });
     } catch (error) {
       console.error('Error in /availability:', error);
       if (!interaction.replied && !interaction.deferred) {
