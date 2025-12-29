@@ -470,34 +470,6 @@ function setupTicketSystem(client) {
                 // Handle panel button clicks FIRST (before any other checks)
                 // These need immediate modal response without any acknowledgment
                 if (buttonToPanel[customId]) {
-                    // Quick check if button is disabled (non-blocking, defaults to enabled)
-                    let isEnabled = true;
-                    try {
-                        const buttonStatesDoc = await firebase.firestore()
-                            .collection('settings')
-                            .doc('buttonStates')
-                            .get();
-                        
-                        if (buttonStatesDoc.exists) {
-                            const buttonStates = buttonStatesDoc.data();
-                            // Only disable if explicitly set to false
-                            if (buttonStates[customId] === false) {
-                                isEnabled = false;
-                            }
-                        }
-                    } catch (error) {
-                        console.error('Error checking button state:', error);
-                        // Default to enabled on error
-                    }
-                    
-                    if (!isEnabled) {
-                        await interaction.reply({
-                            content: '⚠️ This button is currently disabled. Please try again later.',
-                            ephemeral: true
-                        });
-                        return;
-                    }
-                    
                     await interaction.showModal(buttonToPanel[customId].createModal());
                     return;
                 }
