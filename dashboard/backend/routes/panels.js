@@ -80,18 +80,44 @@ const BOT_PANEL_DEFAULTS = {
   }
 };
 
+// Toggle button enabled/disabled state
+router.post('/toggle-button', isStaff, async (req, res) => {
+  try {
+    const { buttonId, enabled } = req.body;
+    
+    const buttonStateRef = collections.settings.doc('buttonStates');
+    const buttonStateDoc = await buttonStateRef.get();
+    const buttonStates = buttonStateDoc.exists ? buttonStateDoc.data() : {};
+    
+    buttonStates[buttonId] = enabled;
+    await buttonStateRef.set(buttonStates, { merge: true });
+    
+    res.json({ success: true, message: `Button ${enabled ? 'enabled' : 'disabled'} successfully` });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Get all panels (built-in + custom panels from Firestore)
 router.get('/', isStaff, async (req, res) => {
   try {
-    // Get panel states from Firestore
-    const panelStatesSnapshot = await collections.settings.doc('panelStates').get();
+    // Get panel states and button states from Firestore
+    const [panelStatesSnapshot, buttonStatesSnapshot] = await Promise.all([
+      collections.settings.doc('panelStates').get(),
+      collections.settings.doc('buttonStates').get()
+    ]);
     const panelStates = panelStatesSnapshot.exists ? panelStatesSnapshot.data() : {};
+    const buttonStates = buttonStatesSnapshot.exists ? buttonStatesSnapshot.data() : {};
     
-    // Get built-in panels with their enabled states
+    // Get built-in panels with their button states
     const builtInPanels = Object.values(BOT_PANEL_DEFAULTS).map(p => ({
       ...p,
       isBuiltIn: true,
-      enabled: panelStates[p.type] !== false // Default to enabled if not set
+      enabled: panelStates[p.type] !== false,
+      buttons: p.buttons.map(btn => ({
+        ...btn,
+        enabled: buttonStates[btn.customId] !== false // Default to enabled
+      }))
     }));
     
     // Get custom panels from Firestore

@@ -68,6 +68,16 @@ function Panels() {
     }
   };
 
+  const toggleButton = async (buttonId, currentState) => {
+    try {
+      await panels.toggleButton(buttonId, !currentState);
+      toast.success(`Button ${!currentState ? 'enabled' : 'disabled'} successfully`);
+      loadPanel(selectedType); // Reload to get updated state
+    } catch (error) {
+      toast.error(error.response?.data?.error || 'Failed to toggle button');
+    }
+  };
+
   const savePanel = async () => {
     try {
       const response = await panels.save(panelData);
@@ -247,6 +257,21 @@ function Panels() {
                       }}>
                         <span style={{ fontSize: '18px' }}>{btn.emoji}</span>
                         <span style={{ color: '#FFD700', flex: 1, fontWeight: '500' }}>{btn.label}</span>
+                        <button
+                          onClick={() => toggleButton(btn.customId, btn.enabled)}
+                          style={{
+                            padding: '6px 16px',
+                            background: btn.enabled !== false ? '#28a745' : '#dc3545',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            fontSize: '13px',
+                            fontWeight: '500'
+                          }}
+                        >
+                          {btn.enabled !== false ? 'Enabled' : 'Disabled'}
+                        </button>
                         <span className="badge" style={{ 
                           padding: '4px 10px', 
                           fontSize: '12px'

@@ -76,7 +76,8 @@ export const panels = {
   createCustom: (data) => api.post('/api/panels/custom', data),
   updateCustom: (id, data) => api.put(`/api/panels/custom/${id}`, data),
   deleteCustom: (id) => api.delete(`/api/panels/custom/${id}`),
-  updatePanelState: (panelId, enabled) => api.put(`/api/panels/${panelId}/state`, { enabled })
+  updatePanelState: (panelId, enabled) => api.put(`/api/panels/${panelId}/state`, { enabled }),
+  toggleButton: (buttonId, enabled) => api.post('/api/panels/toggle-button', { buttonId, enabled })
 };
 
 // Discord endpoints
