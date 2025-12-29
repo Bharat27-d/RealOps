@@ -115,7 +115,7 @@ async function registerCommands() {
 }
 
 // When bot is ready
-client.once('clientReady', async () => {
+client.once('ready', async () => {
     console.log(`✅ Bot logged in as ${client.user.tag}`);
 
     // Attractive activities to rotate

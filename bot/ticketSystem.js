@@ -365,7 +365,7 @@ function setupTicketSystem(client) {
         console.warn('⚠️ Firebase not configured - tickets will only save locally');
     }
 
-    client.once('clientReady', async () => {
+    client.once('ready', async () => {
         console.log(`Bot is ready. Current date (UTC): ${formatDateUTC(new Date())}`);
         
         // Check if we need to rebuild tickets (file was corrupted/empty)
