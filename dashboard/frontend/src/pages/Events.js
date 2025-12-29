@@ -15,13 +15,11 @@ function Events() {
   const [activeView, setActiveView] = useState('overview');
   const [showScenarioBuilder, setShowScenarioBuilder] = useState(false);
   const [showAnnouncementModal, setShowAnnouncementModal] = useState(false);
-  const [showForumManager, setShowForumManager] = useState(false);
   
   // Data states
   const [channels, setChannels] = useState([]);
   const [roles, setRoles] = useState([]);
   const [eventsList, setEventsList] = useState([]);
-  const [forumsList, setForumsList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [truckerMpData, setTruckerMpData] = useState(null);
   const [channelSearch, setChannelSearch] = useState('');
@@ -70,15 +68,6 @@ function Events() {
   const [timelineView, setTimelineView] = useState('month');
   const [selectedDate, setSelectedDate] = useState(new Date());
 
-  // Forum management states
-  const [forumConfig, setForumConfig] = useState({
-    forumId: '',
-    autoLock: false,
-    lockAfterDays: 7,
-    autoArchive: false,
-    archiveAfterDays: 30
-  });
-
   // Add to Calendar state
   const [showAddToCalendar, setShowAddToCalendar] = useState(false);
   const [calendarEventLink, setCalendarEventLink] = useState('');
@@ -88,7 +77,6 @@ function Events() {
     fetchChannels();
     fetchRoles();
     fetchEvents();
-    fetchForums();
     
     // Close dropdowns when clicking outside
     const handleClickOutside = (e) => {
@@ -125,15 +113,6 @@ function Events() {
       setEventsList(response.data || []);
     } catch (error) {
       console.error('Error fetching events:', error);
-    }
-  };
-
-  const fetchForums = async () => {
-    try {
-      const response = await discord.getChannels();
-      setForumsList(response.data?.filter(c => c.type === 'GUILD_FORUM') || []);
-    } catch (error) {
-      console.error('Error fetching forums:', error);
     }
   };
 
@@ -512,43 +491,6 @@ function Events() {
     }
   };
 
-  // Forum management handlers
-  const createEventForum = async (eventTitle, message = '') => {
-    if (!forumConfig.forumId) {
-      toast.error('Please select a forum channel first');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      await events.createForum({
-        forumId: forumConfig.forumId,
-        title: eventTitle,
-        message: message || `Event discussion for: ${eventTitle}`
-      });
-      toast.success('Forum thread created successfully!');
-    } catch (error) {
-      console.error('Error creating forum:', error);
-      toast.error(error.response?.data?.error || 'Failed to create forum thread');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const saveForumConfig = async () => {
-    setLoading(true);
-    try {
-      await events.updateForumConfig(forumConfig);
-      toast.success('Forum configuration saved');
-      setShowForumManager(false);
-    } catch (error) {
-      console.error('Error saving forum config:', error);
-      toast.error('Failed to save configuration');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   // Render Overview
   const renderOverview = () => (
     <div className="events-overview">
@@ -569,15 +511,6 @@ function Events() {
           <h3>Event Timeline</h3>
           <p>Visual calendar view with event announcements and management (matches /staff-resources command)</p>
           <button className="btn btn-primary"><FaCalendarAlt /> View Timeline</button>
-        </div>
-
-        <div className="feature-card" onClick={() => setShowForumManager(true)}>
-          <div className="feature-icon">
-            <FaArchive />
-          </div>
-          <h3>Forum Management</h3>
-          <p>Auto-create month-based forums and threads (matches /eventforum and /upcoming-events commands)</p>
-          <button className="btn btn-primary"><FaClock /> Manage Forums</button>
         </div>
       </div>
 
@@ -773,9 +706,6 @@ function Events() {
           </button>
           <button className="btn btn-outline" onClick={() => setActiveView('timeline')}>
             <FaCalendar /> Timeline
-          </button>
-          <button className="btn btn-outline" onClick={() => setShowForumManager(true)}>
-            <FaArchive /> Forums
           </button>
         </div>
       </div>
@@ -1383,169 +1313,6 @@ function Events() {
                 <FaBell /> {loading ? 'Creating...' : (announcement.schedule ? 'Schedule Announcement' : 'Send Now')}
               </button>
               <button className="btn btn-outline" onClick={() => setShowAnnouncementModal(false)}>
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* /* Forum Management Modal */}
-      {showForumManager && (
-        <div className="modal-overlay" onClick={() => setShowForumManager(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>Forum Management</h3>
-              <button className="close-btn" onClick={() => setShowForumManager(false)}>×</button>
-            </div>
-
-            <div className="form-group">
-              <label>Forum Channel</label>
-              <select value={forumConfig.forumId} onChange={(e) => setForumConfig({...forumConfig, forumId: e.target.value})}>
-                <option value="">Select a forum channel</option>
-                {forumsList.map(forum => (
-                  <option key={forum.id} value={forum.id}>{forum.name}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="forum-automation-section">
-              <h4><FaLock /> Auto-Lock Settings</h4>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-                <input 
-                  type="checkbox"
-                  checked={forumConfig.autoLock}
-                  onChange={(e) => setForumConfig({...forumConfig, autoLock: e.target.checked})}
-                  style={{ width: 'auto' }}
-                />
-                Enable auto-lock
-              </label>
-              {forumConfig.autoLock && (
-                <div className="form-group">
-                  <label>Lock threads after (days)</label>
-                  <input 
-                    type="number"
-                    value={forumConfig.lockAfterDays}
-                    onChange={(e) => setForumConfig({...forumConfig, lockAfterDays: parseInt(e.target.value)})}
-                    min="1"
-                  />
-                </div>
-              )}
-            </div>
-
-            <div className="forum-automation-section">
-              <h4><FaArchive /> Auto-Archive Settings</h4>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-                <input 
-                  type="checkbox"
-                  checked={forumConfig.autoArchive}
-                  onChange={(e) => setForumConfig({...forumConfig, autoArchive: e.target.checked})}
-                  style={{ width: 'auto' }}
-                />
-                Enable auto-archive
-              </label>
-              {forumConfig.autoArchive && (
-                <div className="form-group">
-                  <label>Archive threads after (days)</label>
-                  <input 
-                    type="number"
-                    value={forumConfig.archiveAfterDays}
-                    onChange={(e) => setForumConfig({...forumConfig, archiveAfterDays: parseInt(e.target.value)})}
-                    min="1"
-                  />
-                </div>
-              )}
-            </div>
-
-            {/* Create Forum Post Section */}
-            <div style={{ 
-              marginTop: '25px', 
-              padding: '20px', 
-              background: 'rgba(88, 101, 242, 0.1)', 
-              border: '1px solid rgba(88, 101, 242, 0.3)',
-              borderRadius: '12px' 
-            }}>
-              <h4 style={{ marginBottom: '15px', color: '#5865F2' }}>
-                <FaComments /> Create Forum Post
-              </h4>
-              
-              <div className="form-group">
-                <label>Thread Title *</label>
-                <input 
-                  type="text"
-                  placeholder="Event title or topic..."
-                  onChange={(e) => {
-                    const title = e.target.value;
-                    e.target.form.dataset.forumTitle = title;
-                  }}
-                  style={{
-                    background: '#2C2F33',
-                    border: '1px solid #40444b',
-                    borderRadius: '8px',
-                    padding: '10px',
-                    color: '#dcddde'
-                  }}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Message (optional)</label>
-                <textarea 
-                  name="forumMessage"
-                  placeholder="Thread content..."
-                  rows={3}
-                  style={{
-                    background: '#2C2F33',
-                    border: '1px solid #40444b',
-                    borderRadius: '8px',
-                    padding: '10px',
-                    color: '#dcddde',
-                    resize: 'vertical',
-                    fontFamily: 'inherit'
-                  }}
-                />
-              </div>
-
-              <button 
-                className="btn" 
-                onClick={(e) => {
-                  const form = e.target.closest('.modal');
-                  const title = form.querySelector('input[placeholder*="Event title"]')?.value;
-                  const message = form.querySelector('textarea[name="forumMessage"]')?.value;
-                  if (!title) {
-                    toast.error('Please enter a thread title');
-                    return;
-                  }
-                  createEventForum(title, message);
-                }}
-                disabled={!forumConfig.forumId || loading}
-                style={{ 
-                  width: '100%',
-                  background: 'linear-gradient(135deg, #5865F2, #4752C4)',
-                  opacity: !forumConfig.forumId ? 0.5 : 1
-                }}
-              >
-                <FaPlus style={{ marginRight: '8px' }} /> 
-                {loading ? 'Creating...' : 'Create Forum Thread'}
-              </button>
-
-              {!forumConfig.forumId && (
-                <p style={{ 
-                  marginTop: '10px', 
-                  fontSize: '12px', 
-                  color: '#f04747',
-                  textAlign: 'center'
-                }}>
-                  ⚠️ Please select a forum channel first
-                </p>
-              )}
-            </div>
-
-            <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-              <button className="btn btn-primary" onClick={saveForumConfig} disabled={loading} style={{ flex: 1 }}>
-                <FaCheckCircle /> {loading ? 'Saving...' : 'Save Configuration'}
-              </button>
-              <button className="btn btn-outline" onClick={() => setShowForumManager(false)}>
                 Cancel
               </button>
             </div>
