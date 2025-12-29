@@ -469,6 +469,7 @@ function MentionSelector({ selectedMentions, roles, onChange, label = 'Mention R
 }
 
 // Single channel select with search
+// eslint-disable-next-line no-unused-vars
 function ChannelSelect({ value, onChange, channels }) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
