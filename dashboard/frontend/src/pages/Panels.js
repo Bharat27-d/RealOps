@@ -70,8 +70,12 @@ function Panels() {
 
   const toggleButton = async (buttonId, currentState) => {
     try {
-      await panels.toggleButton(buttonId, !currentState);
-      toast.success(`Button ${!currentState ? 'enabled' : 'disabled'} successfully`);
+      // If currentState is undefined, treat it as enabled (true)
+      const isCurrentlyEnabled = currentState !== false;
+      const newState = !isCurrentlyEnabled;
+      
+      await panels.toggleButton(buttonId, newState);
+      toast.success(`Button ${newState ? 'enabled' : 'disabled'} successfully`);
       loadPanel(selectedType); // Reload to get updated state
     } catch (error) {
       toast.error(error.response?.data?.error || 'Failed to toggle button');
