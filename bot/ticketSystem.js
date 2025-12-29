@@ -401,9 +401,10 @@ function setupTicketSystem(client) {
             if (interaction.isCommand() || interaction.isChatInputCommand()) {
                 const commandName = interaction.commandName;
                 
-                // Defer reply immediately to prevent "Unknown interaction" errors
-                // This gives us 15 minutes instead of 3 seconds to respond
-                if (!interaction.replied && !interaction.deferred) {
+                // Only defer for setup commands that need it
+                // Regular commands handle their own deferral
+                const setupCommands = ['setup-jointeam', 'setup-bookus', 'setup-support', 'setup-partnership', 'setup-founders', 'setup-hr', 'register-ticket', 'debug-tickets'];
+                if (setupCommands.includes(commandName) && !interaction.replied && !interaction.deferred) {
                     await interaction.deferReply({ flags: MessageFlags.Ephemeral }).catch(() => {});
                 }
 
