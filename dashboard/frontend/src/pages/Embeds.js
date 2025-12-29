@@ -502,6 +502,11 @@ function Embeds() {
       console.error('Failed to load data:', error);
       const errorMsg = error.response?.data?.error || error.message || 'Failed to load data';
       toast.error(errorMsg);
+      
+      // If not authenticated, reload the page to trigger login screen
+      if (error.response?.status === 401) {
+        setTimeout(() => window.location.reload(), 1500);
+      }
     } finally {
       setLoading(false);
     }
