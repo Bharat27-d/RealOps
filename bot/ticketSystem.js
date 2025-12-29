@@ -470,8 +470,23 @@ function setupTicketSystem(client) {
                 // Handle panel button clicks FIRST (before any other checks)
                 // These need immediate modal response without any acknowledgment
                 if (buttonToPanel[customId]) {
-                    await interaction.showModal(buttonToPanel[customId].createModal());
-                    return;
+                    try {
+                        console.log(`Panel button clicked: ${customId}`);
+                        const modal = buttonToPanel[customId].createModal();
+                        await interaction.showModal(modal);
+                        console.log(`Modal shown for: ${customId}`);
+                        return;
+                    } catch (error) {
+                        console.error(`Error showing modal for ${customId}:`, error);
+                        // Try to reply with error if interaction hasn't been responded to
+                        if (!interaction.replied && !interaction.deferred) {
+                            await interaction.reply({
+                                content: '❌ An error occurred while opening the form. Please try again or contact an administrator.',
+                                ephemeral: true
+                            }).catch(console.error);
+                        }
+                        return;
+                    }
                 }
 
                 // Handle ticket management buttons
