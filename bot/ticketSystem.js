@@ -470,24 +470,6 @@ function setupTicketSystem(client) {
                 // Handle panel button clicks FIRST (before any other checks)
                 // These need immediate modal response without any acknowledgment
                 if (buttonToPanel[customId]) {
-                    // Check if button is enabled in Firebase
-                    if (firebase && firebase.collections) {
-                        try {
-                            const buttonStateDoc = await firebase.collections.settings.doc('buttonStates').get();
-                            const buttonStates = buttonStateDoc.exists ? buttonStateDoc.data() : {};
-                            
-                            if (buttonStates[customId] === false) {
-                                await interaction.reply({
-                                    content: '⚠️ This panel is currently disabled. Please try again later or contact an administrator.',
-                                    flags: MessageFlags.Ephemeral
-                                });
-                                return;
-                            }
-                        } catch (error) {
-                            console.error('Error checking button state:', error);
-                        }
-                    }
-                    
                     await interaction.showModal(buttonToPanel[customId].createModal());
                     return;
                 }

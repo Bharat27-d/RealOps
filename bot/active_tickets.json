@@ -674,5 +674,52 @@
       "eventMeetupTs": 1778328000,
       "daysUntilEvent": 173
     }
+  },
+  "1454827301156945942": {
+    "channelId": "1454827301156945942",
+    "userId": "1148318409126318100",
+    "username": "mopsigamingg",
+    "type": "joinTeam",
+    "createdAt": "2025-12-28T13:24:19.727Z",
+    "formData": {
+      "position": "Real Ops Staff Member",
+      "truckermpId": "5399957",
+      "experience": "I am since 6 Months Member of the FoxLog Real Ops & since 2 weeks i got promoted to Real Ops Planner of the FLR",
+      "whyChoose": "Because i'm very motivated and want to help out in the Team with the Events",
+      "timeCommitment": "About 4 hours in the week or more. Mostly on Weekend",
+      "submittedAt": "2025-12-28 13:24:17",
+      "timestamp": 1766928257
+    },
+    "transcript": []
+  },
+  "1454889171066949857": {
+    "channelId": "1454889171066949857",
+    "userId": "896822840563736668",
+    "username": "zhapatlela",
+    "type": "support",
+    "createdAt": "2025-12-28T17:30:09.262Z",
+    "formData": {
+      "discordName": "Zhapatlela",
+      "helpDescription": "Hey guys! Due to some time issues, I’ll be stepping out of the Convoy Control group. Had a great time with you all keep rolling safe",
+      "submittedAt": "2025-12-28T17:30:08.144Z"
+    },
+    "transcript": []
+  },
+  "1454936485701750846": {
+    "channelId": "1454936485701750846",
+    "userId": "1196799963242438767",
+    "username": "v1per_o",
+    "type": "joinTeam",
+    "createdAt": "2025-12-28T20:38:10.199Z",
+    "formData": {
+      "position": "Media Team",
+      "truckermpId": "6006239",
+      "experience": "I have been in enough VTC’s within TMP to have a value of my work, some of them are Ghost Express, Northern Express, At The Mile Logistics, Line of Energy are some of the VTC’s I have contributed and am contributing to currently, I have been taking pictures besides that normally in ETS and other simulation games.",
+      "whyChoose": "I'm interested in applying for this position within the media team for the Real Ops Group as I believe I am fit with my valuable skills and creative mindset I believe I stand a good chance due to my work and creative way of working, I always try to do a great job within my work I present and try to do it even better the next time and always try to improve as much as possible. I like to do my work on time and never try to extend a period a job has to be done.",
+      "timeCommitment": "I have enough time to dedicate to this position. My only possible issue would be to have to commit to being online at very specific times (e.g. attend events) because sometimes my IRL schedule etc.",
+      "submittedAt": "2025-12-28 20:38:09",
+      "timestamp": 1766954289
+    },
+    "transcript": []
   }
 }
