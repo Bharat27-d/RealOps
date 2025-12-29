@@ -17,7 +17,8 @@ const PORT = process.env.PORT || 3001;
 app.use(cors({
   origin: [
     'http://localhost:3000',
-    'http://159.69.219.151'
+    'http://159.69.219.151',
+    'http://159.69.219.151:3000'
   ],
   credentials: true
 }));
@@ -39,8 +40,9 @@ app.use(session({
   cookie: {
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
     httpOnly: true,
-    secure: false, // Must be false for HTTP (not HTTPS)
-    sameSite: 'lax'
+    secure: false,
+    sameSite: 'lax',
+    domain: undefined // Allow any domain
   }
 }));
 
