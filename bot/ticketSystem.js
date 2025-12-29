@@ -470,7 +470,8 @@ function setupTicketSystem(client) {
                 // Handle panel button clicks FIRST (before any other checks)
                 // These need immediate modal response without any acknowledgment
                 if (buttonToPanel[customId]) {
-                    // Check if button is disabled in Firebase
+                    // Quick check if button is disabled (non-blocking, defaults to enabled)
+                    let isEnabled = true;
                     try {
                         const buttonStatesDoc = await firebase.firestore()
                             .collection('settings')
@@ -479,19 +480,22 @@ function setupTicketSystem(client) {
                         
                         if (buttonStatesDoc.exists) {
                             const buttonStates = buttonStatesDoc.data();
-                            const isEnabled = buttonStates[customId] !== false;
-                            
-                            if (!isEnabled) {
-                                await safeReply(interaction, {
-                                    content: '⚠️ This panel is currently disabled. Please try again later.',
-                                    flags: MessageFlags.Ephemeral
-                                });
-                                return;
+                            // Only disable if explicitly set to false
+                            if (buttonStates[customId] === false) {
+                                isEnabled = false;
                             }
                         }
                     } catch (error) {
                         console.error('Error checking button state:', error);
-                        // Continue anyway if there's an error checking the state
+                        // Default to enabled on error
+                    }
+                    
+                    if (!isEnabled) {
+                        await interaction.reply({
+                            content: '⚠️ This button is currently disabled. Please try again later.',
+                            ephemeral: true
+                        });
+                        return;
                     }
                     
                     await interaction.showModal(buttonToPanel[customId].createModal());
