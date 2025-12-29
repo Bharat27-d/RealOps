@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { 
   FaPlus, FaTrash, FaArrowUp, FaArrowDown, FaPaperPlane, FaCalendar, 
-  FaClock, FaBell, FaCopy, FaLock, FaArchive,
+  FaClock, FaBell, FaCopy, FaLock,
   FaGripVertical, FaList, FaTable, FaCalendarAlt,
-  FaCheckCircle, FaChevronLeft, FaChevronRight, FaUsers, FaComments
+  FaCheckCircle, FaChevronLeft, FaChevronRight, FaUsers
 } from 'react-icons/fa';
 import { events, discord } from '../services/api';
 import ConfirmDialog from '../components/ConfirmDialog';
