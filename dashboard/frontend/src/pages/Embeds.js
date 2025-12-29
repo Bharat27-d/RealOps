@@ -499,7 +499,9 @@ function Embeds() {
       setChannels(channelsRes.data);
       setRoles(rolesRes.data);
     } catch (error) {
-      toast.error('Failed to load data');
+      console.error('Failed to load data:', error);
+      const errorMsg = error.response?.data?.error || error.message || 'Failed to load data';
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
