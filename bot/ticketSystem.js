@@ -199,19 +199,14 @@ async function safeInteractionHandler(interaction, handler) {
         await handler(interaction);
     } catch (error) {
         console.error(`Error handling ${interaction.type} interaction:`, error);
-        try {
-            await handler(interaction);
-        } catch (error) {
-            console.error(`Error handling ${interaction.type} interaction:`, error);
-            if (!interaction.replied && !interaction.deferred) {
-                try {
-                    await interaction.reply({ 
-                        content: 'An error occurred while processing your request.',
-                        flags: MessageFlags.Ephemeral
-                    });
-                } catch (replyError) {
-                    console.error('Failed to send error reply:', replyError);
-                }
+        if (!interaction.replied && !interaction.deferred) {
+            try {
+                await interaction.reply({ 
+                    content: 'An error occurred while processing your request.',
+                    flags: MessageFlags.Ephemeral
+                });
+            } catch (replyError) {
+                console.error('Failed to send error reply:', replyError);
             }
         }
     }

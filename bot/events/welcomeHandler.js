@@ -41,9 +41,13 @@ Enjoy your stay! 🚀
             .setFooter({ text: 'The Real Ops Group', iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png' });
 
         // Mention the user outside the embed
-        channel.send({
-            content: `<@${member.id}>`,
-            embeds: [embed]
-        });
+        try {
+            await channel.send({
+                content: `<@${member.id}>`,
+                embeds: [embed]
+            });
+        } catch (error) {
+            console.error('Failed to send welcome message:', error);
+        }
     }
 };
