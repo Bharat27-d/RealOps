@@ -396,6 +396,11 @@ function setupTicketSystem(client) {
 
     // Main interaction handler with improved error handling
     client.on(Events.InteractionCreate, (interaction) => {
+        console.log(`[INTERACTION] Type: ${interaction.type}, isButton: ${interaction.isButton()}, isModal: ${interaction.isModalSubmit()}, isCommand: ${interaction.isCommand()}`);
+        if (interaction.isButton()) {
+            console.log(`[BUTTON] CustomId: ${interaction.customId}`);
+        }
+        
         safeInteractionHandler(interaction, async (interaction) => {
             // --- PANEL SETUP COMMANDS ---
             if (interaction.isCommand() || interaction.isChatInputCommand()) {
