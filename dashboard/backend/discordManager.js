@@ -52,7 +52,7 @@ class DiscordBotManager {
 
     this.client.login(token);
 
-    this.client.on('ready', () => {
+    this.client.once('clientReady', () => {
       console.log(`✅ Bot logged in as ${this.client.user.tag}`);
     });
   }
@@ -435,15 +435,13 @@ class DiscordBotManager {
       // Check cache first to prevent rate limiting
       const cacheKey = `roleCount_${roleId}`;
       if (!this.cache[cacheKey]) {
-        this.cache[cacheKey] = { data: null, timestamp: 0, ttl: 60000 }; // 1 minute cache
+        this.cache[cacheKey] = { data: null, timestamp: 0, ttl: 300000 }; // 5 minute cache (increased from 1 min)
       }
       
       if (this.isCacheValid(cacheKey)) {
-        console.log(`Using cached role count for ${roleId}`);
         return this.cache[cacheKey].data;
       }
       
-      console.log(`Fetching members with role: ${roleId}`);
       const guild = await this.client.guilds.fetch(process.env.DISCORD_GUILD_ID);
       
       // Only fetch members if cache is stale - don't overwrite the members cache here
