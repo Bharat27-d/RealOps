@@ -15,34 +15,37 @@ const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'http://159.69.219.151',
-    'http://159.69.219.151:3000'
-  ],
-  credentials: true
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'http://159.69.219.151',
+      'http://159.69.219.151:3000'
+    ];
+    if (allowedOrigins.indexOf(origin) === -1) {
+      return callback(null, true); // Allow all for now
+    }
+    return callback(null, true);
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 
-// Redis client setup
-const redisClient = createClient({
-  url: process.env.REDIS_URL || 'redis://localhost:6379'
-});
-redisClient.connect().catch(console.error);
-
+// Session must be before Redis
 app.use(session({
-  store: new RedisStore({ client: redisClient }),
-  secret: process.env.SESSION_SECRET || 'realops-secret-key-change-in-production',
+  secret: process.env.SESSION_SECRET || 'RealOps_Secure_Session_Key_2024_a9f8e7d6c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1f0e9d8c7b6a5f4e3d2c1b0a9f8',
   resave: false,
-  saveUninitialized: true, // Changed to true
+  saveUninitialized: true,
   cookie: {
     maxAge: 24 * 60 * 60 * 1000,
     httpOnly: false,
     secure: false,
-    sameSite: 'lax',
-    path: '/'
+    sameSite: 'lax'
   }
 }));
 
