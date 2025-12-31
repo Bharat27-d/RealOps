@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { toast } from 'react-toastify';
 import { 
   FaPlus, FaTrash, FaArrowUp, FaArrowDown, FaPaperPlane, FaCalendar, 
   FaClock, FaBell, FaCopy, FaLock,
   FaGripVertical, FaList, FaTable, FaCalendarAlt,
-  FaCheckCircle, FaChevronLeft, FaChevronRight, FaUsers
+  FaCheckCircle, FaChevronLeft, FaChevronRight, FaUsers, FaUpload, FaSpinner
 } from 'react-icons/fa';
-import { events, discord } from '../services/api';
+import { events, discord, upload } from '../services/api';
 import ConfirmDialog from '../components/ConfirmDialog';
 import './Events.css';
 
@@ -72,6 +72,10 @@ function Events() {
   const [showAddToCalendar, setShowAddToCalendar] = useState(false);
   const [calendarEventLink, setCalendarEventLink] = useState('');
   const [calendarEventData, setCalendarEventData] = useState(null);
+
+  // Image upload states
+  const [uploadingImage, setUploadingImage] = useState(null); // Track which scenario is uploading
+  const fileInputRefs = useRef({});
 
   useEffect(() => {
     fetchChannels();
@@ -205,6 +209,44 @@ function Events() {
     setScenarios(scenarios.map(s => 
       s.id === id ? { ...s, collapsed: !s.collapsed } : s
     ));
+  };
+
+  // Image upload handler for scenarios
+  const handleImageUpload = async (scenarioId, file) => {
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Invalid file type. Only JPEG, PNG, GIF, and WEBP are allowed.');
+      return;
+    }
+
+    // Validate file size (10MB max)
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('File size must be less than 10MB');
+      return;
+    }
+
+    setUploadingImage(scenarioId);
+    try {
+      const response = await upload.image(file);
+      if (response.data.success) {
+        updateScenario(scenarioId, 'image', response.data.url);
+        toast.success('Image uploaded successfully!');
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.error('Failed to upload image: ' + (error.response?.data?.error || error.message));
+    } finally {
+      setUploadingImage(null);
+    }
+  };
+
+  const triggerFileInput = (scenarioId) => {
+    if (fileInputRefs.current[scenarioId]) {
+      fileInputRefs.current[scenarioId].click();
+    }
   };
 
   const sendScenarios = async () => {
@@ -849,24 +891,69 @@ function Events() {
                       <div className="grid grid-2">
                         <div className="form-group">
                           <label>
-                            Image URL *
+                            Image {scenario.required && '*'}
                             {scenario.required && <span style={{ color: '#e74c3c', marginLeft: '4px' }}>*</span>}
                           </label>
-                          <input 
-                            type="text"
-                            value={scenario.image}
-                            onChange={(e) => updateScenario(scenario.id, 'image', e.target.value)}
-                            placeholder={scenario.required ? "https://... (must be valid image URL)" : "https://... or leave empty"}
-                            required={scenario.required}
-                            style={{
-                              background: '#1e2124',
-                              border: '2px solid #40444b',
-                              borderRadius: '8px',
-                              padding: '12px',
-                              color: '#dcddde',
-                              fontSize: '14px'
-                            }}
-                          />
+                          <div style={{ display: 'flex', gap: '8px', alignItems: 'stretch' }}>
+                            <input 
+                              type="text"
+                              value={scenario.image}
+                              onChange={(e) => updateScenario(scenario.id, 'image', e.target.value)}
+                              placeholder={scenario.required ? "Enter URL or upload image" : "Enter URL, upload, or leave empty"}
+                              required={scenario.required}
+                              style={{
+                                flex: 1,
+                                background: '#1e2124',
+                                border: '2px solid #40444b',
+                                borderRadius: '8px',
+                                padding: '12px',
+                                color: '#dcddde',
+                                fontSize: '14px'
+                              }}
+                            />
+                            <input
+                              type="file"
+                              ref={(el) => fileInputRefs.current[scenario.id] = el}
+                              onChange={(e) => handleImageUpload(scenario.id, e.target.files[0])}
+                              accept="image/jpeg,image/png,image/gif,image/webp"
+                              style={{ display: 'none' }}
+                            />
+                            <button
+                              type="button"
+                              className="btn btn-primary"
+                              onClick={() => triggerFileInput(scenario.id)}
+                              disabled={uploadingImage === scenario.id}
+                              style={{
+                                padding: '12px 16px',
+                                minWidth: '100px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '6px',
+                                background: uploadingImage === scenario.id ? '#40444b' : '#5865F2',
+                                border: 'none',
+                                borderRadius: '8px',
+                                color: '#fff',
+                                cursor: uploadingImage === scenario.id ? 'not-allowed' : 'pointer'
+                              }}
+                              title="Upload image directly (recommended for Discord embeds)"
+                            >
+                              {uploadingImage === scenario.id ? (
+                                <>
+                                  <FaSpinner style={{ animation: 'spin 1s linear infinite' }} />
+                                  <span>Uploading...</span>
+                                </>
+                              ) : (
+                                <>
+                                  <FaUpload />
+                                  <span>Upload</span>
+                                </>
+                              )}
+                            </button>
+                          </div>
+                          <small style={{ color: '#72767d', marginTop: '4px', display: 'block' }}>
+                            💡 Upload images directly for reliable Discord embedding (recommended)
+                          </small>
                         </div>
                         <div className="form-group">
                           <label>Color</label>

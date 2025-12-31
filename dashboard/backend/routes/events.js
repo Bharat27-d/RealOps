@@ -4,10 +4,18 @@ const { collections } = require('../firebase');
 const botManager = require('../discordManager');
 const { isStaff } = require('../auth');
 const reminderScheduler = require('../reminderScheduler');
+const { cache, CACHE_TTL } = require('../cache');
 
-// Get all events
+// Get all events with caching
 router.get('/', isStaff, async (req, res) => {
   try {
+    // Check cache first (short TTL since events change frequently)
+    const cacheKey = 'events:all';
+    const cachedData = cache.get(cacheKey);
+    if (cachedData) {
+      return res.json(cachedData);
+    }
+
     const snapshot = await collections.events.orderBy('date', 'desc').get();
     const events = [];
     const now = new Date();
@@ -43,8 +51,19 @@ router.get('/', isStaff, async (req, res) => {
       console.log(`Auto-deleted ${deletedEvents.length} past calendar events`);
     }
     
+    // Cache for 30 seconds
+    cache.set(cacheKey, events, CACHE_TTL.SHORT);
+    
     res.json(events);
   } catch (error) {
+    // Handle quota exceeded
+    if (error.code === 8 || error.message?.includes('Quota exceeded')) {
+      const cachedData = cache.get('events:all');
+      if (cachedData) {
+        return res.json(cachedData);
+      }
+      return res.status(503).json({ error: 'Firebase quota exceeded' });
+    }
     res.status(500).json({ error: error.message });
   }
 });
@@ -261,6 +280,10 @@ router.post('/', isStaff, async (req, res) => {
       status: 'scheduled'
     });
 
+    // Invalidate events cache
+    cache.invalidate('events:*');
+    cache.invalidate('analytics:*');
+
     res.json({ id: docRef.id, ...eventData });
   } catch (error) {
     console.error('Error creating event:', error);
@@ -343,6 +366,9 @@ async function sendEventReminder(eventId) {
 router.put('/:id', isStaff, async (req, res) => {
   try {
     await collections.events.doc(req.params.id).update(req.body);
+    // Invalidate events cache
+    cache.invalidate('events:*');
+    cache.invalidate('analytics:*');
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -356,6 +382,9 @@ router.delete('/:id', isStaff, async (req, res) => {
     reminderScheduler.cancelReminder(req.params.id);
     
     await collections.events.doc(req.params.id).delete();
+    // Invalidate events cache
+    cache.invalidate('events:*');
+    cache.invalidate('analytics:*');
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: error.message });

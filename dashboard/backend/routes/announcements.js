@@ -29,6 +29,9 @@ async function initializeScheduledMessages() {
     // Ignore NOT_FOUND errors (collection doesn't exist yet)
     if (error.code === 5 || error.message.includes('NOT_FOUND')) {
       console.log('ℹ️  No scheduled messages collection yet (will be created on first use)');
+    } else if (error.code === 8 || error.message.includes('RESOURCE_EXHAUSTED') || error.message.includes('Quota exceeded')) {
+      console.warn('⚠️  Firebase quota exceeded - scheduled messages will load on next restart');
+      console.warn('   Consider upgrading your Firebase plan or wait for quota reset (usually midnight PT)');
     } else {
       console.error('Error initializing scheduled messages:', error);
     }
@@ -60,7 +63,12 @@ async function cleanupOldMessages() {
       console.log(`🗑️ Cleaned up ${deletedCount} old sent messages`);
     }
   } catch (error) {
-    console.error('Error cleaning up old messages:', error);
+    // Handle quota exceeded gracefully
+    if (error.code === 8 || error.message?.includes('Quota exceeded') || error.message?.includes('RESOURCE_EXHAUSTED')) {
+      console.warn('⚠️  Firebase quota exceeded - skipping message cleanup');
+    } else {
+      console.error('Error cleaning up old messages:', error);
+    }
   }
 }
 

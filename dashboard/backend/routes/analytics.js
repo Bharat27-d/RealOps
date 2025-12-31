@@ -3,29 +3,68 @@ const router = express.Router();
 const { collections } = require('../firebase');
 const { isStaff } = require('../auth');
 const discordManager = require('../discordManager');
+const { cache, CACHE_TTL } = require('../cache');
 
-// Get analytics data
+// Get analytics data with caching
 router.get('/overview', isStaff, async (req, res) => {
   try {
+    // Check cache first
+    const cacheKey = 'analytics:overview';
+    const cachedData = cache.get(cacheKey);
+    if (cachedData) {
+      return res.json(cachedData);
+    }
+
+    // Fetch all data once (instead of multiple times)
+    const [ticketSnapshot, eventSnapshot, staffSnapshot] = await Promise.all([
+      collections.tickets.get(),
+      collections.events.get(),
+      collections.staff.where('isStaff', '==', true).get()
+    ]);
+
+    // Convert snapshots to arrays once
+    const tickets = [];
+    ticketSnapshot.forEach(doc => tickets.push(doc.data()));
+    
+    const events = [];
+    eventSnapshot.forEach(doc => events.push(doc.data()));
+    
+    const staff = [];
+    staffSnapshot.forEach(doc => staff.push(doc.data()));
+
+    // Get Team Member role count from Discord (cached separately)
+    const TEAM_MEMBER_ROLE_ID = '1291122795190812774';
+    const teamMemberCount = await discordManager.getMembersWithRoleCount(TEAM_MEMBER_ROLE_ID);
+
     const stats = {
-      tickets: await getTicketStats(),
-      events: await getEventStats(),
-      staff: await getStaffStats(),
-      engagement: await getEngagementStats()
+      tickets: getTicketStats(tickets),
+      events: getEventStats(events),
+      staff: getStaffStats(staff, teamMemberCount),
+      engagement: getEngagementStats(tickets, events)
     };
+
+    // Cache for 3 minutes
+    cache.set(cacheKey, stats, CACHE_TTL.ANALYTICS);
 
     res.json(stats);
   } catch (error) {
+    // Handle quota exceeded gracefully
+    if (error.code === 8 || error.message?.includes('Quota exceeded')) {
+      const cachedData = cache.get('analytics:overview');
+      if (cachedData) {
+        return res.json({ ...cachedData, _cached: true, _quotaExceeded: true });
+      }
+      return res.status(503).json({ 
+        error: 'Firebase quota exceeded. Please try again later.',
+        retryAfter: 'Quota resets at midnight Pacific Time'
+      });
+    }
     res.status(500).json({ error: error.message });
   }
 });
 
-// Get ticket statistics
-async function getTicketStats() {
-  const snapshot = await collections.tickets.get();
-  const tickets = [];
-  snapshot.forEach(doc => tickets.push(doc.data()));
-
+// Get ticket statistics (uses pre-fetched data)
+function getTicketStats(tickets) {
   return {
     total: tickets.length,
     open: tickets.filter(t => t.status === 'open').length,
@@ -36,12 +75,8 @@ async function getTicketStats() {
   };
 }
 
-// Get event statistics
-async function getEventStats() {
-  const snapshot = await collections.events.get();
-  const events = [];
-  snapshot.forEach(doc => events.push(doc.data()));
-
+// Get event statistics (uses pre-fetched data)
+function getEventStats(events) {
   return {
     total: events.length,
     scheduled: events.filter(e => e.status === 'scheduled').length,
@@ -51,16 +86,8 @@ async function getEventStats() {
   };
 }
 
-// Get staff statistics
-async function getStaffStats() {
-  const snapshot = await collections.staff.where('isStaff', '==', true).get();
-  const staff = [];
-  snapshot.forEach(doc => staff.push(doc.data()));
-
-  // Get Team Member role count from Discord
-  const TEAM_MEMBER_ROLE_ID = '1291122795190812774';
-  const teamMemberCount = await discordManager.getMembersWithRoleCount(TEAM_MEMBER_ROLE_ID);
-
+// Get staff statistics (uses pre-fetched data)
+function getStaffStats(staff, teamMemberCount) {
   return {
     total: teamMemberCount,
     active: staff.filter(s => s.status === 'active').length,
@@ -69,14 +96,11 @@ async function getStaffStats() {
   };
 }
 
-// Get engagement statistics
-async function getEngagementStats() {
-  const ticketSnapshot = await collections.tickets.get();
-  const eventSnapshot = await collections.events.get();
-  
+// Get engagement statistics (uses pre-fetched data)
+function getEngagementStats(tickets, events) {
   return {
-    totalInteractions: ticketSnapshot.size + eventSnapshot.size,
-    last7Days: calculateLast7DaysActivity(ticketSnapshot, eventSnapshot)
+    totalInteractions: tickets.length + events.length,
+    last7Days: calculateLast7DaysActivity(tickets, events)
   };
 }
 
@@ -112,7 +136,7 @@ function getDailyTickets(tickets) {
   return last7Days;
 }
 
-function calculateLast7DaysActivity(ticketSnapshot, eventSnapshot) {
+function calculateLast7DaysActivity(tickets, events) {
   const activities = [];
   const today = new Date();
 
@@ -122,17 +146,19 @@ function calculateLast7DaysActivity(ticketSnapshot, eventSnapshot) {
     const dateStr = date.toISOString().split('T')[0];
     
     let count = 0;
-    ticketSnapshot.forEach(doc => {
-      const data = doc.data();
-      if (data.createdAt) {
-        const createdAtStr = typeof data.createdAt === 'string' ? data.createdAt : (data.createdAt instanceof Date ? data.createdAt.toISOString() : String(data.createdAt));
+    
+    // Count tickets created on this date
+    tickets.forEach(ticket => {
+      if (ticket.createdAt) {
+        const createdAtStr = typeof ticket.createdAt === 'string' ? ticket.createdAt : (ticket.createdAt instanceof Date ? ticket.createdAt.toISOString() : String(ticket.createdAt));
         if (createdAtStr.startsWith(dateStr)) count++;
       }
     });
-    eventSnapshot.forEach(doc => {
-      const data = doc.data();
-      if (data.createdAt) {
-        const createdAtStr = typeof data.createdAt === 'string' ? data.createdAt : (data.createdAt instanceof Date ? data.createdAt.toISOString() : String(data.createdAt));
+    
+    // Count events created on this date
+    events.forEach(event => {
+      if (event.createdAt) {
+        const createdAtStr = typeof event.createdAt === 'string' ? event.createdAt : (event.createdAt instanceof Date ? event.createdAt.toISOString() : String(event.createdAt));
         if (createdAtStr.startsWith(dateStr)) count++;
       }
     });

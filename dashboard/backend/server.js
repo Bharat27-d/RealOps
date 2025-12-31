@@ -32,8 +32,19 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+// Serve uploaded files statically with proper caching headers
+app.use('/uploads', (req, res, next) => {
+  // Set headers for better Discord embed compatibility
+  res.set({
+    'Cache-Control': 'public, max-age=31536000', // Cache for 1 year
+    'Access-Control-Allow-Origin': '*',
+    'Cross-Origin-Resource-Policy': 'cross-origin'
+  });
+  next();
+}, express.static(path.join(__dirname, 'uploads')));
 
 
 // Session must be before Redis
@@ -140,6 +151,7 @@ app.use('/api/partnerships', require('./routes/partnerships'));
 app.use('/api/feedback', require('./routes/feedback'));
 app.use('/api/roles', require('./routes/roles'));
 app.use('/api/bot', require('./routes/bot'));
+app.use('/api/upload', require('./routes/upload'));
 const { router: announcementsRouter, initializeScheduledMessages } = require('./routes/announcements');
 app.use('/api/announcements', announcementsRouter);
 app.use('/api/config', require('./routes/config'));

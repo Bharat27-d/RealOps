@@ -2,11 +2,20 @@ const express = require('express');
 const router = express.Router();
 const { collections } = require('../firebase');
 const { isStaff } = require('../auth');
+const { cache, CACHE_TTL } = require('../cache');
 
-// Get all tickets
+// Get all tickets with caching
 router.get('/', isStaff, async (req, res) => {
   try {
     const { status, assignedTo } = req.query;
+    
+    // Create cache key based on query params
+    const cacheKey = `tickets:list:${status || 'all'}:${assignedTo || 'all'}`;
+    const cachedData = cache.get(cacheKey);
+    if (cachedData) {
+      return res.json(cachedData);
+    }
+
     let query = collections.tickets;
 
     if (status) {
@@ -21,8 +30,16 @@ router.get('/', isStaff, async (req, res) => {
     snapshot.forEach(doc => {
       tickets.push({ id: doc.id, ...doc.data() });
     });
+    
+    // Cache for 30 seconds
+    cache.set(cacheKey, tickets, CACHE_TTL.SHORT);
+    
     res.json(tickets);
   } catch (error) {
+    // Handle quota exceeded
+    if (error.code === 8 || error.message?.includes('Quota exceeded')) {
+      return res.status(503).json({ error: 'Firebase quota exceeded' });
+    }
     res.status(500).json({ error: error.message });
   }
 });
@@ -47,6 +64,9 @@ router.put('/:id', isStaff, async (req, res) => {
       ...req.body,
       updatedAt: new Date().toISOString()
     });
+    // Invalidate ticket caches
+    cache.invalidate('tickets:*');
+    cache.invalidate('analytics:*');
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -74,9 +94,15 @@ router.post('/:id/messages', isStaff, async (req, res) => {
   }
 });
 
-// Get ticket analytics
+// Get ticket analytics with caching
 router.get('/analytics/stats', isStaff, async (req, res) => {
   try {
+    const cacheKey = 'tickets:analytics';
+    const cachedData = cache.get(cacheKey);
+    if (cachedData) {
+      return res.json(cachedData);
+    }
+
     const snapshot = await collections.tickets.get();
     const tickets = [];
     snapshot.forEach(doc => {
@@ -92,8 +118,14 @@ router.get('/analytics/stats', isStaff, async (req, res) => {
       byDepartment: groupByDepartment(tickets)
     };
 
+    // Cache for 2 minutes
+    cache.set(cacheKey, stats, CACHE_TTL.MEDIUM);
+
     res.json(stats);
   } catch (error) {
+    if (error.code === 8 || error.message?.includes('Quota exceeded')) {
+      return res.status(503).json({ error: 'Firebase quota exceeded' });
+    }
     res.status(500).json({ error: error.message });
   }
 });

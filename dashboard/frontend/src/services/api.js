@@ -153,4 +153,24 @@ export const config = {
   updateGeneralSettings: (data) => api.put('/api/config/general', data)
 };
 
+// Upload endpoints
+export const upload = {
+  image: (file) => {
+    const formData = new FormData();
+    formData.append('image', file);
+    return api.post('/api/upload/image', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+  },
+  images: (files) => {
+    const formData = new FormData();
+    files.forEach(file => formData.append('images', file));
+    return api.post('/api/upload/images', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+  },
+  list: () => api.get('/api/upload/list'),
+  delete: (filename) => api.delete(`/api/upload/${filename}`)
+};
+
 export default api;

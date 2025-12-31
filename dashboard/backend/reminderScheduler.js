@@ -54,7 +54,12 @@ async function initializeReminderScheduler() {
 
     console.log(`Reminder scheduler initialized. Scheduled ${scheduledCount} reminders.`);
   } catch (error) {
-    console.error('Error initializing reminder scheduler:', error);
+    // Handle quota exceeded gracefully
+    if (error.code === 8 || error.message?.includes('Quota exceeded') || error.message?.includes('RESOURCE_EXHAUSTED')) {
+      console.warn('⚠️  Firebase quota exceeded - reminders will be scheduled on next restart');
+    } else {
+      console.error('Error initializing reminder scheduler:', error);
+    }
   }
 }
 

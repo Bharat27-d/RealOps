@@ -541,3 +541,49 @@
 .scenarios-list::-webkit-scrollbar-thumb:hover {
   background: #5865F2;
 }
+
+/* Spinner Animation for Upload */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Image Upload Styles */
+.image-upload-container {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.image-upload-btn {
+  padding: 12px 16px;
+  min-width: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: #5865F2;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.image-upload-btn:hover:not(:disabled) {
+  background: #4752c4;
+  transform: translateY(-1px);
+}
+
+.image-upload-btn:disabled {
+  background: #40444b;
+  cursor: not-allowed;
+}
+
+.image-upload-btn .spinning {
+  animation: spin 1s linear infinite;
+}
