@@ -225,9 +225,6 @@ function Staff() {
             {filteredStaff.length} staff members
           </p>
         </div>
-        <button className="btn" onClick={() => setShowAvailability(true)}>
-          <FaCalendarAlt /> View Availability Calendar
-        </button>
       </div>
 
       <div className="card">

@@ -1123,99 +1123,168 @@ function Events() {
       {/* Event Announcement Modal */}
       {showAnnouncementModal && (
         <div className="modal-overlay" onClick={() => setShowAnnouncementModal(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
+          <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px' }}>
             <div className="modal-header">
               <h3>Create Event Announcement</h3>
               <button className="close-btn" onClick={() => setShowAnnouncementModal(false)}>×</button>
             </div>
 
-            <div className="form-group" style={{ background: '#2C2F33', padding: '15px', borderRadius: '8px', marginBottom: '20px' }}>
-              <label>🚛 TruckerMP Event Link (Optional - Auto-fills fields)</label>
-              <div style={{ display: 'flex', gap: '10px' }}>
-                <input 
-                  type="text"
-                  value={announcement.truckerMpLink}
-                  onChange={(e) => setAnnouncement({...announcement, truckerMpLink: e.target.value})}
-                  placeholder="https://truckersmp.com/events/12345"
-                  style={{ flex: 1 }}
-                />
-                <button 
-                  className="btn btn-primary" 
-                  onClick={() => fetchTruckerMpEvent(announcement.truckerMpLink)}
-                  disabled={!announcement.truckerMpLink}
-                >
-                  Fetch
-                </button>
+            <div style={{ padding: '20px', maxHeight: '70vh', overflowY: 'auto' }}>
+              {/* TruckerMP Integration Section */}
+              <div style={{ 
+                background: 'linear-gradient(135deg, #2C2F33 0%, #23272A 100%)', 
+                padding: '20px', 
+                borderRadius: '12px', 
+                marginBottom: '24px',
+                border: '1px solid #FFD700'
+              }}>
+                <label style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '8px', 
+                  marginBottom: '12px',
+                  color: '#FFD700',
+                  fontWeight: '600'
+                }}>
+                  🚛 TruckerMP Event Link 
+                  <span style={{ color: '#888', fontWeight: 'normal', fontSize: '12px' }}>(Optional - Auto-fills fields)</span>
+                </label>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <input 
+                    type="text"
+                    value={announcement.truckerMpLink}
+                    onChange={(e) => setAnnouncement({...announcement, truckerMpLink: e.target.value})}
+                    placeholder="https://truckersmp.com/events/12345"
+                    style={{ flex: 1 }}
+                  />
+                  <button 
+                    className="btn btn-primary" 
+                    onClick={() => fetchTruckerMpEvent(announcement.truckerMpLink)}
+                    disabled={!announcement.truckerMpLink}
+                    style={{ minWidth: '80px' }}
+                  >
+                    Fetch
+                  </button>
+                </div>
+                {truckerMpData && (
+                  <div style={{ 
+                    marginTop: '12px', 
+                    padding: '12px', 
+                    background: '#1a1d21', 
+                    borderRadius: '8px', 
+                    fontSize: '13px',
+                    border: '1px solid #43b581'
+                  }}>
+                    <div style={{ color: '#43b581', marginBottom: '6px' }}>✅ Event loaded successfully</div>
+                    <div style={{ color: '#fff', fontWeight: '600' }}>{truckerMpData.name}</div>
+                    <div style={{ color: '#b9bbbe', marginTop: '4px', fontSize: '12px' }}>
+                      📅 {new Date(truckerMpData.start_at).toUTCString()}
+                    </div>
+                  </div>
+                )}
               </div>
+
+              {/* Event Details Section */}
+              <div style={{ marginBottom: '24px' }}>
+                <h4 style={{ 
+                  color: '#FFD700', 
+                  marginBottom: '16px', 
+                  fontSize: '14px', 
+                  textTransform: 'uppercase',
+                  letterSpacing: '1px'
+                }}>
+                  Event Details
+                </h4>
+                
+                <div className="form-group" style={{ marginBottom: '16px' }}>
+                  <label>Event Title <span style={{ color: '#f04747' }}>*</span></label>
+                  <input 
+                    type="text"
+                    value={announcement.title}
+                    onChange={(e) => setAnnouncement({...announcement, title: e.target.value})}
+                    placeholder="Enter event title..."
+                    required
+                    readOnly={!!truckerMpData}
+                    style={{ 
+                      background: truckerMpData ? '#1a1d21' : undefined, 
+                      cursor: truckerMpData ? 'not-allowed' : 'text' 
+                    }}
+                  />
+                </div>
+
+                <div className="form-group" style={{ marginBottom: '16px' }}>
+                  <label>Description <span style={{ color: '#f04747' }}>*</span></label>
+                  <textarea 
+                    value={announcement.description}
+                    onChange={(e) => setAnnouncement({...announcement, description: e.target.value})}
+                    placeholder="Enter event description..."
+                    rows={4}
+                    required
+                    style={{ resize: 'vertical', minHeight: '100px' }}
+                  />
+                </div>
+              </div>
+
+              {/* Additional Links Section (Only show when TruckerMP data is loaded) */}
               {truckerMpData && (
-                <div style={{ marginTop: '10px', padding: '10px', background: '#23272A', borderRadius: '4px', fontSize: '12px' }}>
-                  ✅ Event loaded: <strong>{truckerMpData.name}</strong><br />
-                  📅 Start: {new Date(truckerMpData.start_at).toUTCString()}<br />
-                  {truckerMpData.meetup_at && `🕐 Meetup: ${new Date(truckerMpData.meetup_at).toUTCString()}`}
+                <div style={{ marginBottom: '24px' }}>
+                  <h4 style={{ 
+                    color: '#FFD700', 
+                    marginBottom: '16px', 
+                    fontSize: '14px', 
+                    textTransform: 'uppercase',
+                    letterSpacing: '1px'
+                  }}>
+                    Additional Links
+                  </h4>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    <div className="form-group" style={{ margin: 0 }}>
+                      <label style={{ fontSize: '13px' }}>Spreadsheet Link</label>
+                      <input 
+                        type="text"
+                        value={announcement.spreadsheetLink}
+                        onChange={(e) => setAnnouncement({...announcement, spreadsheetLink: e.target.value})}
+                        placeholder="Google Sheets link..."
+                      />
+                    </div>
+                    <div className="form-group" style={{ margin: 0 }}>
+                      <label style={{ fontSize: '13px' }}>Profile Link</label>
+                      <input 
+                        type="text"
+                        value={announcement.profileLink}
+                        onChange={(e) => setAnnouncement({...announcement, profileLink: e.target.value})}
+                        placeholder="Profile/registration link..."
+                      />
+                    </div>
+                  </div>
                 </div>
               )}
-            </div>
 
-            <div className="form-group">
-              <label>Event Title * {truckerMpData && '(Auto-filled from TruckerMP)'}</label>
-              <input 
-                type="text"
-                value={announcement.title}
-                onChange={(e) => setAnnouncement({...announcement, title: e.target.value})}
-                placeholder={truckerMpData ? "Auto-filled from TruckerMP" : "Enter event title or fetch from TruckerMP..."}
-                required
-                readOnly={!!truckerMpData}
-                style={{ background: truckerMpData ? '#1a1d21' : undefined, cursor: truckerMpData ? 'not-allowed' : 'text' }}
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Description * {truckerMpData && '(Auto-filled from TruckerMP - Editable)'}</label>
-              <textarea 
-                value={announcement.description}
-                onChange={(e) => setAnnouncement({...announcement, description: e.target.value})}
-                placeholder={truckerMpData ? "Auto-filled from TruckerMP" : "Enter event description or fetch from TruckerMP..."}
-                rows={5}
-                required
-              />
-            </div>
-
-            {truckerMpData && (
-              <>
-                <div className="grid grid-2">
-                  <div className="form-group">
-                    <label>Spreadsheet Link (Optional)</label>
-                    <input 
-                      type="text"
-                      value={announcement.spreadsheetLink}
-                      onChange={(e) => setAnnouncement({...announcement, spreadsheetLink: e.target.value})}
-                      placeholder="Google Sheets link..."
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>Profile Link (Optional)</label>
-                    <input 
-                      type="text"
-                      value={announcement.profileLink}
-                      onChange={(e) => setAnnouncement({...announcement, profileLink: e.target.value})}
-                      placeholder="Profile/registration link..."
-                    />
-                  </div>
-                </div>
-
-                <div className="form-group">
-                  <label>Tag Roles (Optional - Max 2)</label>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '10px' }}>
+              {/* Tag Roles Section (Only show when TruckerMP data is loaded) */}
+              {truckerMpData && roles.length > 0 && (
+                <div style={{ marginBottom: '24px' }}>
+                  <h4 style={{ 
+                    color: '#FFD700', 
+                    marginBottom: '16px', 
+                    fontSize: '14px', 
+                    textTransform: 'uppercase',
+                    letterSpacing: '1px'
+                  }}>
+                    Tag Roles <span style={{ color: '#888', fontWeight: 'normal', fontSize: '11px' }}>(Max 2)</span>
+                  </h4>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                     {roles.map(role => (
                       <label key={role.id} style={{ 
                         display: 'flex', 
                         alignItems: 'center', 
                         gap: '8px', 
-                        padding: '8px 12px', 
+                        padding: '8px 14px', 
                         background: announcement.roles.includes(role.id) ? '#5865F2' : '#2C2F33', 
-                        borderRadius: '6px',
+                        borderRadius: '20px',
                         cursor: 'pointer',
-                        transition: 'all 0.3s ease'
+                        transition: 'all 0.2s ease',
+                        border: announcement.roles.includes(role.id) ? '1px solid #5865F2' : '1px solid #40444b',
+                        fontSize: '13px'
                       }}>
                         <input 
                           type="checkbox"
@@ -1229,146 +1298,210 @@ function Events() {
                               toast.warning('Maximum 2 roles can be tagged');
                             }
                           }}
-                          style={{ width: 'auto', margin: 0 }}
+                          style={{ display: 'none' }}
                         />
                         <span style={{ color: role.color || '#fff' }}>{role.name}</span>
                       </label>
                     ))}
                   </div>
                 </div>
-              </>
-            )}
+              )}
 
-            <div className="form-group">
-              <label>Channel *</label>
-              <div style={{ position: 'relative' }}>
-                <input
-                  type="text"
-                  value={announcement.channelId ? channels.find(c => c.id === announcement.channelId)?.name || '' : channelSearch}
-                  onChange={(e) => {
-                    setChannelSearch(e.target.value);
-                    setShowChannelDropdown(true);
-                    if (!e.target.value) {
-                      setAnnouncement({...announcement, channelId: ''});
-                    }
-                  }}
-                  onFocus={() => setShowChannelDropdown(true)}
-                  placeholder="Search for a channel..."
-                  required
-                />
-                {showChannelDropdown && (
-                  <div style={{
-                    position: 'absolute',
-                    top: '100%',
-                    left: 0,
-                    right: 0,
-                    maxHeight: '200px',
-                    overflowY: 'auto',
-                    background: '#2C2F33',
-                    border: '1px solid #40444b',
-                    borderRadius: '4px',
-                    marginTop: '4px',
-                    zIndex: 1000,
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
-                  }}>
-                    {channels
-                      .filter(channel => channel.name.toLowerCase().includes(channelSearch.toLowerCase()))
-                      .map(channel => (
-                        <div
-                          key={channel.id}
-                          onClick={() => {
-                            setAnnouncement({...announcement, channelId: channel.id});
-                            setChannelSearch('');
-                            setShowChannelDropdown(false);
-                          }}
-                          style={{
-                            padding: '10px 15px',
-                            cursor: 'pointer',
-                            background: announcement.channelId === channel.id ? '#5865F2' : 'transparent',
-                            transition: 'background 0.2s'
-                          }}
-                          onMouseEnter={(e) => {
-                            if (announcement.channelId !== channel.id) {
-                              e.target.style.background = '#40444b';
-                            }
-                          }}
-                          onMouseLeave={(e) => {
-                            if (announcement.channelId !== channel.id) {
-                              e.target.style.background = 'transparent';
-                            }
-                          }}
-                        >
-                          # {channel.name}
-                        </div>
-                      ))}
-                    {channels.filter(channel => channel.name.toLowerCase().includes(channelSearch.toLowerCase())).length === 0 && (
-                      <div style={{ padding: '10px 15px', color: '#aaa', textAlign: 'center' }}>
-                        No channels found
+              {/* Channel Selection Section */}
+              <div style={{ marginBottom: '24px' }}>
+                <h4 style={{ 
+                  color: '#FFD700', 
+                  marginBottom: '16px', 
+                  fontSize: '14px', 
+                  textTransform: 'uppercase',
+                  letterSpacing: '1px'
+                }}>
+                  Posting Settings
+                </h4>
+                
+                <div className="form-group" style={{ marginBottom: '16px' }}>
+                  <label>Channel <span style={{ color: '#f04747' }}>*</span></label>
+                  <div style={{ position: 'relative' }}>
+                    <input
+                      type="text"
+                      value={announcement.channelId ? channels.find(c => c.id === announcement.channelId)?.name || '' : channelSearch}
+                      onChange={(e) => {
+                        setChannelSearch(e.target.value);
+                        setShowChannelDropdown(true);
+                        if (!e.target.value) {
+                          setAnnouncement({...announcement, channelId: ''});
+                        }
+                      }}
+                      onFocus={() => setShowChannelDropdown(true)}
+                      placeholder="Search for a channel..."
+                      required
+                    />
+                    {showChannelDropdown && (
+                      <div style={{
+                        position: 'absolute',
+                        top: '100%',
+                        left: 0,
+                        right: 0,
+                        maxHeight: '180px',
+                        overflowY: 'auto',
+                        background: '#2C2F33',
+                        border: '1px solid #40444b',
+                        borderRadius: '8px',
+                        marginTop: '4px',
+                        zIndex: 1000,
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+                      }}>
+                        {channels
+                          .filter(channel => channel.name.toLowerCase().includes(channelSearch.toLowerCase()))
+                          .map(channel => (
+                            <div
+                              key={channel.id}
+                              onClick={() => {
+                                setAnnouncement({...announcement, channelId: channel.id});
+                                setChannelSearch('');
+                                setShowChannelDropdown(false);
+                              }}
+                              style={{
+                                padding: '10px 15px',
+                                cursor: 'pointer',
+                                background: announcement.channelId === channel.id ? '#5865F2' : 'transparent',
+                                transition: 'background 0.2s'
+                              }}
+                              onMouseEnter={(e) => {
+                                if (announcement.channelId !== channel.id) {
+                                  e.target.style.background = '#40444b';
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                if (announcement.channelId !== channel.id) {
+                                  e.target.style.background = 'transparent';
+                                }
+                              }}
+                            >
+                              # {channel.name}
+                            </div>
+                          ))}
+                        {channels.filter(channel => channel.name.toLowerCase().includes(channelSearch.toLowerCase())).length === 0 && (
+                          <div style={{ padding: '10px 15px', color: '#888', textAlign: 'center' }}>
+                            No channels found
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
-                )}
+                </div>
+
+                {/* Schedule & Reminder Options */}
+                <div style={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: '1fr 1fr', 
+                  gap: '16px',
+                  background: '#23272A',
+                  padding: '16px',
+                  borderRadius: '8px'
+                }}>
+                  <div>
+                    <label style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '10px',
+                      cursor: 'pointer',
+                      marginBottom: announcement.schedule ? '10px' : '0'
+                    }}>
+                      <input 
+                        type="checkbox"
+                        checked={announcement.schedule}
+                        onChange={(e) => setAnnouncement({...announcement, schedule: e.target.checked})}
+                        style={{ width: 'auto', accentColor: '#FFD700' }}
+                      />
+                      <span style={{ fontSize: '13px' }}>Schedule for later</span>
+                    </label>
+                    {announcement.schedule && (
+                      <input 
+                        type="datetime-local"
+                        value={announcement.scheduleTime}
+                        onChange={(e) => setAnnouncement({...announcement, scheduleTime: e.target.value})}
+                        style={{ width: '100%', fontSize: '12px' }}
+                      />
+                    )}
+                  </div>
+                  
+                  <div>
+                    <label style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '10px',
+                      cursor: 'pointer',
+                      marginBottom: announcement.reminder ? '10px' : '0'
+                    }}>
+                      <input 
+                        type="checkbox"
+                        checked={announcement.reminder}
+                        onChange={(e) => setAnnouncement({...announcement, reminder: e.target.checked})}
+                        style={{ width: 'auto', accentColor: '#FFD700' }}
+                      />
+                      <span style={{ fontSize: '13px' }}>Send reminder</span>
+                    </label>
+                    {announcement.reminder && (
+                      <select 
+                        value={announcement.reminderTime}
+                        onChange={(e) => setAnnouncement({...announcement, reminderTime: e.target.value})}
+                        style={{ width: '100%', fontSize: '12px' }}
+                      >
+                        <option value="15">15 minutes before</option>
+                        <option value="30">30 minutes before</option>
+                        <option value="60">1 hour before</option>
+                        <option value="1440">1 day before</option>
+                      </select>
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
 
-            <div className="form-group">
-              <label style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <input 
-                  type="checkbox"
-                  checked={announcement.schedule}
-                  onChange={(e) => setAnnouncement({...announcement, schedule: e.target.checked})}
-                  style={{ width: 'auto' }}
-                />
-                Schedule for later
-              </label>
-              {announcement.schedule && (
-                <input 
-                  type="datetime-local"
-                  value={announcement.scheduleTime}
-                  onChange={(e) => setAnnouncement({...announcement, scheduleTime: e.target.value})}
-                  style={{ marginTop: '10px' }}
-                />
+              {/* Image Preview */}
+              {announcement.image && (
+                <div style={{ marginBottom: '20px' }}>
+                  <img 
+                    src={announcement.image} 
+                    alt="Preview" 
+                    style={{ 
+                      width: '100%', 
+                      maxHeight: '180px', 
+                      objectFit: 'cover', 
+                      borderRadius: '8px'
+                    }}
+                    onError={(e) => { e.target.style.display = 'none'; }}
+                  />
+                </div>
               )}
             </div>
 
-            <div className="form-group">
-              <label style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <input 
-                  type="checkbox"
-                  checked={announcement.reminder}
-                  onChange={(e) => setAnnouncement({...announcement, reminder: e.target.checked})}
-                  style={{ width: 'auto' }}
-                />
-                Send reminder before event
-              </label>
-              {announcement.reminder && (
-                <select 
-                  value={announcement.reminderTime}
-                  onChange={(e) => setAnnouncement({...announcement, reminderTime: e.target.value})}
-                  style={{ marginTop: '10px' }}
-                >
-                  <option value="15">15 minutes before</option>
-                  <option value="30">30 minutes before</option>
-                  <option value="60">1 hour before</option>
-                  <option value="1440">1 day before</option>
-                </select>
-              )}
-            </div>
-
-            {announcement.image && (
-              <img 
-                src={announcement.image} 
-                alt="Preview" 
-                style={{ width: '100%', maxHeight: '200px', objectFit: 'cover', borderRadius: '8px', marginBottom: '20px' }}
-                onError={(e) => { e.target.style.display = 'none'; }}
-              />
-            )}
-
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <button className="btn btn-primary" onClick={createAnnouncement} disabled={loading} style={{ flex: 1 }}>
+            {/* Action Buttons */}
+            <div style={{ 
+              display: 'flex', 
+              gap: '12px', 
+              padding: '20px',
+              borderTop: '1px solid #40444b',
+              background: '#23272A'
+            }}>
+              <button 
+                className="btn" 
+                onClick={createAnnouncement} 
+                disabled={loading} 
+                style={{ 
+                  flex: 1, 
+                  background: '#FFD700', 
+                  color: '#000',
+                  fontWeight: '600'
+                }}
+              >
                 <FaBell /> {loading ? 'Creating...' : (announcement.schedule ? 'Schedule Announcement' : 'Send Now')}
               </button>
-              <button className="btn btn-outline" onClick={() => setShowAnnouncementModal(false)}>
+              <button 
+                className="btn btn-outline" 
+                onClick={() => setShowAnnouncementModal(false)}
+                style={{ minWidth: '100px' }}
+              >
                 Cancel
               </button>
             </div>
