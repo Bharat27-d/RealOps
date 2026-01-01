@@ -4,7 +4,7 @@ import {
   FaPlus, FaTrash, FaArrowUp, FaArrowDown, FaPaperPlane, FaCalendar, 
   FaBell, FaCopy,
   FaGripVertical, FaList, FaTable, FaCalendarAlt,
-  FaChevronLeft, FaChevronRight, FaUsers, FaUpload, FaSpinner
+  FaChevronLeft, FaChevronRight, FaUpload, FaSpinner
 } from 'react-icons/fa';
 import { events, discord, upload } from '../services/api';
 import ConfirmDialog from '../components/ConfirmDialog';
@@ -513,26 +513,6 @@ function Events() {
     }
   };
 
-  const postStaffAvailability = async (event) => {
-    if (!event.truckerMpData) {
-      toast.error('No TruckerMP data available for this event');
-      return;
-    }
-
-    const eventLink = `https://truckersmp.com/events/${event.truckerMpData.id}`;
-    
-    try {
-      setLoading(true);
-      await discord.postStaffAvailability({ eventLink });
-      toast.success('Staff availability check posted successfully!');
-    } catch (error) {
-      console.error('Error posting staff availability:', error);
-      toast.error(error.response?.data?.error || 'Failed to post staff availability');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   // Render Overview
   const renderOverview = () => (
     <div className="events-overview">
@@ -698,17 +678,6 @@ function Events() {
                               title="Announce Event"
                             >
                               <FaBell />
-                            </button>
-                            <button 
-                              className="btn btn-sm btn-success"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                postStaffAvailability(event);
-                              }}
-                              style={{ padding: '2px 6px', fontSize: '10px' }}
-                              title="Staff Availability"
-                            >
-                              <FaUsers />
                             </button>
                             <button 
                               className="btn btn-sm btn-danger"
