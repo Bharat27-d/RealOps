@@ -8,10 +8,24 @@ export function toISOStringSafe(date) {
 }
 
 export function toLocaleStringSafe(date) {
-  if (!date) return '';
+  if (!date) return 'N/A';
   try {
-    return new Date(date).toLocaleString();
+    // Handle Firestore Timestamp objects
+    if (date && typeof date === 'object') {
+      if (date._seconds !== undefined) {
+        return new Date(date._seconds * 1000).toLocaleString();
+      }
+      if (date.seconds !== undefined) {
+        return new Date(date.seconds * 1000).toLocaleString();
+      }
+      if (date.toDate && typeof date.toDate === 'function') {
+        return date.toDate().toLocaleString();
+      }
+    }
+    const parsed = new Date(date);
+    if (isNaN(parsed.getTime())) return 'N/A';
+    return parsed.toLocaleString();
   } catch {
-    return String(date);
+    return 'N/A';
   }
 }

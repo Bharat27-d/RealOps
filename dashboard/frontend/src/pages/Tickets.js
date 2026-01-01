@@ -13,7 +13,6 @@ function Tickets() {
   const [loading, setLoading] = useState(true);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [viewingTranscript, setViewingTranscript] = useState(null);
 
   useEffect(() => {
     fetchTickets();
@@ -122,10 +121,6 @@ function Tickets() {
     a.click();
     URL.revokeObjectURL(url);
     toast.success('Text transcript exported');
-  };
-
-  const viewTranscript = (ticketId) => {
-    setViewingTranscript(ticketId);
   };
 
   const filteredTickets = ticketList.filter(ticket => {
@@ -324,19 +319,6 @@ function Tickets() {
               <div className="ticket-detail-info">
               <div className="info-grid">
                 <div className="info-item">
-                  <label>Status</label>
-                  <span 
-                    className="ticket-status-badge"
-                    style={{ 
-                      background: getStatusColor(selectedTicket.status) + '20',
-                      color: getStatusColor(selectedTicket.status),
-                      border: `1px solid ${getStatusColor(selectedTicket.status)}`
-                    }}
-                  >
-                    {selectedTicket.status || 'open'}
-                  </span>
-                </div>
-                <div className="info-item">
                   <label>User</label>
                   <span>{selectedTicket.username || selectedTicket.userId || 'Unknown'}</span>
                 </div>
@@ -349,21 +331,13 @@ function Tickets() {
                   <span>{toLocaleStringSafe(selectedTicket.createdAt)}</span>
                 </div>
                 <div className="info-item">
+                  <label>Closed</label>
+                  <span>{toLocaleStringSafe(selectedTicket.closedAt)}</span>
+                </div>
+                <div className="info-item">
                   <label>Department</label>
                   <span>{selectedTicket.department || selectedTicket.type || 'General'}</span>
                 </div>
-                {selectedTicket.subject && (
-                  <div className="info-item">
-                    <label>Subject</label>
-                    <span>{selectedTicket.subject}</span>
-                  </div>
-                )}
-                {selectedTicket.closedAt && (
-                  <div className="info-item">
-                    <label>Closed</label>
-                    <span>{new Date(selectedTicket.closedAt).toLocaleString()}</span>
-                  </div>
-                )}
               </div>
 
               {selectedTicket.formData && Object.keys(selectedTicket.formData).length > 0 && (
@@ -397,113 +371,24 @@ function Tickets() {
                 </div>
               )}
 
-              {(selectedTicket.transcriptHtml || (selectedTicket.transcript && selectedTicket.transcript.length > 0)) ? (
+              {(selectedTicket.transcriptHtml || (selectedTicket.transcript && selectedTicket.transcript.length > 0)) && (
                 <div className="ticket-actions-bar" style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
-                  {selectedTicket.transcriptHtml && (
-                    <button 
-                      className="btn"
-                      onClick={() => viewTranscript(selectedTicket.id)}
-                      style={{ 
-                        background: '#FFD700', 
-                        color: '#000',
-                        border: 'none'
-                      }}
-                    >
-                      <FaEye /> View HTML Transcript
-                    </button>
-                  )}
                   <button 
-                    className="btn btn-secondary"
+                    className="btn"
                     onClick={() => exportTranscript(selectedTicket)}
                     title={selectedTicket.transcriptHtml ? 'Download HTML Transcript with full Discord styling' : 'Download Text Transcript'}
+                    style={{ 
+                      background: '#FFD700', 
+                      color: '#000',
+                      border: 'none'
+                    }}
                   >
-                    <FaDownload /> Download {selectedTicket.transcriptHtml ? 'HTML' : 'Text'} Transcript
+                    <FaDownload /> Download HTML Transcript
                   </button>
-                </div>
-              ) : (
-                <div className="ticket-actions-bar" style={{ marginTop: '20px' }}>
-                  <div style={{ 
-                    padding: '15px', 
-                    background: '#2C2F33', 
-                    borderRadius: '8px', 
-                    border: '1px solid #faa61a',
-                    color: '#faa61a',
-                    textAlign: 'center'
-                  }}>
-                    ⚠️ Transcript will be available after the ticket is closed in Discord
-                  </div>
                 </div>
               )}
             </div>
 
-            <div className="transcript-section">
-              <h4>
-                <FaFileAlt /> Transcript ({selectedTicket.transcript?.length || 0} messages)
-              </h4>
-              <div className="transcript-container">
-                {selectedTicket.transcript && selectedTicket.transcript.length > 0 ? (
-                  selectedTicket.transcript.map((msg, idx) => (
-                    <div key={idx} className="transcript-message">
-                      <div className="message-header">
-                        <span className="message-author">{msg.author}</span>
-                        <span className="message-timestamp">
-                          {new Date(msg.timestamp).toLocaleString()}
-                        </span>
-                      </div>
-                      <div className="message-content">
-                        {msg.message}
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div style={{ textAlign: 'center', padding: '40px', color: '#b9bbbe' }}>
-                    <FaFileAlt size={32} style={{ marginBottom: '10px', opacity: 0.3 }} />
-                    <p>No messages in transcript</p>
-                  </div>
-                )}
-              </div>
-            </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* HTML Transcript Viewer Modal */}
-      {viewingTranscript && (
-        <div className="modal-overlay" onClick={() => setViewingTranscript(null)}>
-          <div 
-            className="modal" 
-            onClick={(e) => e.stopPropagation()}
-            style={{ 
-              maxWidth: '95vw', 
-              width: '1400px',
-              height: '90vh',
-              display: 'flex',
-              flexDirection: 'column'
-            }}
-          >
-            <div className="modal-header">
-              <div>
-                <h3>HTML Transcript</h3>
-                <p style={{ color: '#b9bbbe', margin: '5px 0 0 0' }}>
-                  Ticket #{viewingTranscript}
-                </p>
-              </div>
-              <button className="close-btn" onClick={() => setViewingTranscript(null)}>×</button>
-            </div>
-            
-            <div style={{ flex: 1, overflow: 'hidden', padding: '20px', background: '#23272A' }}>
-              <iframe
-                src={`/api/tickets/${viewingTranscript}/transcript/html`}
-                title="Ticket Transcript"
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  border: 'none',
-                  borderRadius: '8px',
-                  background: '#ffffff'
-                }}
-              />
             </div>
           </div>
         </div>
