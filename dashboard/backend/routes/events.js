@@ -132,7 +132,7 @@ router.post('/', isStaff, async (req, res) => {
       // Schedule reminder if enabled and event has date/time
       if (reminder && eventData.date && eventData.time) {
         const eventDateTime = new Date(`${eventData.date}T${eventData.time}`);
-        const reminderMinutes = parseInt(reminderTime) || 120; // Default 2 hours
+        const reminderMinutes = parseInt(reminderTime) || 30; // Default 30 minutes
         const reminderDelay = eventDateTime.getTime() - (reminderMinutes * 60 * 1000) - Date.now();
         
         if (reminderDelay > 0) {

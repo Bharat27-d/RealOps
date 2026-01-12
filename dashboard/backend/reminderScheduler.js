@@ -29,7 +29,7 @@ async function initializeReminderScheduler() {
 
       // Calculate reminder time
       const eventDateTime = new Date(`${event.date}T${event.time}`);
-      const reminderMinutes = parseInt(event.reminderTime) || 120; // Default 2 hours
+      const reminderMinutes = parseInt(event.reminderTime) || 30; // Default 30 minutes
       const reminderTime = eventDateTime.getTime() - (reminderMinutes * 60 * 1000);
       const delay = reminderTime - now;
 
@@ -109,7 +109,7 @@ async function sendCalendarEventReminder(eventId) {
 
     const embedData = {
       title: `🔔 Event Reminder: ${event.title}`,
-      description: `**This event is starting in 2 hours!**\n\n${event.description || 'No description available.'}`,
+      description: `**This event is starting in 30 minutes!**\n\n${event.description || 'No description available.'}`,
       color: 0xFFD700, // Golden color
       image: event.image || null,
       footer: {
