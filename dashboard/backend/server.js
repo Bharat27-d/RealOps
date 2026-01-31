@@ -47,11 +47,26 @@ app.use('/uploads', (req, res, next) => {
 }, express.static(path.join(__dirname, 'uploads')));
 
 
-// Session must be before Redis
+// Session configuration - try Redis first, fallback to MemoryStore
+let sessionStore;
+if (process.env.REDIS_URL) {
+  try {
+    const redisClient = createClient({ url: process.env.REDIS_URL });
+    redisClient.connect().catch(console.error);
+    sessionStore = new RedisStore({ client: redisClient });
+    console.log('✅ Using Redis for session storage');
+  } catch (err) {
+    console.warn('⚠️ Redis connection failed, using MemoryStore (not recommended for production)');
+  }
+} else {
+  console.warn('⚠️ REDIS_URL not set, using MemoryStore (set REDIS_URL for production)');
+}
+
 app.use(session({
+  store: sessionStore, // undefined will use default MemoryStore
   secret: process.env.SESSION_SECRET || 'RealOps_Secure_Session_Key_2024_a9f8e7d6c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1f0e9d8c7b6a5f4e3d2c1b0a9f8',
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false, // Changed to false to reduce memory usage
   cookie: {
     maxAge: 24 * 60 * 60 * 1000,
     httpOnly: false,

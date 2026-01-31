@@ -108,7 +108,15 @@ function scheduleMessage(id, messageData) {
   }
 
   // Calculate delay
-  const delay = scheduledTime - now;
+  let delay = scheduledTime - now;
+  
+  // Max delay for setTimeout is 2^31-1 ms (~24.8 days) to avoid overflow warning
+  const MAX_TIMEOUT = 2147483647;
+  if (delay > MAX_TIMEOUT) {
+    console.log(`⚠️ Delay ${delay}ms exceeds max timeout, capping to ${MAX_TIMEOUT}ms (~24.8 days)`);
+    delay = MAX_TIMEOUT;
+  }
+  
   console.log(`✅ Message will be sent in ${Math.round(delay / 1000)} seconds (${Math.round(delay / 60000)} minutes)`);
 
   // Schedule the message

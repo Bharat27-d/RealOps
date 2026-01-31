@@ -15,21 +15,11 @@ module.exports = {
     name: Events.InteractionCreate,
     async execute(interaction) {
         try {
-            // --- PANEL SETUP COMMANDS ---
+            // --- SLASH COMMANDS ---
+            // Commands are handled by ticketSystem.js to avoid duplicate execution
+            // This handler only processes buttons and select menus for event accept/decline
             if (interaction.isCommand() || interaction.isChatInputCommand()) {
-                const commandName = interaction.commandName;
-
-                // Setup commands are now handled in ticketSystem.js to avoid duplicates
-                // Just pass through to regular command handler
-                
-                // Handle regular dynamically loaded commands
-                const command = interaction.client.commands.get(commandName);
-                if (!command) {
-                    return await interaction.reply({ content: 'Command not found!', flags: 64 });
-                }
-
-                console.log(`[COMMAND] ${commandName} executed by ${interaction.user.tag} (${interaction.user.id})`);
-                await command.execute(interaction);
+                // Commands are fully handled in ticketSystem.js - skip here to prevent duplicates
                 return;
             }
 

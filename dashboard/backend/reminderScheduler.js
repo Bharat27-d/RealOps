@@ -63,6 +63,9 @@ async function initializeReminderScheduler() {
   }
 }
 
+// Max delay for setTimeout is 2^31-1 ms (~24.8 days) to avoid overflow warning
+const MAX_TIMEOUT = 2147483647;
+
 // Schedule a single reminder
 function scheduleReminder(eventId, delay) {
   // Clear existing timeout if any
@@ -70,11 +73,18 @@ function scheduleReminder(eventId, delay) {
     clearTimeout(activeReminders.get(eventId));
   }
 
+  // Cap delay to prevent 32-bit overflow
+  let safeDelay = delay;
+  if (delay > MAX_TIMEOUT) {
+    console.log(`⚠️ Reminder delay ${delay}ms exceeds max timeout, capping to ${MAX_TIMEOUT}ms (~24.8 days)`);
+    safeDelay = MAX_TIMEOUT;
+  }
+
   // Schedule new timeout
   const timeoutId = setTimeout(async () => {
     await sendCalendarEventReminder(eventId);
     activeReminders.delete(eventId);
-  }, delay);
+  }, safeDelay);
 
   activeReminders.set(eventId, timeoutId);
 }
