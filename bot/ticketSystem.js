@@ -1498,12 +1498,18 @@ async function closeTicketConfirmed(interaction) {
         await saveActiveTickets(activeTickets);
         
         // Delete channel after 5 seconds
+        // Capture references to avoid closure issues
+        const channelId = channel.id;
+        const guild = interaction.guild;
+        
         setTimeout(async () => {
             try {
-                const channelExists = await interaction.guild.channels.fetch(channel.id).catch(() => null);
-                if (channelExists) {
-                    await channel.delete('Ticket closed and archived');
-                    console.log(`🗑️ Deleted ticket channel: ${channel.id}`);
+                const channelToDelete = await guild.channels.fetch(channelId).catch(() => null);
+                if (channelToDelete) {
+                    await channelToDelete.delete('Ticket closed and archived');
+                    console.log(`🗑️ Deleted ticket channel: ${channelId}`);
+                } else {
+                    console.log(`⚠️ Channel ${channelId} already deleted or not found`);
                 }
             } catch (deleteError) {
                 console.error('Error deleting channel:', deleteError);
@@ -1660,12 +1666,19 @@ async function deleteTicket(interaction) {
         console.log(`📋 Keeping closed ticket in Firebase dashboard: ${channel.id}`);
         
         // Delete after delay
+        // Capture references to avoid closure issues
+        const channelId = channel.id;
+        const guild = interaction.guild;
+        
         setTimeout(async () => {
             try {
                 // Verify channel still exists before attempting to delete
-                const channelExists = await interaction.guild.channels.fetch(channel.id).catch(() => null);
-                if (channelExists) {
-                    await channel.delete();
+                const channelToDelete = await guild.channels.fetch(channelId).catch(() => null);
+                if (channelToDelete) {
+                    await channelToDelete.delete('Ticket deleted');
+                    console.log(`🗑️ Deleted ticket channel: ${channelId}`);
+                } else {
+                    console.log(`⚠️ Channel ${channelId} already deleted or not found`);
                 }
             } catch (err) {
                 console.error('Error deleting channel:', err);

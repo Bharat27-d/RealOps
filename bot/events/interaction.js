@@ -25,6 +25,12 @@ module.exports = {
 
             // --- ACCEPT/DECLINE EVENT BUTTONS ---
             if (interaction.isButton()) {
+                // Only handle event_accept and event_decline buttons
+                // All other buttons (panel buttons, ticket controls, etc.) are handled by ticketSystem.js
+                if (interaction.customId !== 'event_accept' && interaction.customId !== 'event_decline') {
+                    return; // Let ticketSystem.js handle other buttons
+                }
+                
                 // Get ticket creator from activeTickets
                 let ticketCreatorId = null;
                 const ticketData = activeTickets && activeTickets.get
