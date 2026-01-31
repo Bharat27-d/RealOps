@@ -119,10 +119,9 @@ async function processNextSave() {
         
         await fs.promises.writeFile(TICKETS_FILE, JSON.stringify(ticketsObj, null, 2));
         
-        // Sync to Firebase if available
-        if (firebase && firebase.collections && firebase.collections.tickets) {
-            await syncTicketsToFirebase(tickets);
-        }
+        // Don't sync all tickets to Firebase on every save - this causes payload size issues
+        // Individual tickets are synced when they're closed via syncSingleTicketToFirebase
+        // The batch sync was causing "Request payload size exceeds the limit" errors
         
         resolve();
     } catch (error) {
@@ -134,18 +133,42 @@ async function processNextSave() {
     }
 }
 
-// Sync tickets to Firebase for dashboard access
+// Sync tickets to Firebase for dashboard access (only sync metadata, not transcripts)
 async function syncTicketsToFirebase(tickets) {
   if (!firebase || !firebase.collections) return;
 
   try {
+    // Only sync open tickets without transcripts to avoid payload size issues
     const batch = firebase.db.batch();
+    let count = 0;
+    
     tickets.forEach((ticket, channelId) => {
+      // Skip tickets with transcripts (they're too large for batch sync)
+      // Closed tickets with transcripts are synced individually
+      if (ticket.transcriptHtml) {
+        return;
+      }
+      
+      // Only sync essential metadata for open tickets
+      const ticketMetadata = {
+        channelId: ticket.channelId,
+        type: ticket.type,
+        userId: ticket.userId,
+        username: ticket.username,
+        status: ticket.status || 'open',
+        createdAt: ticket.createdAt,
+        formData: ticket.formData
+      };
+      
       const ticketRef = firebase.collections.tickets.doc(channelId);
-      batch.set(ticketRef, ticket);
+      batch.set(ticketRef, ticketMetadata, { merge: true });
+      count++;
     });
-    await batch.commit();
-    console.log(`✅ Synced ${tickets.size} tickets to Firebase`);
+    
+    if (count > 0) {
+      await batch.commit();
+      console.log(`✅ Synced ${count} ticket metadata to Firebase`);
+    }
   } catch (error) {
     console.error('Error syncing tickets to Firebase:', error);
   }
@@ -1057,6 +1080,19 @@ async function createTicketWithFormData(interaction, ticketType, formData, panel
             topic: `${formatTicketType(ticketType)} ticket for ${user.tag} | ID: ${user.id}`
         });
         
+        // Wait a moment for Discord to fully register the channel
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Verify the channel exists before proceeding
+        const verifiedChannel = await guild.channels.fetch(ticketChannel.id).catch(() => null);
+        if (!verifiedChannel) {
+            console.error(`❌ Channel ${ticketChannel.id} was created but could not be verified`);
+            return safeReply(interaction, {
+                content: 'There was an issue creating your ticket. Please try again.',
+                flags: MessageFlags.Ephemeral
+            }, true);
+        }
+        
         // Track the ticket
         const ticketData = {
             channelId: ticketChannel.id,
@@ -1098,20 +1134,20 @@ async function createTicketWithFormData(interaction, ticketType, formData, panel
             .map(roleId => `<@&${roleId}>`)
             .join(' ');
         
-        // Send welcome message and form data to the ticket channel
-        await ticketChannel.send({ 
+        // Send welcome message and form data to the ticket channel (use verified channel)
+        await verifiedChannel.send({ 
             content: `<@${user.id}>`,
             embeds: [welcomeEmbed, responseEmbed]
         });
         
         // Then send controls only for staff/admins
         if (validRoleMentions) {
-            await ticketChannel.send({
+            await verifiedChannel.send({
                 content: `Staff controls: ${validRoleMentions}`,  // Staff mentions only here
                 components: [ticketControls]
             });
         } else {
-            await ticketChannel.send({
+            await verifiedChannel.send({
                 content: `Staff controls: (Admins only)`,
                 components: [ticketControls]
             });
@@ -1124,10 +1160,10 @@ async function createTicketWithFormData(interaction, ticketType, formData, panel
                 setTimeout(async () => {
                     try {
                         // Try to send event details from TruckerMP API
-                        await panelModule.sendEventDetails(ticketChannel, formData, user);
+                        await panelModule.sendEventDetails(verifiedChannel, formData, user);
                     } catch (innerError) {
                         console.error('Error in delayed event details sending:', innerError);
-                        ticketChannel.send('There was an error fetching event details. Please provide the event details manually.').catch(console.error);
+                        verifiedChannel.send('There was an error fetching event details. Please provide the event details manually.').catch(console.error);
                     }
                 }, 1500);
             } catch (eventError) {
@@ -1136,11 +1172,11 @@ async function createTicketWithFormData(interaction, ticketType, formData, panel
         }
         
         // Log ticket creation
-        logTicketAction(guild, user, ticketType, 'created', ticketChannel.id, formData);
+        logTicketAction(guild, user, ticketType, 'created', verifiedChannel.id, formData);
         
         // Reply to the user
         await safeReply(interaction, { 
-            content: `Your ${formatTicketType(ticketType)} ticket has been created: <#${ticketChannel.id}>`,
+            content: `Your ${formatTicketType(ticketType)} ticket has been created: <#${verifiedChannel.id}>`,
             flags: MessageFlags.Ephemeral 
         }, true);
     } catch (error) {
