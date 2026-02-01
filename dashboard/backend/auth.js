@@ -40,6 +40,8 @@ passport.use(new LocalStrategy(
     try {
       console.log('Auth check - Email:', email);
       console.log('Auth check - Expected email:', process.env.ADMIN_EMAIL);
+      console.log('Auth check - Password received:', JSON.stringify(password));
+      console.log('Auth check - Password expected:', JSON.stringify(process.env.ADMIN_PASSWORD));
       console.log('Auth check - Password match:', password === process.env.ADMIN_PASSWORD);
       
       // Check admin credentials
