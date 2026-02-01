@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const session = require('express-session');
@@ -8,7 +9,6 @@ const botManager = require('./discordManager');
 const reminderScheduler = require('./reminderScheduler');
 const fs = require('fs');
 const path = require('path');
-require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
