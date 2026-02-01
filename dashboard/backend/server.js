@@ -2,8 +2,6 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const session = require('express-session');
-const RedisStore = require('connect-redis').default;
-const { createClient } = require('redis');
 const { passport, isAuthenticated } = require('./auth');
 const botManager = require('./discordManager');
 const reminderScheduler = require('./reminderScheduler');
@@ -47,36 +45,13 @@ app.use('/uploads', (req, res, next) => {
 }, express.static(path.join(__dirname, 'uploads')));
 
 
-// Session configuration - try Redis first, fallback to MemoryStore
-let sessionStore;
-async function initializeSessionStore() {
-  if (process.env.REDIS_URL) {
-    try {
-      const redisClient = createClient({ url: process.env.REDIS_URL });
-      redisClient.on('error', (err) => console.warn('⚠️ Redis error:', err.message));
-      await redisClient.connect();
-      sessionStore = new RedisStore({ client: redisClient });
-      console.log('✅ Using Redis for session storage');
-      return true;
-    } catch (err) {
-      console.warn('⚠️ Redis connection failed:', err.message);
-      console.warn('⚠️ Falling back to MemoryStore');
-      return false;
-    }
-  } else {
-    console.warn('⚠️ REDIS_URL not set, using MemoryStore (sessions will be lost on restart)');
-    return false;
-  }
-}
-
-// Initialize session store (non-blocking for startup)
-initializeSessionStore().catch(console.error);
+// Session configuration - using MemoryStore (sessions lost on restart)
+console.log('ℹ️ Using MemoryStore for sessions');
 
 app.use(session({
-  store: sessionStore, // undefined will use default MemoryStore
   secret: process.env.SESSION_SECRET || 'RealOps_Secure_Session_Key_2024_a9f8e7d6c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1f0e9d8c7b6a5f4e3d2c1b0a9f8',
   resave: false,
-  saveUninitialized: false, // Changed to false to reduce memory usage
+  saveUninitialized: false,
   cookie: {
     maxAge: 24 * 60 * 60 * 1000,
     httpOnly: false,
