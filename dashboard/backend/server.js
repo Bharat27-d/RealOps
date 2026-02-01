@@ -49,18 +49,28 @@ app.use('/uploads', (req, res, next) => {
 
 // Session configuration - try Redis first, fallback to MemoryStore
 let sessionStore;
-if (process.env.REDIS_URL) {
-  try {
-    const redisClient = createClient({ url: process.env.REDIS_URL });
-    redisClient.connect().catch(console.error);
-    sessionStore = new RedisStore({ client: redisClient });
-    console.log('✅ Using Redis for session storage');
-  } catch (err) {
-    console.warn('⚠️ Redis connection failed, using MemoryStore (not recommended for production)');
+async function initializeSessionStore() {
+  if (process.env.REDIS_URL) {
+    try {
+      const redisClient = createClient({ url: process.env.REDIS_URL });
+      redisClient.on('error', (err) => console.warn('⚠️ Redis error:', err.message));
+      await redisClient.connect();
+      sessionStore = new RedisStore({ client: redisClient });
+      console.log('✅ Using Redis for session storage');
+      return true;
+    } catch (err) {
+      console.warn('⚠️ Redis connection failed:', err.message);
+      console.warn('⚠️ Falling back to MemoryStore');
+      return false;
+    }
+  } else {
+    console.warn('⚠️ REDIS_URL not set, using MemoryStore (sessions will be lost on restart)');
+    return false;
   }
-} else {
-  console.warn('⚠️ REDIS_URL not set, using MemoryStore (set REDIS_URL for production)');
 }
+
+// Initialize session store (non-blocking for startup)
+initializeSessionStore().catch(console.error);
 
 app.use(session({
   store: sessionStore, // undefined will use default MemoryStore
