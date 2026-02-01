@@ -44,6 +44,8 @@ app.use('/uploads', (req, res, next) => {
   next();
 }, express.static(path.join(__dirname, 'uploads')));
 
+// Trust proxy (required for nginx reverse proxy)
+app.set('trust proxy', 1);
 
 // Session configuration - using MemoryStore (sessions lost on restart)
 console.log('ℹ️ Using MemoryStore for sessions');
@@ -69,17 +71,22 @@ botManager.initialize(process.env.DISCORD_BOT_TOKEN);
 
 // Auth routes
 app.post('/auth/login', (req, res, next) => {
+  console.log('Login attempt:', req.body.email);
   passport.authenticate('local', (err, user, info) => {
     if (err) {
+      console.log('Login error:', err.message);
       return res.status(500).json({ error: err.message });
     }
     if (!user) {
+      console.log('Login failed:', info?.message);
       return res.status(401).json({ error: info.message || 'Invalid credentials' });
     }
     req.login(user, (err) => {
       if (err) {
+        console.log('Session error:', err.message);
         return res.status(500).json({ error: err.message });
       }
+      console.log('Login successful:', user.email);
       return res.json({ success: true, user });
     });
   })(req, res, next);
