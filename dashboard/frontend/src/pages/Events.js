@@ -30,10 +30,10 @@ function Events() {
   
   // Scenario Pack states
   const [scenarios, setScenarios] = useState([
-    { id: 1, title: 'Scenario 1', description: '', image: '', color: '#00b894', required: true, collapsed: false },
-    { id: 2, title: 'Scenario 2', description: '', image: '', color: '#00b894', required: true, collapsed: false },
-    { id: 3, title: 'Scenario 3', description: '', image: '', color: '#00b894', required: true, collapsed: false },
-    { id: 4, title: 'Scenario 4', description: '', image: '', color: '#00b894', required: true, collapsed: false }
+    { id: 1, title: 'Scenario 1', description: '', image: '', color: '#00b894', collapsed: false },
+    { id: 2, title: 'Scenario 2', description: '', image: '', color: '#00b894', collapsed: false },
+    { id: 3, title: 'Scenario 3', description: '', image: '', color: '#00b894', collapsed: false },
+    { id: 4, title: 'Scenario 4', description: '', image: '', color: '#00b894', collapsed: false }
   ]);
   const [header, setHeader] = useState({
     title: 'Real Ops Event Scenarios',
@@ -172,21 +172,14 @@ function Events() {
       description: '',
       image: '',
       color: '#00b894',
-      required: false,
       collapsed: false
     }]);
     toast.success('Scenario added successfully');
   };
 
   const removeScenario = (id) => {
-    const scenario = scenarios.find(s => s.id === id);
-    if (scenario?.required) {
-      toast.warning('Cannot remove required scenarios (1-4)');
-      return;
-    }
-    if (scenarios.length > 4) {
-      setScenarios(scenarios.filter(s => s.id !== id));
-    }
+    setScenarios(scenarios.filter(s => s.id !== id));
+    toast.success('Scenario removed successfully');
   };
 
   const moveScenario = (index, direction) => {
@@ -255,27 +248,22 @@ function Events() {
       return;
     }
 
-    // Validate required scenarios (1-4)
-    const requiredScenarios = scenarios.filter(s => s.required);
-    const emptyRequired = requiredScenarios.filter(s => !s.description || !s.image);
-    if (emptyRequired.length > 0) {
-      toast.error('Please fill in descriptions and images for all required scenarios (1-4)');
+    // Validate that we have at least one complete scenario
+    const validScenarios = scenarios.filter(s => s.description && s.image);
+    if (validScenarios.length === 0) {
+      toast.error('Please add at least one complete scenario with description and image');
       return;
     }
 
-    // Validate optional scenarios (5-6) if they exist
-    const optionalScenarios = scenarios.filter(s => !s.required);
-    const partialOptional = optionalScenarios.filter(s => (s.description && !s.image) || (!s.description && s.image));
-    if (partialOptional.length > 0) {
-      toast.error('Optional scenarios must have both description AND image, or leave both empty');
+    // Check for incomplete scenarios (partial data)
+    const incompleteScenarios = scenarios.filter(s => (s.description && !s.image) || (!s.description && s.image));
+    if (incompleteScenarios.length > 0) {
+      toast.error('All scenarios must have both description AND image, or delete incomplete scenarios');
       return;
     }
 
     setLoading(true);
     try {
-      // Only send scenarios that have both description and image
-      const validScenarios = scenarios.filter(s => s.description && s.image);
-
       await events.create({
         type: 'scenario_pack',
         channelId: scenarioChannel,
@@ -292,12 +280,12 @@ function Events() {
       toast.success('Scenarios sent successfully!');
       setShowScenarioBuilder(false);
       
-      // Reset form to 4 required scenarios
+      // Reset form to 4 default scenarios
       setScenarios([
-        { id: 1, title: 'Scenario 1', description: '', image: '', color: '#00b894', required: true },
-        { id: 2, title: 'Scenario 2', description: '', image: '', color: '#00b894', required: true },
-        { id: 3, title: 'Scenario 3', description: '', image: '', color: '#00b894', required: true },
-        { id: 4, title: 'Scenario 4', description: '', image: '', color: '#00b894', required: true }
+        { id: 1, title: 'Scenario 1', description: '', image: '', color: '#00b894', collapsed: false },
+        { id: 2, title: 'Scenario 2', description: '', image: '', color: '#00b894', collapsed: false },
+        { id: 3, title: 'Scenario 3', description: '', image: '', color: '#00b894', collapsed: false },
+        { id: 4, title: 'Scenario 4', description: '', image: '', color: '#00b894', collapsed: false }
       ]);
       setScenarioChannel('');
       setScenarioUser('');
@@ -824,12 +812,6 @@ function Events() {
                     <h4>
                       <FaGripVertical /> 
                       {scenario.title}
-                      {scenario.required && (
-                        <span style={{ color: '#5865F2' }}>REQUIRED</span>
-                      )}
-                      {!scenario.required && (
-                        <span style={{ color: '#00b894' }}>OPTIONAL</span>
-                      )}
                     </h4>
                     <div className="scenario-actions" onClick={(e) => e.stopPropagation()}>
                       <button 
@@ -848,15 +830,13 @@ function Events() {
                       >
                         <FaArrowDown />
                       </button>
-                      {!scenario.required && (
-                        <button 
-                          className="btn btn-sm btn-danger"
-                          onClick={() => removeScenario(scenario.id)}
-                          title="Remove Scenario"
-                        >
-                          <FaTrash />
-                        </button>
-                      )}
+                      <button 
+                        className="btn btn-sm btn-danger"
+                        onClick={() => removeScenario(scenario.id)}
+                        title="Remove Scenario"
+                      >
+                        <FaTrash />
+                      </button>
                     </div>
                   </div>
 
@@ -865,14 +845,12 @@ function Events() {
                       <div className="form-group">
                         <label>
                           Description *
-                          {scenario.required && <span style={{ color: '#e74c3c', marginLeft: '4px' }}>*</span>}
                         </label>
                         <textarea 
                           value={scenario.description}
                           onChange={(e) => updateScenario(scenario.id, 'description', e.target.value)}
-                          placeholder={scenario.required ? "Enter scenario description..." : "Leave empty to skip this scenario"}
+                          placeholder="Enter scenario description..."
                           rows={4}
-                          required={scenario.required}
                           style={{
                             background: '#1e2124',
                             border: '2px solid #40444b',
@@ -891,16 +869,14 @@ function Events() {
                       <div className="grid grid-2">
                         <div className="form-group">
                           <label>
-                            Image {scenario.required && '*'}
-                            {scenario.required && <span style={{ color: '#e74c3c', marginLeft: '4px' }}>*</span>}
+                            Image *
                           </label>
                           <div style={{ display: 'flex', gap: '8px', alignItems: 'stretch' }}>
                             <input 
                               type="text"
                               value={scenario.image}
                               onChange={(e) => updateScenario(scenario.id, 'image', e.target.value)}
-                              placeholder={scenario.required ? "Enter URL or upload image" : "Enter URL, upload, or leave empty"}
-                              required={scenario.required}
+                              placeholder="Enter URL or upload image"
                               style={{
                                 flex: 1,
                                 background: '#1e2124',
