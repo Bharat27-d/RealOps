@@ -51,7 +51,7 @@ function Dashboard() {
     return (
       <div className="loading">
         <div className="spinner"></div>
-        <p style={{ color: '#FFD700', fontSize: '16px' }}>Loading dashboard data...</p>
+        <p style={{ color: '#d1d5db', fontSize: '16px' }}>Loading dashboard data...</p>
       </div>
     );
   }
@@ -59,9 +59,9 @@ function Dashboard() {
   if (error) {
     return (
       <div className="text-center" style={{ padding: '60px 20px', maxWidth: '600px', margin: '0 auto' }}>
-        <FaExclamationTriangle size={64} style={{ color: '#e74c3c', marginBottom: '20px' }} />
-        <h2 style={{ color: '#FFD700', marginBottom: '12px' }}>Failed to Load Dashboard</h2>
-        <p style={{ color: '#888', marginBottom: '24px' }}>{error}</p>
+        <FaExclamationTriangle size={64} style={{ color: '#ef4444', marginBottom: '20px' }} />
+        <h2 style={{ color: '#f9fafb', marginBottom: '12px' }}>Failed to Load Dashboard</h2>
+        <p style={{ color: '#9ca3af', marginBottom: '24px' }}>{error}</p>
         <button onClick={handleRefresh} className="btn">
           <FaSync /> Retry
         </button>
@@ -76,7 +76,7 @@ function Dashboard() {
         <div>
           <h1>Dashboard Overview</h1>
           {lastUpdated && (
-            <p style={{ color: '#000', fontSize: '13px', margin: '5px 0 0 0', opacity: 0.7 }}>
+            <p style={{ color: '#d1d5db', fontSize: '13px', margin: '5px 0 0 0', opacity: 0.8 }}>
               <FaClock style={{ marginRight: '6px' }} />
               Last updated: {lastUpdated.toLocaleTimeString()}
             </p>
