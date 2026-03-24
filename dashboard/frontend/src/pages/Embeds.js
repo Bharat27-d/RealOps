@@ -457,6 +457,170 @@ function MentionSelector({ selectedMentions, roles, onChange, label = 'Mention R
   );
 }
 
+// Mention selector for users
+function UserMentionSelector({ selectedUsers, members, onChange, label = 'Mention Users (Optional)' }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const dropdownRef = useRef(null);
+  const inputRef = useRef(null);
+
+  const filteredMembers = members.filter(member =>
+    (member.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+     (member.nickname && member.nickname.toLowerCase().includes(searchTerm.toLowerCase()))) &&
+    !selectedUsers.some(u => u.id === member.id)
+  );
+
+  const addUser = (member) => {
+    const user = {
+      type: 'user',
+      id: member.id,
+      username: member.username,
+      nickname: member.nickname,
+      avatar: member.avatar
+    };
+    onChange([...selectedUsers, user]);
+    setSearchTerm('');
+    setTimeout(() => inputRef.current?.focus(), 0);
+  };
+
+  const removeUser = (index) => {
+    onChange(selectedUsers.filter((_, i) => i !== index));
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+        setSearchTerm('');
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  return (
+    <div>
+      <label style={{ display: 'block', marginBottom: '10px', fontWeight: '500', color: '#dcddde', fontSize: '14px' }}>
+        {label}
+      </label>
+      <div style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '8px',
+        padding: '12px',
+        background: '#23272A',
+        border: '1px solid #40444b',
+        borderRadius: '4px',
+        minHeight: '50px',
+        marginBottom: '10px'
+      }}>
+        {selectedUsers.map((user, index) => (
+          <div
+            key={index}
+            title={`User ID: ${user.id}`}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '6px 10px',
+              background: '#5865F2',
+              borderRadius: '16px',
+              color: 'white',
+              fontSize: '13px',
+              fontWeight: '500',
+              cursor: 'help'
+            }}>
+            {user.avatar && <img src={user.avatar} alt="" style={{ width: '18px', height: '18px', borderRadius: '50%' }} />}
+            <span>@{user.nickname || user.username}</span>
+            <FaTimes
+              onClick={() => removeUser(index)}
+              style={{ cursor: 'pointer', fontSize: '11px', opacity: 0.9 }}
+            />
+          </div>
+        ))}
+        {selectedUsers.length === 0 && (
+          <span style={{ color: '#72767d', fontSize: '14px', alignSelf: 'center' }}>
+            No users selected
+          </span>
+        )}
+      </div>
+
+      <div ref={dropdownRef} style={{ position: 'relative' }}>
+        <input
+          ref={inputRef}
+          type="text"
+          value={searchTerm}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setIsOpen(true);
+          }}
+          onFocus={() => setIsOpen(true)}
+          placeholder="Type to search users..."
+          style={{
+            width: '100%',
+            padding: '12px',
+            background: '#2C2F33',
+            border: '1px solid #40444b',
+            borderRadius: '4px',
+            color: '#dcddde',
+            fontSize: '14px',
+            outline: 'none'
+          }}
+        />
+        
+        {isOpen && filteredMembers.length > 0 && (
+          <div style={{
+            position: 'absolute',
+            top: '100%',
+            left: 0,
+            right: 0,
+            marginTop: '5px',
+            background: '#2C2F33',
+            border: '1px solid #40444b',
+            borderRadius: '4px',
+            maxHeight: '200px',
+            overflowY: 'auto',
+            zIndex: 1000,
+            boxShadow: '0 4px 8px rgba(0,0,0,0.3)'
+          }}>
+            {filteredMembers.slice(0, 50).map((member, index) => (
+              <div
+                key={index}
+                onClick={() => addUser(member)}
+                style={{
+                  padding: '10px',
+                  cursor: 'pointer',
+                  color: '#dcddde',
+                  transition: 'background 0.2s',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  justifyContent: 'space-between'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = '#40444b'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
+                  {member.avatar && <img src={member.avatar} alt="" style={{ width: '24px', height: '24px', borderRadius: '50%' }} />}
+                  <div>
+                    <span>@{member.nickname || member.username}</span>
+                    {member.nickname && (
+                      <span style={{ fontSize: '11px', color: '#72767d', marginLeft: '6px' }}>({member.username})</span>
+                    )}
+                  </div>
+                </div>
+                <span style={{ fontSize: '11px', color: '#72767d', fontFamily: 'monospace' }}>
+                  {member.id}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function Embeds() {
   const [embedData, setEmbedData] = useState({
     name: '',
@@ -476,8 +640,10 @@ function Embeds() {
   const [savedEmbeds, setSavedEmbeds] = useState([]);
   const [channels, setChannels] = useState([]);
   const [roles, setRoles] = useState([]);
+  const [members, setMembers] = useState([]);
   const [selectedChannelIds, setSelectedChannelIds] = useState([]);
   const [mentions, setMentions] = useState([]);
+  const [userMentions, setUserMentions] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const descriptionRef = useRef(null);
@@ -490,13 +656,15 @@ function Embeds() {
 
   const fetchData = async () => {
     try {
-      const [embedsRes, channelsRes, rolesRes] = await Promise.all([
+      const [embedsRes, channelsRes, rolesRes, membersRes] = await Promise.all([
         embeds.getAll(),
         discord.getChannels(),
-        discord.getRoles()
+        discord.getRoles(),
+        discord.getMembers()
       ]);
       setSavedEmbeds(embedsRes.data);
       setChannels(channelsRes.data);
+      setMembers(membersRes.data || []);
       setRoles(rolesRes.data);
     } catch (error) {
       console.error('Failed to load data:', error);
@@ -559,17 +727,21 @@ function Embeds() {
     }
 
     try {
-      // Extract just the role IDs from mentions array
-      const roleIds = mentions.map(m => m.id);
+      // Build combined mentions array with type info
+      const allMentions = [
+        ...mentions.map(m => ({ type: 'role', id: m.id })),
+        ...userMentions.map(u => ({ type: 'user', id: u.id }))
+      ];
       
       await announcements.sendToMultiple(
         selectedChannelIds,
         '',
         embedData,
-        roleIds
+        allMentions
       );
       toast.success(`Embed sent to ${selectedChannelIds.length} channel(s)!`);
       setMentions([]);
+      setUserMentions([]);
     } catch (error) {
       toast.error('Failed to send embed');
     }
@@ -623,6 +795,15 @@ function Embeds() {
               roles={roles}
               label="👥 Mention Outside Embed (Roles)"
               onChange={setMentions}
+            />
+          </div>
+
+          <div className="form-group">
+            <UserMentionSelector
+              selectedUsers={userMentions}
+              members={members}
+              label="👤 Mention Outside Embed (Users)"
+              onChange={setUserMentions}
             />
           </div>
 
@@ -863,13 +1044,45 @@ function Embeds() {
         <div>
           <div className="card">
             <h2>Live Preview</h2>
+
+            {/* Mentions outside embed preview */}
+            {(mentions.length > 0 || userMentions.length > 0) && (
+              <div style={{
+                padding: '8px 0',
+                marginTop: '16px',
+                color: '#dcddde',
+                fontSize: '14px',
+                lineHeight: '1.6'
+              }}>
+                {mentions.map((m, i) => (
+                  <span key={`role-${i}`} style={{
+                    background: 'rgba(88, 101, 242, 0.3)',
+                    color: '#dee0fc',
+                    padding: '0 4px',
+                    borderRadius: '3px',
+                    marginRight: '4px',
+                    cursor: 'default'
+                  }}>@{m.name}</span>
+                ))}
+                {userMentions.map((u, i) => (
+                  <span key={`user-${i}`} style={{
+                    background: 'rgba(88, 101, 242, 0.3)',
+                    color: '#dee0fc',
+                    padding: '0 4px',
+                    borderRadius: '3px',
+                    marginRight: '4px',
+                    cursor: 'default'
+                  }}>@{u.nickname || u.username}</span>
+                ))}
+              </div>
+            )}
             
             <div style={{ 
               borderLeft: `4px solid ${embedData.color}`, 
               background: '#2C2F33', 
               padding: '15px', 
               borderRadius: '4px',
-              marginTop: '20px',
+              marginTop: (mentions.length > 0 || userMentions.length > 0) ? '8px' : '20px',
               display: 'flex',
               gap: '15px'
             }}>

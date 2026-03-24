@@ -155,18 +155,22 @@ async function sendScheduledMessage(id, messageData) {
         
         // Add mentions outside embed
         if (messageData.mentions && messageData.mentions.length > 0) {
-          // Ensure mentions are role IDs (strings), not objects
-          const roleIds = messageData.mentions.map(mention => {
-            // If it's an object with an id property, extract the id
+          const mentionTexts = messageData.mentions.map(mention => {
             if (typeof mention === 'object' && mention.id) {
-              return mention.id;
+              if (mention.type === 'user') {
+                return `<@${mention.id}>`;
+              }
+              // Default to role mention
+              return `<@&${mention.id}>`;
             }
-            // Otherwise assume it's already a string ID
-            return mention;
-          }).filter(id => id && typeof id === 'string');
+            // Legacy: assume string ID is a role
+            if (typeof mention === 'string') {
+              return `<@&${mention}>`;
+            }
+            return null;
+          }).filter(Boolean);
           
-          const mentionText = roleIds.map(roleId => `<@&${roleId}>`).join(' ');
-          messageContent = mentionText;
+          messageContent = mentionTexts.join(' ');
         }
 
         // Send embed if provided
@@ -385,17 +389,22 @@ router.post('/announce', isStaff, async (req, res) => {
         
         // Add mentions outside embed (from mentions field)
         if (mentions && mentions.length > 0) {
-          // Ensure mentions are role IDs (strings), not objects
-          const roleIds = mentions.map(mention => {
-            // If it's an object with an id property, extract the id
+          const mentionTexts = mentions.map(mention => {
             if (typeof mention === 'object' && mention.id) {
-              return mention.id;
+              if (mention.type === 'user') {
+                return `<@${mention.id}>`;
+              }
+              // Default to role mention
+              return `<@&${mention.id}>`;
             }
-            // Otherwise assume it's already a string ID
-            return mention;
-          }).filter(id => id && typeof id === 'string');
+            // Legacy: assume string ID is a role
+            if (typeof mention === 'string') {
+              return `<@&${mention}>`;
+            }
+            return null;
+          }).filter(Boolean);
           
-          const mentionText = roleIds.map(roleId => `<@&${roleId}>`).join(' ');
+          const mentionText = mentionTexts.join(' ');
           messageContent = mentionText + (messageContent ? '\n' + messageContent : '');
         }
 
