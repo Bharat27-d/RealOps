@@ -712,14 +712,21 @@ function Embeds() {
         // Update existing embed — strip metadata fields that shouldn't go back to Firestore
         const { id, createdAt, createdBy, updatedAt, ...cleanData } = embedData;
         await embeds.update(editingEmbedId, cleanData);
+        // Immediately update the local list
+        setSavedEmbeds(prev => prev.map(e => 
+          e.id === editingEmbedId ? { ...e, ...cleanData } : e
+        ));
         toast.success('Embed updated successfully!');
         setEditingEmbedId(null);
       } else {
         // Save as new embed
-        await embeds.save(embedData);
+        const res = await embeds.save(embedData);
+        // Add to local list immediately
+        if (res.data) {
+          setSavedEmbeds(prev => [res.data, ...prev]);
+        }
         toast.success('Embed saved successfully!');
       }
-      fetchData();
     } catch (error) {
       const msg = error.response?.data?.error || error.message || 'Unknown error';
       console.error('Embed save/update error:', msg, error);
