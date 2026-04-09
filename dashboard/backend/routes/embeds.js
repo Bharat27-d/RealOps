@@ -43,11 +43,15 @@ router.put('/:id', isStaff, async (req, res) => {
     delete cleanData.id;
     delete cleanData.createdAt;
     delete cleanData.createdBy;
+    delete cleanData.updatedAt;
 
-    await collections.embeds.doc(req.params.id).update({
+    console.log('Updating embed:', req.params.id, 'Fields:', Object.keys(cleanData));
+
+    await collections.embeds.doc(req.params.id).set({
       ...cleanData,
       updatedAt: new Date().toISOString()
-    });
+    }, { merge: true });
+
     res.json({ success: true });
   } catch (error) {
     console.error('Error updating embed:', error);

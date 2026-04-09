@@ -721,7 +721,9 @@ function Embeds() {
       }
       fetchData();
     } catch (error) {
-      toast.error(editingEmbedId ? 'Failed to update embed' : 'Failed to save embed');
+      const msg = error.response?.data?.error || error.message || 'Unknown error';
+      console.error('Embed save/update error:', msg, error);
+      toast.error(`Failed to ${editingEmbedId ? 'update' : 'save'} embed: ${msg}`);
     }
   };
 
