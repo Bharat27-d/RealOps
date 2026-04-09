@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { toast } from 'react-toastify';
-import { FaSave, FaPaperPlane, FaPlus, FaTrash, FaCopy, FaBold, FaItalic, FaUnderline, FaStrikethrough, FaCode, FaLink, FaTimes } from 'react-icons/fa';
+import { FaSave, FaPaperPlane, FaPlus, FaTrash, FaCopy, FaBold, FaItalic, FaUnderline, FaStrikethrough, FaCode, FaLink, FaTimes, FaEdit } from 'react-icons/fa';
 import { embeds, discord, announcements } from '../services/api';
 
 // Discord Markdown Renderer
@@ -644,6 +644,7 @@ function Embeds() {
   const [selectedChannelIds, setSelectedChannelIds] = useState([]);
   const [mentions, setMentions] = useState([]);
   const [userMentions, setUserMentions] = useState([]);
+  const [editingEmbedId, setEditingEmbedId] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const descriptionRef = useRef(null);
@@ -707,11 +708,19 @@ function Embeds() {
     }
 
     try {
-      await embeds.save(embedData);
-      toast.success('Embed saved successfully!');
+      if (editingEmbedId) {
+        // Update existing embed
+        await embeds.update(editingEmbedId, embedData);
+        toast.success('Embed updated successfully!');
+        setEditingEmbedId(null);
+      } else {
+        // Save as new embed
+        await embeds.save(embedData);
+        toast.success('Embed saved successfully!');
+      }
       fetchData();
     } catch (error) {
-      toast.error('Failed to save embed');
+      toast.error(editingEmbedId ? 'Failed to update embed' : 'Failed to save embed');
     }
   };
 
@@ -749,7 +758,37 @@ function Embeds() {
 
   const loadEmbed = (embed) => {
     setEmbedData(embed);
+    setEditingEmbedId(null);
     toast.info('Embed loaded into builder');
+  };
+
+  const editEmbed = (embed) => {
+    setEmbedData(embed);
+    setEditingEmbedId(embed.id);
+    toast.info('Editing embed — make changes and click Update Template');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const deleteEmbed = async (id, name) => {
+    if (!window.confirm(`Are you sure you want to delete "${name}"? This cannot be undone.`)) {
+      return;
+    }
+    try {
+      await embeds.delete(id);
+      toast.success('Embed deleted!');
+      // If we were editing this embed, clear edit mode
+      if (editingEmbedId === id) {
+        setEditingEmbedId(null);
+      }
+      fetchData();
+    } catch (error) {
+      toast.error('Failed to delete embed');
+    }
+  };
+
+  const cancelEdit = () => {
+    setEditingEmbedId(null);
+    toast.info('Edit cancelled');
   };
 
   const duplicateEmbed = async (id) => {
@@ -1030,9 +1069,33 @@ function Embeds() {
             </p>
           </div>
 
+          {editingEmbedId && (
+            <div style={{
+              marginTop: '20px',
+              padding: '12px',
+              background: '#5865F220',
+              border: '1px solid #5865F2',
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between'
+            }}>
+              <span style={{ color: '#dee0fc', fontSize: '13px' }}>
+                ✏️ Editing: <strong>{embedData.name}</strong>
+              </span>
+              <button
+                className="btn btn-outline"
+                onClick={cancelEdit}
+                style={{ padding: '4px 12px', fontSize: '12px' }}
+              >
+                Cancel Edit
+              </button>
+            </div>
+          )}
+
           <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
             <button className="btn btn-primary" onClick={saveEmbed} style={{ flex: 1 }}>
-              <FaSave /> Save Template
+              <FaSave /> {editingEmbedId ? 'Update Template' : 'Save Template'}
             </button>
             <button className="btn btn-secondary" onClick={sendEmbed} style={{ flex: 1 }}>
               <FaPaperPlane /> Send to {selectedChannelIds.length} Channel(s)
@@ -1132,14 +1195,33 @@ function Embeds() {
           <div className="card" style={{ marginTop: '20px' }}>
             <h3>Saved Templates</h3>
             {savedEmbeds.map(embed => (
-              <div key={embed.id} style={{ padding: '10px', background: '#2C2F33', borderRadius: '8px', marginTop: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span>{embed.name}</span>
-                <div style={{ display: 'flex', gap: '5px' }}>
-                  <button className="btn btn-outline" onClick={() => loadEmbed(embed)} style={{ padding: '5px 10px' }}>
+              <div key={embed.id} style={{
+                padding: '10px 12px',
+                background: editingEmbedId === embed.id ? '#5865F215' : '#2C2F33',
+                borderRadius: '8px',
+                marginTop: '10px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                border: editingEmbedId === embed.id ? '1px solid #5865F2' : '1px solid transparent',
+                transition: 'all 0.2s'
+              }}>
+                <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {editingEmbedId === embed.id && <span style={{ color: '#5865F2', marginRight: '6px' }}>✏️</span>}
+                  {embed.name}
+                </span>
+                <div style={{ display: 'flex', gap: '5px', flexShrink: 0 }}>
+                  <button className="btn btn-outline" onClick={() => editEmbed(embed)} style={{ padding: '5px 10px' }} title="Edit">
+                    <FaEdit />
+                  </button>
+                  <button className="btn btn-outline" onClick={() => loadEmbed(embed)} style={{ padding: '5px 10px' }} title="Load">
                     Load
                   </button>
-                  <button className="btn btn-secondary" onClick={() => duplicateEmbed(embed.id)} style={{ padding: '5px 10px' }}>
+                  <button className="btn btn-secondary" onClick={() => duplicateEmbed(embed.id)} style={{ padding: '5px 10px' }} title="Duplicate">
                     <FaCopy />
+                  </button>
+                  <button className="btn btn-danger" onClick={() => deleteEmbed(embed.id, embed.name)} style={{ padding: '5px 10px' }} title="Delete">
+                    <FaTrash />
                   </button>
                 </div>
               </div>
