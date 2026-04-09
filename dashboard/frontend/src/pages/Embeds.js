@@ -757,14 +757,39 @@ function Embeds() {
     }
   };
 
+  // Merge loaded embed with defaults to ensure all fields exist
+  const defaultEmbed = {
+    name: '',
+    title: '',
+    description: '',
+    color: '#00b894',
+    thumbnail: '',
+    image: '',
+    footer: { text: '', iconURL: '' },
+    author: { name: '', iconURL: '' },
+    fields: [],
+    timestamp: false,
+    buttons: [],
+    selectMenu: null
+  };
+
+  const mergeWithDefaults = (embed) => ({
+    ...defaultEmbed,
+    ...embed,
+    footer: { ...defaultEmbed.footer, ...(embed.footer || {}) },
+    author: { ...defaultEmbed.author, ...(embed.author || {}) },
+    fields: Array.isArray(embed.fields) ? embed.fields : [],
+    buttons: Array.isArray(embed.buttons) ? embed.buttons : [],
+  });
+
   const loadEmbed = (embed) => {
-    setEmbedData(embed);
+    setEmbedData(mergeWithDefaults(embed));
     setEditingEmbedId(null);
     toast.info('Embed loaded into builder');
   };
 
   const editEmbed = (embed) => {
-    setEmbedData(embed);
+    setEmbedData(mergeWithDefaults(embed));
     setEditingEmbedId(embed.id);
     toast.info('Editing embed — make changes and click Update Template');
     window.scrollTo({ top: 0, behavior: 'smooth' });
