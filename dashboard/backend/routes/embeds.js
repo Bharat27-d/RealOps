@@ -37,12 +37,20 @@ router.post('/save', isStaff, async (req, res) => {
 // Update embed template
 router.put('/:id', isStaff, async (req, res) => {
   try {
+    // Deep clean: Firestore rejects undefined values
+    const cleanData = JSON.parse(JSON.stringify(req.body));
+    // Remove metadata fields that shouldn't be in the update
+    delete cleanData.id;
+    delete cleanData.createdAt;
+    delete cleanData.createdBy;
+
     await collections.embeds.doc(req.params.id).update({
-      ...req.body,
+      ...cleanData,
       updatedAt: new Date().toISOString()
     });
     res.json({ success: true });
   } catch (error) {
+    console.error('Error updating embed:', error);
     res.status(500).json({ error: error.message });
   }
 });

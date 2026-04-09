@@ -709,8 +709,9 @@ function Embeds() {
 
     try {
       if (editingEmbedId) {
-        // Update existing embed
-        await embeds.update(editingEmbedId, embedData);
+        // Update existing embed — strip metadata fields that shouldn't go back to Firestore
+        const { id, createdAt, createdBy, updatedAt, ...cleanData } = embedData;
+        await embeds.update(editingEmbedId, cleanData);
         toast.success('Embed updated successfully!');
         setEditingEmbedId(null);
       } else {
