@@ -802,11 +802,12 @@ function Embeds() {
     try {
       await embeds.delete(id);
       toast.success('Embed deleted!');
+      // Immediately remove from local state
+      setSavedEmbeds(prev => prev.filter(e => e.id !== id));
       // If we were editing this embed, clear edit mode
       if (editingEmbedId === id) {
         setEditingEmbedId(null);
       }
-      fetchData();
     } catch (error) {
       toast.error('Failed to delete embed');
     }
