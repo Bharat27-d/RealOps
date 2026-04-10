@@ -1,45 +1,60 @@
-const { 
-    ActionRowBuilder, 
-    ButtonBuilder, 
-    EmbedBuilder, 
+const {
+    ActionRowBuilder,
+    ButtonBuilder,
+    EmbedBuilder,
     ButtonStyle,
     ModalBuilder,
     TextInputBuilder,
-    TextInputStyle
+    TextInputStyle,
+    ContainerBuilder,
+    TextDisplayBuilder,
+    MediaGalleryBuilder,
+    MediaGalleryItemBuilder,
+    SectionBuilder,
+    SeparatorBuilder,
+    ThumbnailBuilder,
+    MessageFlags
 } = require('discord.js');
 const config = require('../config');
 
 // Send Founders Manager panel
 async function sendPanel(channel) {
-    const foundersEmbed = new EmbedBuilder()
-        .setAuthor({ 
-            name: 'The Real Ops Group', 
-            iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png' 
-        })
-        .setTitle('Founder / Management')
-        .setDescription(
-            'To Contact the Founder / Management then please\n' +
-            'react with 📩'
+    const container = new ContainerBuilder()
+        .setAccentColor(0xF1C40F)
+        .addSectionComponents(
+            new SectionBuilder()
+                .addTextDisplayComponents(
+                    new TextDisplayBuilder().setContent('## 👑 Founder / Management\n-# The Real Ops Group')
+                )
+                .setThumbnailAccessory(
+                    new ThumbnailBuilder({ media: { url: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png' } })
+                )
         )
-        .setImage('https://i.postimg.cc/2SLGZvjv/Z7vW5Or.png') // Replace with your actual banner if different
-        .setThumbnail('https://i.ibb.co/FMYFdhk/real-ops-group-logo.png')
-        .setColor('#f1c40f')
-        .setFooter({ 
-            text: 'The Real Ops Group Tickets', 
-            iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png' 
-        });
-
-    
-    const foundersRow = new ActionRowBuilder()
-        .addComponents(
-            new ButtonBuilder()
-                .setCustomId('founders_button')
-                .setLabel('Contact Founders')
-                .setStyle(ButtonStyle.Primary)
-                .setEmoji(config.emojis.founders || '👑')
+        .addSeparatorComponents(new SeparatorBuilder().setDivider(true))
+        .addTextDisplayComponents(
+            new TextDisplayBuilder().setContent(
+                'To Contact the Founder / Management then please\nreact with 📩'
+            )
+        )
+        .addMediaGalleryComponents(
+            new MediaGalleryBuilder()
+                .addItems(
+                    new MediaGalleryItemBuilder({ media: { url: 'https://i.postimg.cc/2SLGZvjv/Z7vW5Or.png' } })
+                )
+        )
+        .addSeparatorComponents(new SeparatorBuilder().setDivider(true))
+        .addActionRowComponents(
+            new ActionRowBuilder()
+                .addComponents(
+                    new ButtonBuilder()
+                        .setCustomId('founders_button')
+                        .setLabel('Contact Founders')
+                        .setStyle(ButtonStyle.Primary)
+                        .setEmoji(config.emojis.founders || '👑')
+                )
         );
-    
-    return await channel.send({ embeds: [foundersEmbed], components: [foundersRow] });
+
+    return await channel.send({ components: [container], flags: MessageFlags.IsComponentsV2 });
 }
 
 // Create a modal for founders contact
@@ -53,18 +68,18 @@ function createModal() {
         .setLabel('Your Discord name')
         .setStyle(TextInputStyle.Short)
         .setRequired(true);
-    
+
     const inquiryDetailsInput = new TextInputBuilder()
         .setCustomId('inquiry_details')
         .setLabel('Full details of your inquiry')
         .setStyle(TextInputStyle.Paragraph)
         .setRequired(true);
-~
-    // Add inputs to rows
-    modal.addComponents(
-        new ActionRowBuilder().addComponents(discordNameInput),
-        new ActionRowBuilder().addComponents(inquiryDetailsInput)
-    );
+    ~
+        // Add inputs to rows
+        modal.addComponents(
+            new ActionRowBuilder().addComponents(discordNameInput),
+            new ActionRowBuilder().addComponents(inquiryDetailsInput)
+        );
 
     return modal;
 }
@@ -80,8 +95,8 @@ function createResponseEmbed(user, data, ticketId) {
             { name: 'Submitted At', value: new Date().toLocaleString(), inline: true }
         )
         .setColor('#f1c40f')
-        .setFooter({ 
-            text: `Ticket ID: ${ticketId}`, 
+        .setFooter({
+            text: `Ticket ID: ${ticketId}`,
             iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'
         })
         .setThumbnail(user.displayAvatarURL())

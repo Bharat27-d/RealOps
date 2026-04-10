@@ -1,11 +1,19 @@
-const { 
-    ActionRowBuilder, 
-    ButtonBuilder, 
-    EmbedBuilder, 
+const {
+    ActionRowBuilder,
+    ButtonBuilder,
+    EmbedBuilder,
     ButtonStyle,
     ModalBuilder,
     TextInputBuilder,
-    TextInputStyle
+    TextInputStyle,
+    ContainerBuilder,
+    TextDisplayBuilder,
+    MediaGalleryBuilder,
+    MediaGalleryItemBuilder,
+    SectionBuilder,
+    SeparatorBuilder,
+    ThumbnailBuilder,
+    MessageFlags
 } = require('discord.js');
 const config = require('../config');
 
@@ -13,28 +21,43 @@ const config = require('../config');
 async function sendPanel(channel) {
     // Get the proper channel ID for staff openings
     const staffOpeningsId = config.channels?.staffOpenings || '1291739954791059527';
-    
-    const joinEmbed = new EmbedBuilder()
-        .setTitle('The Real Ops Group')
-        .setDescription(`Join Our Team\n\nYou can find all available positions in <#${staffOpeningsId}> \nPlease react with 📨\nTo fill out the application form`)
-        .setColor('#E74C3C') 
-        .setImage('https://i.postimg.cc/5N4fhvW9/Join-team.png')
-        .setThumbnail('https://i.ibb.co/FMYFdhk/real-ops-group-logo.png')
-        .setFooter({ 
-            text: 'The Real Ops Group',
-            iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'
-        });
-    
-    const joinRow = new ActionRowBuilder()
-        .addComponents(
-            new ButtonBuilder()
-                .setCustomId('join_team_button')
-                .setLabel('Join the Team')
-                .setStyle(ButtonStyle.Success)
-                .setEmoji('📨')
+
+    const container = new ContainerBuilder()
+        .setAccentColor(0xE74C3C)
+        .addSectionComponents(
+            new SectionBuilder()
+                .addTextDisplayComponents(
+                    new TextDisplayBuilder().setContent('## 🚀 The Real Ops Group')
+                )
+                .setThumbnailAccessory(
+                    new ThumbnailBuilder({ media: { url: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png' } })
+                )
+        )
+        .addSeparatorComponents(new SeparatorBuilder().setDivider(true))
+        .addTextDisplayComponents(
+            new TextDisplayBuilder().setContent(
+                `**Join Our Team**\n\nYou can find all available positions in <#${staffOpeningsId}>\nPlease react with 📨\nTo fill out the application form`
+            )
+        )
+        .addMediaGalleryComponents(
+            new MediaGalleryBuilder()
+                .addItems(
+                    new MediaGalleryItemBuilder({ media: { url: 'https://i.postimg.cc/5N4fhvW9/Join-team.png' } })
+                )
+        )
+        .addSeparatorComponents(new SeparatorBuilder().setDivider(true))
+        .addActionRowComponents(
+            new ActionRowBuilder()
+                .addComponents(
+                    new ButtonBuilder()
+                        .setCustomId('join_team_button')
+                        .setLabel('Join the Team')
+                        .setStyle(ButtonStyle.Success)
+                        .setEmoji('📨')
+                )
         );
-    
-    return await channel.send({ embeds: [joinEmbed], components: [joinRow] });
+
+    return await channel.send({ components: [container], flags: MessageFlags.IsComponentsV2 });
 }
 
 // Create a modal for join team application
@@ -49,7 +72,7 @@ function createModal() {
         .setStyle(TextInputStyle.Short)
         .setRequired(true)
         .setMaxLength(100);
-    
+
     const truckermpIdInput = new TextInputBuilder()
         .setCustomId('truckermp_id_input')
         .setLabel('Your TruckerMP ID')
@@ -57,21 +80,21 @@ function createModal() {
         .setRequired(true)
         .setMaxLength(20)
         .setPlaceholder('e.g., 12345678');
-    
+
     const experienceInput = new TextInputBuilder()
         .setCustomId('experience_input')
         .setLabel('What Experience Do You Have For This Role?')
         .setStyle(TextInputStyle.Paragraph)
         .setRequired(true)
         .setMaxLength(4000);
-    
+
     const whyChooseInput = new TextInputBuilder()
         .setCustomId('why_choose_input')
         .setLabel('Why Do You Think We Should Choose You?')
         .setStyle(TextInputStyle.Paragraph)
         .setRequired(true)
         .setMaxLength(500);
-    
+
     const timeInput = new TextInputBuilder()
         .setCustomId('time_input')
         .setLabel('How Much Time Can You Dedicate To This Role?')
@@ -104,7 +127,7 @@ function formatDateUTC(date) {
     const hours = String(date.getUTCHours()).padStart(2, '0');
     const minutes = String(date.getUTCMinutes()).padStart(2, '0');
     const seconds = String(date.getUTCSeconds()).padStart(2, '0');
-    
+
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
@@ -112,7 +135,7 @@ function formatDateUTC(date) {
 function createResponseEmbed(user, data, ticketId) {
     // Get Unix timestamp for Discord timestamp
     const timestamp = getUnixTimestamp();
-    
+
     // Create the description with questions as headers, answers in code blocks, and Discord timestamp
     const description = [
         `Application submitted by <@${user.id}>`,
@@ -146,13 +169,13 @@ function createResponseEmbed(user, data, ticketId) {
         `**Discord ID:** ${user.id}`,
         `**Submitted At:** <t:${timestamp}:F>` // Discord timestamp that shows in user's local time
     ].join('\n');
-    
+
     return new EmbedBuilder()
         .setTitle('Team Application')
         .setDescription(description)
         .setColor('#3498db')
-        .setFooter({ 
-            text: `Application ID: ${ticketId}`, 
+        .setFooter({
+            text: `Application ID: ${ticketId}`,
             iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'
         })
         .setThumbnail(user.displayAvatarURL())

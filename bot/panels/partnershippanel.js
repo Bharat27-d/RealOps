@@ -1,44 +1,60 @@
-const { 
-    ActionRowBuilder, 
-    ButtonBuilder, 
-    EmbedBuilder, 
+const {
+    ActionRowBuilder,
+    ButtonBuilder,
+    EmbedBuilder,
     ButtonStyle,
     ModalBuilder,
     TextInputBuilder,
-    TextInputStyle
+    TextInputStyle,
+    ContainerBuilder,
+    TextDisplayBuilder,
+    MediaGalleryBuilder,
+    MediaGalleryItemBuilder,
+    SectionBuilder,
+    SeparatorBuilder,
+    ThumbnailBuilder,
+    MessageFlags
 } = require('discord.js');
 const config = require('../config');
 
 // Send Partnership panel
 async function sendPanel(channel) {
-    const partnerEmbed = new EmbedBuilder()
-        .setAuthor({ 
-            name: 'The Real Ops Group', 
-            iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png' 
-        })
-        .setTitle('Partnership Request')
-        .setDescription(
-            'If you would like to request a partnership with us\n' +
-            'then please react with 📩 and fill out our request form'
+    const container = new ContainerBuilder()
+        .setAccentColor(0x9B59B6)
+        .addSectionComponents(
+            new SectionBuilder()
+                .addTextDisplayComponents(
+                    new TextDisplayBuilder().setContent('## 🤝 Partnership Request\n-# The Real Ops Group')
+                )
+                .setThumbnailAccessory(
+                    new ThumbnailBuilder({ media: { url: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png' } })
+                )
         )
-        .setImage('https://i.postimg.cc/vZ6Z5Swh/partnership-2.png') 
-        .setThumbnail('https://i.ibb.co/FMYFdhk/real-ops-group-logo.png')
-        .setColor('#9b59b6')
-        .setFooter({ 
-            text: 'The Real Ops Group Tickets', 
-            iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png' 
-        });
-    
-    const partnerRow = new ActionRowBuilder()
-        .addComponents(
-            new ButtonBuilder()
-                .setCustomId('partnership_button')
-                .setLabel('Discuss Partnership')
-                .setStyle(ButtonStyle.Secondary)
-                .setEmoji(config.emojis.partnership || '🤝')
+        .addSeparatorComponents(new SeparatorBuilder().setDivider(true))
+        .addTextDisplayComponents(
+            new TextDisplayBuilder().setContent(
+                'If you would like to request a partnership with us\nthen please react with 📩 and fill out our request form'
+            )
+        )
+        .addMediaGalleryComponents(
+            new MediaGalleryBuilder()
+                .addItems(
+                    new MediaGalleryItemBuilder({ media: { url: 'https://i.postimg.cc/vZ6Z5Swh/partnership-2.png' } })
+                )
+        )
+        .addSeparatorComponents(new SeparatorBuilder().setDivider(true))
+        .addActionRowComponents(
+            new ActionRowBuilder()
+                .addComponents(
+                    new ButtonBuilder()
+                        .setCustomId('partnership_button')
+                        .setLabel('Discuss Partnership')
+                        .setStyle(ButtonStyle.Secondary)
+                        .setEmoji(config.emojis.partnership || '🤝')
+                )
         );
-    
-    return await channel.send({ embeds: [partnerEmbed], components: [partnerRow] });
+
+    return await channel.send({ components: [container], flags: MessageFlags.IsComponentsV2 });
 }
 
 // Create a modal for partnership requests
@@ -52,13 +68,13 @@ function createModal() {
         .setLabel('Your Discord name')
         .setStyle(TextInputStyle.Short)
         .setRequired(true);
-    
+
     const vtcNameInput = new TextInputBuilder()
         .setCustomId('vtc_name')
         .setLabel('VTC Name')
         .setStyle(TextInputStyle.Short)
         .setRequired(true);
-    
+
     const partnershipReasonInput = new TextInputBuilder()
         .setCustomId('partnership_reason')
         .setLabel('Why are you requesting a partnership with us?')
@@ -80,7 +96,7 @@ function createResponseEmbed(user, data, ticketId) {
     return new EmbedBuilder()
         .setTitle('Partnership Proposal')
         .setDescription(
-`**Your Discord Name**
+            `**Your Discord Name**
 \`${data.discordName}\`
 
 **VTC Name**
@@ -93,8 +109,8 @@ ${data.partnershipReason}
 `
         )
         .setColor('#9b59b6')
-        .setFooter({ 
-            text: `Ticket ID: ${ticketId}`, 
+        .setFooter({
+            text: `Ticket ID: ${ticketId}`,
             iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'
         })
         .setThumbnail(user.displayAvatarURL())

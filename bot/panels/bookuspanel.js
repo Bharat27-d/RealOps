@@ -1,42 +1,61 @@
-const { 
-    ActionRowBuilder, 
-    ButtonBuilder, 
-    EmbedBuilder, 
+const {
+    ActionRowBuilder,
+    ButtonBuilder,
+    EmbedBuilder,
     ButtonStyle,
     ModalBuilder,
     TextInputBuilder,
-    TextInputStyle
+    TextInputStyle,
+    ContainerBuilder,
+    TextDisplayBuilder,
+    MediaGalleryBuilder,
+    MediaGalleryItemBuilder,
+    SectionBuilder,
+    SeparatorBuilder,
+    ThumbnailBuilder,
+    MessageFlags
 } = require('discord.js');
 const config = require('../config');
 const axios = require('axios'); // Use axios instead of fetch for better compatibility
 
 // Send Book Us panel
 async function sendPanel(channel) {
-    const bookEmbed = new EmbedBuilder()
-        .setTitle('Real Ops Request')
-        .setDescription('If you would like to book us for your event then please be sure to read the Terms & Conditions above and check our availability in <#' + (config.channels?.availability || '1303770457513787412') + '> | our-availability before opening a ticket\nTo request our services react with 📩')
-        .setColor('#c79a20') 
-        .setImage('https://i.postimg.cc/VLHsv1MV/Book-us.png') 
-        .setThumbnail('https://i.ibb.co/FMYFdhk/real-ops-group-logo.png')
-        .setAuthor({ 
-            name: 'The Real Ops Group',
-            iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'
-        })
-        .setFooter({ 
-            text: 'Real Ops Group Tickets',
-            iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'
-        });
-    
-    const bookRow = new ActionRowBuilder()
-        .addComponents(
-            new ButtonBuilder()
-                .setCustomId('bookus_button')
-                .setLabel('Book Us')
-                .setStyle(ButtonStyle.Success)
-                .setEmoji('📩')
+    const container = new ContainerBuilder()
+        .setAccentColor(0xC79A20)
+        .addSectionComponents(
+            new SectionBuilder()
+                .addTextDisplayComponents(
+                    new TextDisplayBuilder().setContent('## 📩 Real Ops Request\n-# The Real Ops Group')
+                )
+                .setThumbnailAccessory(
+                    new ThumbnailBuilder({ media: { url: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png' } })
+                )
+        )
+        .addSeparatorComponents(new SeparatorBuilder().setDivider(true))
+        .addTextDisplayComponents(
+            new TextDisplayBuilder().setContent(
+                'If you would like to book us for your event then please be sure to read the Terms & Conditions above and check our availability in <#' + (config.channels?.availability || '1303770457513787412') + '> | our-availability before opening a ticket\nTo request our services react with 📩'
+            )
+        )
+        .addMediaGalleryComponents(
+            new MediaGalleryBuilder()
+                .addItems(
+                    new MediaGalleryItemBuilder({ media: { url: 'https://i.postimg.cc/VLHsv1MV/Book-us.png' } })
+                )
+        )
+        .addSeparatorComponents(new SeparatorBuilder().setDivider(true))
+        .addActionRowComponents(
+            new ActionRowBuilder()
+                .addComponents(
+                    new ButtonBuilder()
+                        .setCustomId('bookus_button')
+                        .setLabel('Book Us')
+                        .setStyle(ButtonStyle.Success)
+                        .setEmoji('📩')
+                )
         );
-    
-    return await channel.send({ embeds: [bookEmbed], components: [bookRow] });
+
+    return await channel.send({ components: [container], flags: MessageFlags.IsComponentsV2 });
 }
 
 // Create a modal for booking requests
@@ -50,13 +69,13 @@ function createModal() {
         .setLabel('Your Discord name')
         .setStyle(TextInputStyle.Short)
         .setRequired(true);
-    
+
     const roleInput = new TextInputBuilder()
         .setCustomId('vtc_role')
         .setLabel('Your role within VTC?')
         .setStyle(TextInputStyle.Short)
         .setRequired(true);
-    
+
     const eventLinkInput = new TextInputBuilder()
         .setCustomId('event_link')
         .setLabel('TruckerMP event link')
@@ -179,8 +198,8 @@ function createResponseEmbed(user, data, ticketId) {
         .setTitle('Book Us Request')
         .setDescription(descriptionParts.join('\n'))
         .setColor('#e74c3c')
-        .setFooter({ 
-            text: `Ticket ID: ${ticketId}`, 
+        .setFooter({
+            text: `Ticket ID: ${ticketId}`,
             iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'
         })
         .setThumbnail(user.displayAvatarURL())
@@ -266,10 +285,10 @@ async function sendEventDetails(channel, eventData, user) {
         if (event.meetup_at) {
             const meetupTimestamp = dateStringToUnixTimestamp(event.meetup_at);
             if (meetupTimestamp) {
-                eventEmbed.addFields({ 
-                    name: 'Meetup Time', 
-                    value: `<t:${meetupTimestamp}:F> (<t:${meetupTimestamp}:R>)`, 
-                    inline: false 
+                eventEmbed.addFields({
+                    name: 'Meetup Time',
+                    value: `<t:${meetupTimestamp}:F> (<t:${meetupTimestamp}:R>)`,
+                    inline: false
                 });
             } else {
                 eventEmbed.addFields({ name: 'Meetup Time (UTC)', value: `\`${event.meetup_at}\``, inline: false });
@@ -279,10 +298,10 @@ async function sendEventDetails(channel, eventData, user) {
         if (event.start_at) {
             const startTimestamp = dateStringToUnixTimestamp(event.start_at);
             if (startTimestamp) {
-                eventEmbed.addFields({ 
-                    name: 'Start Time', 
-                    value: `<t:${startTimestamp}:F> (<t:${startTimestamp}:R>)`, 
-                    inline: false 
+                eventEmbed.addFields({
+                    name: 'Start Time',
+                    value: `<t:${startTimestamp}:F> (<t:${startTimestamp}:R>)`,
+                    inline: false
                 });
             } else {
                 eventEmbed.addFields({ name: 'Start Time (UTC)', value: `\`${event.start_at}\``, inline: false });
@@ -305,16 +324,16 @@ async function sendEventDetails(channel, eventData, user) {
             .setColor('#e67e22')
             .setImage(event.map || 'https://via.placeholder.com/800x200?text=No+Map+Available');
 
-        const actionRow = new (require('discord.js').ActionRowBuilder)()
+        const actionRow = new ActionRowBuilder()
             .addComponents(
-                new (require('discord.js').ButtonBuilder)()
+                new ButtonBuilder()
                     .setCustomId('event_accept')
                     .setLabel('Accept')
-                    .setStyle((require('discord.js').ButtonStyle).Success),
-                new (require('discord.js').ButtonBuilder)()
+                    .setStyle(ButtonStyle.Success),
+                new ButtonBuilder()
                     .setCustomId('event_decline')
                     .setLabel('Decline')
-                    .setStyle((require('discord.js').ButtonStyle).Danger)
+                    .setStyle(ButtonStyle.Danger)
             );
 
         await channel.send({ embeds: [eventEmbed, bannerEmbed] });

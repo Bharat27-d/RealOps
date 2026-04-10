@@ -1,37 +1,60 @@
-const { 
-    ActionRowBuilder, 
-    ButtonBuilder, 
-    EmbedBuilder, 
+const {
+    ActionRowBuilder,
+    ButtonBuilder,
+    EmbedBuilder,
     ButtonStyle,
     ModalBuilder,
     TextInputBuilder,
-    TextInputStyle
+    TextInputStyle,
+    ContainerBuilder,
+    TextDisplayBuilder,
+    MediaGalleryBuilder,
+    MediaGalleryItemBuilder,
+    SectionBuilder,
+    SeparatorBuilder,
+    ThumbnailBuilder,
+    MessageFlags
 } = require('discord.js');
 const config = require('../config');
 
 // Send HR Department panel
 async function sendPanel(channel) {
-    const hrEmbed = new EmbedBuilder()
-        .setTitle('📋 The Real Ops Group')
-        .setDescription('If you wish to report a member of staff or have a complaint then please click the button below to open a HR ticket')
-        .setColor('#E74C3C')
-        .setImage('https://i.ibb.co/0p9d3tCd/Z7vW5Or.png') // Replace with your contact image URL
-        .setThumbnail('https://i.postimg.cc/fy4hqtjs/real-ops-group-logo.png') // Replace with your logo URL
-        .setFooter({ 
-            text: 'The Real Ops Group',
-            iconURL: 'https://i.postimg.cc/fy4hqtjs/real-ops-group-logo.png'
-        });
-    
-    const hrRow = new ActionRowBuilder()
-        .addComponents(
-            new ButtonBuilder()
-                .setCustomId('hr_button')
-                .setLabel('Create ticket')
-                .setStyle(ButtonStyle.Success)
-                .setEmoji('📨')
+    const container = new ContainerBuilder()
+        .setAccentColor(0xE74C3C)
+        .addSectionComponents(
+            new SectionBuilder()
+                .addTextDisplayComponents(
+                    new TextDisplayBuilder().setContent('## 📋 The Real Ops Group')
+                )
+                .setThumbnailAccessory(
+                    new ThumbnailBuilder({ media: { url: 'https://i.postimg.cc/fy4hqtjs/real-ops-group-logo.png' } })
+                )
+        )
+        .addSeparatorComponents(new SeparatorBuilder().setDivider(true))
+        .addTextDisplayComponents(
+            new TextDisplayBuilder().setContent(
+                'If you wish to report a member of staff or have a complaint then please click the button below to open a HR ticket'
+            )
+        )
+        .addMediaGalleryComponents(
+            new MediaGalleryBuilder()
+                .addItems(
+                    new MediaGalleryItemBuilder({ media: { url: 'https://i.ibb.co/0p9d3tCd/Z7vW5Or.png' } })
+                )
+        )
+        .addSeparatorComponents(new SeparatorBuilder().setDivider(true))
+        .addActionRowComponents(
+            new ActionRowBuilder()
+                .addComponents(
+                    new ButtonBuilder()
+                        .setCustomId('hr_button')
+                        .setLabel('Create ticket')
+                        .setStyle(ButtonStyle.Success)
+                        .setEmoji('📨')
+                )
         );
-    
-    return await channel.send({ embeds: [hrEmbed], components: [hrRow] });
+
+    return await channel.send({ components: [container], flags: MessageFlags.IsComponentsV2 });
 }
 
 // Create a modal for HR requests
@@ -45,13 +68,13 @@ function createModal() {
         .setLabel('Your Discord name')
         .setStyle(TextInputStyle.Short)
         .setRequired(true);
-    
+
     const reasonInput = new TextInputBuilder()
         .setCustomId('reason')
         .setLabel('Reason for opening Ticket')
         .setStyle(TextInputStyle.Short)
         .setRequired(true);
-    
+
     const detailsInput = new TextInputBuilder()
         .setCustomId('details')
         .setLabel('Full details of ticket opening and reason')
@@ -83,7 +106,7 @@ function createResponseEmbed(user, data, ticketId) {
     return new EmbedBuilder()
         .setTitle('HR Ticket')
         .setDescription(
-`**Your Discord Name**
+            `**Your Discord Name**
 \`${data.discordName}\`
 
 **Reason**
@@ -96,8 +119,8 @@ ${data.details}
 `
         )
         .setColor('#E74C3C')
-        .setFooter({ 
-            text: `Ticket ID: ${ticketId}`, 
+        .setFooter({
+            text: `Ticket ID: ${ticketId}`,
             iconURL: 'https://i.postimg.cc/fy4hqtjs/real-ops-group-logo.png'
         })
         .setThumbnail(user.displayAvatarURL())
