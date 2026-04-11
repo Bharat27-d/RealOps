@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import { FaTicketAlt, FaCalendar, FaUsers, FaClock, FaDownload } from 'react-icons/fa';
+import { FaTicketAlt, FaCalendar, FaUsers, FaClock, FaDownload, FaCheckCircle } from 'react-icons/fa';
 import { analytics } from '../services/api';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 const COLORS = ['#00b894', '#5865F2', '#fdcb6e', '#ED4245'];
 
@@ -52,6 +52,22 @@ function Analytics() {
     { name: 'Completed', value: stats?.events?.completed || 0 },
     { name: 'Cancelled', value: stats?.events?.cancelled || 0 }
   ];
+
+  // Compute event completion rate
+  const totalEvents = stats?.events?.total || 0;
+  const completedEvents = stats?.events?.completed || 0;
+  const eventCompletionRate = totalEvents > 0 ? Math.round((completedEvents / totalEvents) * 100) : 0;
+
+  const eventCompletionData = [
+    { name: 'Completed', value: completedEvents },
+    { name: 'Remaining', value: Math.max(0, totalEvents - completedEvents) }
+  ];
+
+  // Ticket breakdown
+  const openTickets = stats?.tickets?.open || 0;
+  const pendingTickets = stats?.tickets?.pending || 0;
+  const closedTickets = stats?.tickets?.closed || 0;
+  const totalTickets = stats?.tickets?.total || 1; // avoid division by zero
 
   return (
     <div className="page-container">
@@ -136,90 +152,141 @@ function Analytics() {
               <XAxis dataKey="name" stroke="#b9bbbe" />
               <YAxis stroke="#b9bbbe" />
               <Tooltip contentStyle={{ background: '#23272A', border: '1px solid #2C2F33', borderRadius: '8px' }} />
-              <Bar dataKey="value" fill="#00b894" />
+              <Bar dataKey="value" fill="#00b894" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
       </div>
 
-      <div className="card" style={{ marginTop: '25px' }}>
-        <h2>Activity Trend (Last 7 Days)</h2>
-        <ResponsiveContainer width="100%" height={350}>
-          <LineChart data={stats?.engagement?.last7Days || []}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#2C2F33" />
-            <XAxis dataKey="date" stroke="#b9bbbe" />
-            <YAxis stroke="#b9bbbe" />
-            <Tooltip contentStyle={{ background: '#23272A', border: '1px solid #2C2F33', borderRadius: '8px' }} />
-            <Legend />
-            <Line type="monotone" dataKey="count" stroke="#00b894" strokeWidth={3} name="Interactions" />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-
-      <div className="card" style={{ marginTop: '25px' }}>
-        <h2>Ticket Performance (Last 7 Days)</h2>
-        <ResponsiveContainer width="100%" height={350}>
-          <BarChart data={stats?.tickets?.dailyTickets || []}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#2C2F33" />
-            <XAxis dataKey="date" stroke="#b9bbbe" />
-            <YAxis stroke="#b9bbbe" />
-            <Tooltip contentStyle={{ background: '#23272A', border: '1px solid #2C2F33', borderRadius: '8px' }} />
-            <Legend />
-            <Bar dataKey="count" fill="#5865F2" name="Tickets Created" />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-
-      <div className="grid grid-3" style={{ marginTop: '25px' }}>
+      {/* Event Completion Rate + Ticket Resolution Summary */}
+      <div className="grid grid-2" style={{ marginTop: '25px' }}>
+        
+        {/* Event Completion Rate */}
         <div className="card">
-          <h3>Staff Status</h3>
-          <div style={{ marginTop: '15px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-              <span>Active</span>
-              <span className="badge badge-success">{stats?.staff?.active || 0}</span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-              <span>Inactive</span>
-              <span className="badge badge-warning">{stats?.staff?.inactive || 0}</span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span>On Leave</span>
-              <span className="badge badge-info">{stats?.staff?.onLeave || 0}</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="card">
-          <h3>Quick Stats</h3>
-          <div style={{ marginTop: '15px' }}>
-            <p style={{ marginBottom: '10px' }}>
-              <strong>Total Interactions:</strong> {stats?.engagement?.totalInteractions || 0}
-            </p>
-            <p style={{ marginBottom: '10px' }}>
-              <strong>Upcoming Events:</strong> {stats?.events?.upcoming || 0}
-            </p>
-            <p>
-              <strong>Open Tickets:</strong> {stats?.tickets?.open || 0}
-            </p>
-          </div>
-        </div>
-
-        <div className="card">
-          <h3>Performance</h3>
-          <div style={{ marginTop: '15px' }}>
-            <div style={{ marginBottom: '15px' }}>
-              <p style={{ fontSize: '12px', color: '#b9bbbe', marginBottom: '5px' }}>Avg Response Time</p>
-              <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#00b894' }}>
-                {stats?.tickets?.avgResponseTime || 0} min
-              </p>
-            </div>
+          <h2 style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <FaCheckCircle style={{ color: '#00b894' }} />
+            Event Completion Rate
+          </h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '30px', marginTop: '10px' }}>
+            <ResponsiveContainer width="50%" height={200}>
+              <PieChart>
+                <Pie
+                  data={eventCompletionData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={55}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                  startAngle={90}
+                  endAngle={-270}
+                >
+                  <Cell fill="#00b894" />
+                  <Cell fill="#40444b" />
+                </Pie>
+                <Tooltip contentStyle={{ background: '#23272A', border: '1px solid #2C2F33', borderRadius: '8px' }} />
+              </PieChart>
+            </ResponsiveContainer>
             <div>
-              <p style={{ fontSize: '12px', color: '#b9bbbe', marginBottom: '5px' }}>Ticket Resolution Rate</p>
-              <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#00b894' }}>
+              <div style={{ fontSize: '42px', fontWeight: '700', color: '#00b894' }}>
+                {eventCompletionRate}%
+              </div>
+              <div style={{ color: '#b9bbbe', fontSize: '14px', marginTop: '4px' }}>
+                {completedEvents} of {totalEvents} events completed
+              </div>
+              <div style={{ marginTop: '16px' }}>
+                {eventStatusData.map((item, i) => (
+                  <div key={i} style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '8px',
+                    marginBottom: '6px',
+                    fontSize: '13px',
+                    color: '#dcddde'
+                  }}>
+                    <div style={{ 
+                      width: '10px', 
+                      height: '10px', 
+                      borderRadius: '3px', 
+                      backgroundColor: COLORS[i] 
+                    }} />
+                    {item.name}: {item.value}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Ticket Resolution Summary */}
+        <div className="card">
+          <h2 style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <FaTicketAlt style={{ color: '#5865F2' }} />
+            Ticket Resolution Summary
+          </h2>
+          <div style={{ marginTop: '20px' }}>
+            {[
+              { label: 'Open', value: openTickets, color: '#00b894', pct: Math.round((openTickets / totalTickets) * 100) },
+              { label: 'Pending', value: pendingTickets, color: '#fdcb6e', pct: Math.round((pendingTickets / totalTickets) * 100) },
+              { label: 'Closed', value: closedTickets, color: '#5865F2', pct: Math.round((closedTickets / totalTickets) * 100) },
+            ].map((item, i) => (
+              <div key={i} style={{ marginBottom: '20px' }}>
+                <div style={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  marginBottom: '8px',
+                  alignItems: 'center'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ 
+                      width: '10px', 
+                      height: '10px', 
+                      borderRadius: '3px', 
+                      backgroundColor: item.color 
+                    }} />
+                    <span style={{ color: '#dcddde', fontSize: '14px', fontWeight: '500' }}>{item.label}</span>
+                  </div>
+                  <span style={{ color: '#ffffff', fontSize: '14px', fontWeight: '600' }}>
+                    {item.value} ({item.pct}%)
+                  </span>
+                </div>
+                <div style={{ 
+                  width: '100%', 
+                  height: '8px', 
+                  backgroundColor: '#23272A', 
+                  borderRadius: '4px',
+                  overflow: 'hidden'
+                }}>
+                  <div style={{ 
+                    width: `${item.pct}%`, 
+                    height: '100%', 
+                    backgroundColor: item.color,
+                    borderRadius: '4px',
+                    transition: 'width 0.6s ease'
+                  }} />
+                </div>
+              </div>
+            ))}
+            
+            <div style={{
+              marginTop: '24px',
+              padding: '16px',
+              backgroundColor: '#23272A',
+              borderRadius: '10px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}>
+              <span style={{ color: '#b9bbbe', fontSize: '13px' }}>Resolution Rate</span>
+              <span style={{ 
+                fontSize: '22px', 
+                fontWeight: '700', 
+                color: '#00b894' 
+              }}>
                 {stats?.tickets?.total > 0 
-                  ? Math.round((stats?.tickets?.closed / stats?.tickets?.total) * 100) 
+                  ? Math.round((closedTickets / stats.tickets.total) * 100)
                   : 0}%
-              </p>
+              </span>
             </div>
           </div>
         </div>

@@ -63,7 +63,10 @@ export const embeds = {
   update: (id, data) => api.put(`/api/embeds/${id}`, data),
   delete: (id) => api.delete(`/api/embeds/${id}`),
   send: (channelId, embedData) => api.post('/api/embeds/send', { channelId, embedData }),
-  duplicate: (id) => api.post(`/api/embeds/${id}/duplicate`)
+  duplicate: (id) => api.post(`/api/embeds/${id}/duplicate`),
+  fetchMessage: (channelId, messageId) => api.get('/api/embeds/fetch-message', { params: { channelId, messageId } }),
+  editMessage: (channelId, messageId, embedData, content) => api.put('/api/embeds/edit-message', { channelId, messageId, embedData, content }),
+  sendMultiple: (channelIds, embedsData, mentions) => api.post('/api/embeds/send-multiple', { channelIds, embedsData, mentions })
 };
 
 // Panels endpoints

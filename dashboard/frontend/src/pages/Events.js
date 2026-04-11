@@ -65,7 +65,7 @@ function Events() {
   });
 
   // Timeline view state
-  const [timelineView, setTimelineView] = useState('month');
+  const [timelineView] = useState('month');
   const [selectedDate, setSelectedDate] = useState(new Date());
 
   // Add to Calendar state
@@ -604,14 +604,8 @@ function Events() {
       <div className="timeline-view">
         <div className="timeline-header">
           <div className="view-switcher">
-            <button className={timelineView === 'month' ? 'active' : ''} onClick={() => setTimelineView('month')}>
+            <button className="active">
               <FaTable /> Month
-            </button>
-            <button className={timelineView === 'week' ? 'active' : ''} onClick={() => setTimelineView('week')}>
-              <FaList /> Week
-            </button>
-            <button className={timelineView === 'day' ? 'active' : ''} onClick={() => setTimelineView('day')}>
-              <FaCalendar /> Day
             </button>
           </div>
           <div style={{ display: 'flex', gap: '10px' }}>

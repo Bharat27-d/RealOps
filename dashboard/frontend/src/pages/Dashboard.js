@@ -1,33 +1,48 @@
 import React, { useState, useEffect } from 'react';
-import { FaTicketAlt, FaCalendar, FaUsers, FaChartLine, FaSync, FaClock, FaCheckCircle, FaExclamationTriangle } from 'react-icons/fa';
-import { analytics } from '../services/api';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { useNavigate } from 'react-router-dom';
+import { FaTicketAlt, FaCalendar, FaUsers, FaChartLine, FaSync, FaClock, FaExclamationTriangle, FaPaperPlane, FaPlus, FaCog, FaRocket, FaBell, FaCode, FaCheckCircle, FaCircle } from 'react-icons/fa';
+import { analytics, events as eventsApi } from '../services/api';
 import { toast } from 'react-toastify';
 
 function Dashboard() {
   const [stats, setStats] = useState(null);
+  const [recentEvents, setRecentEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    fetchStats();
+    fetchAll();
     // Auto-refresh every 30 seconds
     const interval = setInterval(() => {
-      fetchStats(true);
+      fetchAll(true);
     }, 30000);
     return () => clearInterval(interval);
   }, []);
 
-  const fetchStats = async (silent = false) => {
+  const fetchAll = async (silent = false) => {
     try {
       if (!silent) setLoading(true);
       setRefreshing(true);
       setError(null);
       
-      const response = await analytics.getOverview();
-      setStats(response.data);
+      const [statsRes, eventsRes] = await Promise.all([
+        analytics.getOverview(),
+        eventsApi.getAll().catch(() => ({ data: [] }))
+      ]);
+      
+      setStats(statsRes.data);
+      
+      // Get upcoming + recent events sorted by date
+      const allEvents = eventsRes.data || [];
+      const sorted = allEvents
+        .filter(e => e.date)
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .slice(0, 5);
+      setRecentEvents(sorted);
+      
       setLastUpdated(new Date());
       
       if (!silent) {
@@ -44,7 +59,7 @@ function Dashboard() {
   };
 
   const handleRefresh = () => {
-    fetchStats();
+    fetchAll();
   };
 
   if (loading) {
@@ -68,6 +83,33 @@ function Dashboard() {
       </div>
     );
   }
+
+  const quickActions = [
+    { icon: FaBell, label: 'Create Announcement', path: '/events', color: '#5865F2', desc: 'Send event announcement' },
+    { icon: FaPaperPlane, label: 'Send Embed', path: '/embeds', color: '#00b894', desc: 'Build & send Discord embed' },
+    { icon: FaPlus, label: 'Scenario Pack', path: '/events', color: '#fdcb6e', desc: 'Create scenario embeds' },
+    { icon: FaTicketAlt, label: 'View Tickets', path: '/tickets', color: '#e17055', desc: 'Manage support tickets' },
+    { icon: FaUsers, label: 'Staff Panel', path: '/staff', color: '#a29bfe', desc: 'Manage staff members' },
+    { icon: FaCog, label: 'Settings', path: '/settings', color: '#636e72', desc: 'Bot & dashboard settings' },
+  ];
+
+  const getEventStatusColor = (event) => {
+    const eventDate = new Date(event.date);
+    const now = new Date();
+    if (event.status === 'cancelled') return '#ed4245';
+    if (event.status === 'completed') return '#00b894';
+    if (eventDate < now) return '#b9bbbe';
+    return '#5865F2';
+  };
+
+  const getEventStatusLabel = (event) => {
+    const eventDate = new Date(event.date);
+    const now = new Date();
+    if (event.status === 'cancelled') return 'Cancelled';
+    if (event.status === 'completed') return 'Completed';
+    if (eventDate < now) return 'Past';
+    return 'Upcoming';
+  };
 
   return (
     <div className="page-container" style={{ maxWidth: '1600px', margin: '0 auto' }}>
@@ -131,20 +173,94 @@ function Dashboard() {
         </div>
       </div>
 
-      {/* Event Status Card */}
-      <div style={{ marginTop: '30px' }}>
+      {/* Quick Actions + Event Status Row */}
+      <div className="grid grid-2" style={{ marginTop: '30px', gap: '24px' }}>
+        
+        {/* Quick Actions */}
         <div style={{
           backgroundColor: '#2C2F33',
           borderRadius: '12px',
           padding: '24px',
-          border: '1px solid #40444b',
-          maxWidth: '600px'
+          border: '1px solid #40444b'
         }}>
           <h2 style={{ 
-            fontSize: '20px', 
+            fontSize: '18px', 
             fontWeight: '600', 
             color: '#ffffff',
-            marginBottom: '24px',
+            marginBottom: '20px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px'
+          }}>
+            <FaRocket style={{ color: '#5865F2' }} />
+            Quick Actions
+          </h2>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(2, 1fr)', 
+            gap: '12px' 
+          }}>
+            {quickActions.map((action, i) => (
+              <button 
+                key={i}
+                onClick={() => navigate(action.path)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '14px 16px',
+                  backgroundColor: '#23272A',
+                  border: '1px solid #40444b',
+                  borderRadius: '10px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  textAlign: 'left',
+                  color: '#dcddde'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = action.color;
+                  e.currentTarget.style.backgroundColor = '#2C2F33';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = '#40444b';
+                  e.currentTarget.style.backgroundColor = '#23272A';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }}
+              >
+                <div style={{
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '10px',
+                  backgroundColor: `${action.color}20`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}>
+                  <action.icon style={{ color: action.color, fontSize: '16px' }} />
+                </div>
+                <div>
+                  <div style={{ fontWeight: '600', fontSize: '13px', color: '#ffffff' }}>{action.label}</div>
+                  <div style={{ fontSize: '11px', color: '#72767d', marginTop: '2px' }}>{action.desc}</div>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Event Status Card */}
+        <div style={{
+          backgroundColor: '#2C2F33',
+          borderRadius: '12px',
+          padding: '24px',
+          border: '1px solid #40444b'
+        }}>
+          <h2 style={{ 
+            fontSize: '18px', 
+            fontWeight: '600', 
+            color: '#ffffff',
+            marginBottom: '20px',
             display: 'flex',
             alignItems: 'center',
             gap: '10px'
@@ -153,145 +269,63 @@ function Dashboard() {
             Event Status
           </h2>
           <div>
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center',
-              padding: '16px',
-              backgroundColor: '#23272A',
-              borderRadius: '8px',
-              marginBottom: '12px',
-              border: '1px solid #40444b'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div style={{ 
-                  width: '8px', 
-                  height: '8px', 
-                  borderRadius: '50%', 
-                  backgroundColor: '#5865F2' 
-                }}></div>
-                <span style={{ color: '#dcddde', fontSize: '14px', fontWeight: '500' }}>Scheduled</span>
-              </div>
-              <span style={{
-                backgroundColor: '#5865F220',
-                color: '#5865F2',
-                padding: '6px 14px',
-                borderRadius: '12px',
-                fontSize: '14px',
-                fontWeight: '600'
+            {[
+              { label: 'Scheduled', value: stats?.events?.scheduled || 0, color: '#5865F2' },
+              { label: 'Upcoming', value: stats?.events?.upcoming || 0, color: '#fdcb6e' },
+              { label: 'Completed', value: stats?.events?.completed || 0, color: '#00b894' },
+              { label: 'Cancelled', value: stats?.events?.cancelled || 0, color: '#ed4245' },
+            ].map((item, i) => (
+              <div key={i} style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center',
+                padding: '14px 16px',
+                backgroundColor: '#23272A',
+                borderRadius: '8px',
+                marginBottom: i < 3 ? '10px' : '0',
+                border: '1px solid #40444b'
               }}>
-                {stats?.events?.scheduled || 0}
-              </span>
-            </div>
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center',
-              padding: '16px',
-              backgroundColor: '#23272A',
-              borderRadius: '8px',
-              marginBottom: '12px',
-              border: '1px solid #40444b'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div style={{ 
-                  width: '8px', 
-                  height: '8px', 
-                  borderRadius: '50%', 
-                  backgroundColor: '#fdcb6e' 
-                }}></div>
-                <span style={{ color: '#dcddde', fontSize: '14px', fontWeight: '500' }}>Upcoming</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ 
+                    width: '8px', 
+                    height: '8px', 
+                    borderRadius: '50%', 
+                    backgroundColor: item.color 
+                  }}></div>
+                  <span style={{ color: '#dcddde', fontSize: '14px', fontWeight: '500' }}>{item.label}</span>
+                </div>
+                <span style={{
+                  backgroundColor: `${item.color}20`,
+                  color: item.color,
+                  padding: '6px 14px',
+                  borderRadius: '12px',
+                  fontSize: '14px',
+                  fontWeight: '600'
+                }}>
+                  {item.value}
+                </span>
               </div>
-              <span style={{
-                backgroundColor: '#fdcb6e20',
-                color: '#fdcb6e',
-                padding: '6px 14px',
-                borderRadius: '12px',
-                fontSize: '14px',
-                fontWeight: '600'
-              }}>
-                {stats?.events?.upcoming || 0}
-              </span>
-            </div>
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center',
-              padding: '16px',
-              backgroundColor: '#23272A',
-              borderRadius: '8px',
-              marginBottom: '12px',
-              border: '1px solid #40444b'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div style={{ 
-                  width: '8px', 
-                  height: '8px', 
-                  borderRadius: '50%', 
-                  backgroundColor: '#00b894' 
-                }}></div>
-                <span style={{ color: '#dcddde', fontSize: '14px', fontWeight: '500' }}>Completed</span>
-              </div>
-              <span style={{
-                backgroundColor: '#00b89420',
-                color: '#00b894',
-                padding: '6px 14px',
-                borderRadius: '12px',
-                fontSize: '14px',
-                fontWeight: '600'
-              }}>
-                {stats?.events?.completed || 0}
-              </span>
-            </div>
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center',
-              padding: '16px',
-              backgroundColor: '#23272A',
-              borderRadius: '8px',
-              border: '1px solid #40444b'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div style={{ 
-                  width: '8px', 
-                  height: '8px', 
-                  borderRadius: '50%', 
-                  backgroundColor: '#ed4245' 
-                }}></div>
-                <span style={{ color: '#dcddde', fontSize: '14px', fontWeight: '500' }}>Cancelled</span>
-              </div>
-              <span style={{
-                backgroundColor: '#ed424520',
-                color: '#ed4245',
-                padding: '6px 14px',
-                borderRadius: '12px',
-                fontSize: '14px',
-                fontWeight: '600'
-              }}>
-                {stats?.events?.cancelled || 0}
-              </span>
-            </div>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* Activity Chart */}
+      {/* Recent Events Feed */}
       <div style={{
         backgroundColor: '#2C2F33',
         borderRadius: '12px',
         padding: '24px',
         border: '1px solid #40444b',
-        marginTop: '30px'
+        marginTop: '24px'
       }}>
         <div style={{ 
           display: 'flex', 
           justifyContent: 'space-between', 
           alignItems: 'center',
-          marginBottom: '24px'
+          marginBottom: '20px'
         }}>
           <h2 style={{ 
-            fontSize: '20px', 
+            fontSize: '18px', 
             fontWeight: '600', 
             color: '#ffffff',
             margin: 0,
@@ -299,59 +333,117 @@ function Dashboard() {
             alignItems: 'center',
             gap: '10px'
           }}>
-            <FaChartLine style={{ color: '#e17055' }} />
-            Activity Overview (Last 7 Days)
+            <FaCalendar style={{ color: '#fdcb6e' }} />
+            Recent Events
           </h2>
-          <div style={{
-            backgroundColor: '#5865F220',
-            color: '#5865F2',
-            padding: '8px 16px',
-            borderRadius: '8px',
-            fontSize: '13px',
-            fontWeight: '600'
-          }}>
-            Total: {stats?.engagement?.last7Days?.reduce((sum, day) => sum + day.count, 0) || 0} interactions
-          </div>
+          <button 
+            onClick={() => navigate('/events')}
+            style={{
+              backgroundColor: '#5865F220',
+              color: '#5865F2',
+              padding: '8px 16px',
+              borderRadius: '8px',
+              fontSize: '13px',
+              fontWeight: '600',
+              border: 'none',
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => e.target.style.backgroundColor = '#5865F240'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = '#5865F220'}
+          >
+            View All →
+          </button>
         </div>
-        <ResponsiveContainer width="100%" height={350}>
-          <LineChart data={stats?.engagement?.last7Days || []} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#40444b" />
-            <XAxis 
-              dataKey="date" 
-              stroke="#b9bbbe" 
-              style={{ fontSize: '12px' }}
-              tickFormatter={(date) => new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-            />
-            <YAxis stroke="#b9bbbe" style={{ fontSize: '12px' }} />
-            <Tooltip 
-              contentStyle={{ 
-                background: '#23272A', 
-                border: '1px solid #40444b', 
-                borderRadius: '8px',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+        
+        {recentEvents.length > 0 ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {recentEvents.map((event, i) => (
+              <div key={event.id || i} style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '16px',
+                padding: '14px 16px',
+                backgroundColor: '#23272A',
+                borderRadius: '10px',
+                border: '1px solid #40444b',
+                transition: 'border-color 0.2s'
               }}
-              labelStyle={{ color: '#ffffff', fontWeight: '600', marginBottom: '8px' }}
-              itemStyle={{ color: '#00b894' }}
-              labelFormatter={(date) => new Date(date).toLocaleDateString('en-US', { 
-                weekday: 'long',
-                month: 'short', 
-                day: 'numeric' 
-              })}
-            />
-            <Line 
-              type="monotone" 
-              dataKey="count" 
-              stroke="#00b894" 
-              strokeWidth={3}
-              dot={{ fill: '#00b894', strokeWidth: 2, r: 5 }}
-              activeDot={{ r: 7, fill: '#00b894', stroke: '#23272A', strokeWidth: 2 }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
+              onMouseEnter={(e) => e.currentTarget.style.borderColor = '#5865F2'}
+              onMouseLeave={(e) => e.currentTarget.style.borderColor = '#40444b'}
+              >
+                {event.image ? (
+                  <img 
+                    src={event.image} 
+                    alt={event.title} 
+                    style={{ 
+                      width: '48px', 
+                      height: '48px', 
+                      borderRadius: '8px', 
+                      objectFit: 'cover',
+                      flexShrink: 0
+                    }} 
+                  />
+                ) : (
+                  <div style={{
+                    width: '48px',
+                    height: '48px',
+                    borderRadius: '8px',
+                    backgroundColor: `${getEventStatusColor(event)}20`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0
+                  }}>
+                    <FaCalendar style={{ color: getEventStatusColor(event), fontSize: '18px' }} />
+                  </div>
+                )}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ 
+                    fontWeight: '600', 
+                    fontSize: '14px', 
+                    color: '#ffffff',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap'
+                  }}>
+                    {event.title}
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#72767d', marginTop: '4px' }}>
+                    {event.date ? new Date(event.date).toLocaleDateString('en-US', { 
+                      weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' 
+                    }) : 'No date'}
+                    {event.time && ` • ${event.time}`}
+                  </div>
+                </div>
+                <span style={{
+                  backgroundColor: `${getEventStatusColor(event)}20`,
+                  color: getEventStatusColor(event),
+                  padding: '4px 12px',
+                  borderRadius: '12px',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  flexShrink: 0
+                }}>
+                  {getEventStatusLabel(event)}
+                </span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div style={{ 
+            textAlign: 'center', 
+            padding: '40px 20px', 
+            color: '#72767d' 
+          }}>
+            <FaCalendar size={32} style={{ marginBottom: '12px', opacity: 0.5 }} />
+            <p>No events found. Create your first event!</p>
+          </div>
+        )}
       </div>
 
-      {/* Additional Stats Row */}
-      <div className="grid grid-3" style={{ marginTop: '30px', gap: '24px' }}>
+      {/* Server Overview */}
+      <div className="grid grid-3" style={{ marginTop: '24px', gap: '16px' }}>
         <div style={{
           backgroundColor: '#2C2F33',
           borderRadius: '12px',
@@ -359,11 +451,11 @@ function Dashboard() {
           border: '1px solid #40444b',
           textAlign: 'center'
         }}>
-          <FaCheckCircle size={32} style={{ color: '#00b894', marginBottom: '12px' }} />
-          <h3 style={{ fontSize: '28px', fontWeight: '700', color: '#ffffff', marginBottom: '8px' }}>
+          <FaCheckCircle size={28} style={{ color: '#00b894', marginBottom: '12px' }} />
+          <h3 style={{ fontSize: '26px', fontWeight: '700', color: '#ffffff', marginBottom: '6px' }}>
             {((stats?.tickets?.closed / stats?.tickets?.total) * 100 || 0).toFixed(1)}%
           </h3>
-          <p style={{ color: '#b9bbbe', fontSize: '14px', margin: 0 }}>Resolution Rate</p>
+          <p style={{ color: '#b9bbbe', fontSize: '13px', margin: 0 }}>Ticket Resolution Rate</p>
         </div>
 
         <div style={{
@@ -373,11 +465,11 @@ function Dashboard() {
           border: '1px solid #40444b',
           textAlign: 'center'
         }}>
-          <FaUsers size={32} style={{ color: '#fdcb6e', marginBottom: '12px' }} />
-          <h3 style={{ fontSize: '28px', fontWeight: '700', color: '#ffffff', marginBottom: '8px' }}>
-            {stats?.staff?.active || 0}
+          <FaCircle size={28} style={{ color: '#00b894', marginBottom: '12px' }} />
+          <h3 style={{ fontSize: '26px', fontWeight: '700', color: '#00b894', marginBottom: '6px' }}>
+            Online
           </h3>
-          <p style={{ color: '#b9bbbe', fontSize: '14px', margin: 0 }}>Active Staff</p>
+          <p style={{ color: '#b9bbbe', fontSize: '13px', margin: 0 }}>Bot Status</p>
         </div>
 
         <div style={{
@@ -387,11 +479,11 @@ function Dashboard() {
           border: '1px solid #40444b',
           textAlign: 'center'
         }}>
-          <FaCalendar size={32} style={{ color: '#5865F2', marginBottom: '12px' }} />
-          <h3 style={{ fontSize: '28px', fontWeight: '700', color: '#ffffff', marginBottom: '8px' }}>
-            {stats?.events?.upcoming || 0}
+          <FaCode size={28} style={{ color: '#a29bfe', marginBottom: '12px' }} />
+          <h3 style={{ fontSize: '26px', fontWeight: '700', color: '#ffffff', marginBottom: '6px' }}>
+            {stats?.tickets?.open || 0}
           </h3>
-          <p style={{ color: '#b9bbbe', fontSize: '14px', margin: 0 }}>Upcoming Events</p>
+          <p style={{ color: '#b9bbbe', fontSize: '13px', margin: 0 }}>Open Tickets</p>
         </div>
       </div>
 

@@ -618,6 +618,143 @@ class DiscordBotManager {
       throw error;
     }
   }
+
+  // Fetch a message and extract embed data
+  async fetchMessage(channelId, messageId) {
+    try {
+      const channel = await this.client.channels.fetch(channelId);
+      if (!channel) throw new Error('Channel not found');
+
+      const message = await channel.messages.fetch(messageId);
+      if (!message) throw new Error('Message not found');
+
+      const result = {
+        messageId: message.id,
+        channelId: message.channel.id,
+        content: message.content || '',
+        embeds: [],
+        components: []
+      };
+
+      // Extract embed data
+      if (message.embeds && message.embeds.length > 0) {
+        result.embeds = message.embeds.map(embed => ({
+          title: embed.title || '',
+          description: embed.description || '',
+          color: embed.hexColor || '#00b894',
+          thumbnail: embed.thumbnail?.url || '',
+          image: embed.image?.url || '',
+          footer: {
+            text: embed.footer?.text || '',
+            iconURL: embed.footer?.iconURL || ''
+          },
+          author: {
+            name: embed.author?.name || '',
+            iconURL: embed.author?.iconURL || ''
+          },
+          fields: (embed.fields || []).map(f => ({
+            name: f.name,
+            value: f.value,
+            inline: f.inline || false
+          })),
+          timestamp: !!embed.timestamp,
+          url: embed.url || ''
+        }));
+      }
+
+      return result;
+    } catch (error) {
+      console.error('Error fetching message:', error);
+      throw error;
+    }
+  }
+
+  // Edit an existing message's embed(s)
+  async editMessage(channelId, messageId, embedData, content = null) {
+    try {
+      const channel = await this.client.channels.fetch(channelId);
+      if (!channel) throw new Error('Channel not found');
+
+      const message = await channel.messages.fetch(messageId);
+      if (!message) throw new Error('Message not found');
+
+      // Check if the bot is the author
+      if (message.author.id !== this.client.user.id) {
+        throw new Error('Cannot edit messages sent by other users');
+      }
+
+      // Build the new embed
+      let color = embedData.color || '#00b894';
+      if (typeof color === 'number') {
+        color = color.toString(16).padStart(6, '0');
+      } else if (typeof color !== 'string') {
+        color = '00b894';
+      } else if (color.startsWith('#')) {
+        color = color.substring(1);
+      }
+      if (!/^[0-9A-Fa-f]{6}$/.test(color)) {
+        color = '00b894';
+      }
+      color = `#${color}`;
+
+      const embed = new EmbedBuilder()
+        .setTitle(embedData.title || null)
+        .setDescription(embedData.description || null)
+        .setColor(color)
+        .setTimestamp(embedData.timestamp ? new Date() : null);
+
+      if (embedData.author && embedData.author.name && embedData.author.name.trim()) {
+        embed.setAuthor({
+          name: embedData.author.name,
+          iconURL: embedData.author.iconURL || undefined
+        });
+      }
+
+      if (embedData.url && embedData.url.trim()) {
+        embed.setURL(embedData.url);
+      }
+
+      if (embedData.footer) {
+        if (typeof embedData.footer === 'string' && embedData.footer.trim()) {
+          embed.setFooter({ text: embedData.footer });
+        } else if (embedData.footer.text && embedData.footer.text.trim()) {
+          embed.setFooter({
+            text: embedData.footer.text,
+            iconURL: embedData.footer.iconURL || undefined
+          });
+        }
+      }
+
+      if (embedData.thumbnail && embedData.thumbnail.trim()) {
+        embed.setThumbnail(embedData.thumbnail);
+      }
+
+      if (embedData.image && embedData.image.trim()) {
+        embed.setImage(embedData.image);
+      }
+
+      if (embedData.fields && embedData.fields.length > 0) {
+        const validFields = embedData.fields.filter(f =>
+          f.name && f.name.trim() && f.value && f.value.trim()
+        );
+        if (validFields.length > 0) {
+          embed.addFields(validFields);
+        }
+      }
+
+      const editOptions = { embeds: [embed] };
+      if (content !== null) {
+        editOptions.content = content;
+      }
+
+      await message.edit(editOptions);
+
+      return { success: true, messageId: message.id };
+    } catch (error) {
+      console.error('Error editing message:', error);
+      throw error;
+    }
+  }
 }
 
 const botManager = new DiscordBotManager();

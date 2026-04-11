@@ -622,7 +622,7 @@ function UserMentionSelector({ selectedUsers, members, onChange, label = 'Mentio
 }
 
 function Embeds() {
-  const [embedData, setEmbedData] = useState({
+  const defaultEmbedState = {
     name: '',
     title: '',
     description: '',
@@ -635,7 +635,13 @@ function Embeds() {
     timestamp: false,
     buttons: [],
     selectMenu: null
-  });
+  };
+
+  const [embedData, setEmbedData] = useState({...defaultEmbedState});
+
+  // Multi-embed state
+  const [embedsList, setEmbedsList] = useState([{...defaultEmbedState}]);
+  const [activeEmbedIndex, setActiveEmbedIndex] = useState(0);
 
   const [savedEmbeds, setSavedEmbeds] = useState([]);
   const [channels, setChannels] = useState([]);
@@ -646,6 +652,13 @@ function Embeds() {
   const [userMentions, setUserMentions] = useState([]);
   const [editingEmbedId, setEditingEmbedId] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Edit Embed (from message link) states
+  const [editEmbedView, setEditEmbedView] = useState(false);
+  const [messageLink, setMessageLink] = useState('');
+  const [editMessageLoading, setEditMessageLoading] = useState(false);
+  const [editMessageData, setEditMessageData] = useState(null); // { channelId, messageId }
+  const [editEmbedData, setEditEmbedData] = useState(null);
 
   const descriptionRef = useRef(null);
   const footerRef = useRef(null);
@@ -734,35 +747,99 @@ function Embeds() {
     }
   };
 
+  // Switch to a different embed tab
+  const switchEmbed = (index) => {
+    // Save current embed to list
+    const updatedList = embedsList.map((e, i) => i === activeEmbedIndex ? {...embedData} : e);
+    setEmbedsList(updatedList);
+    // Load the selected embed
+    setEmbedData({...updatedList[index]});
+    setActiveEmbedIndex(index);
+  };
+
+  // Add a new embed
+  const addNewEmbed = () => {
+    if (embedsList.length >= 10) {
+      toast.error('Discord allows maximum 10 embeds per message');
+      return;
+    }
+    // Save current embed to list first
+    const updatedList = embedsList.map((e, i) => i === activeEmbedIndex ? {...embedData} : e);
+    const newEmbed = {
+      ...defaultEmbedState,
+      color: ['#00b894', '#5865F2', '#fdcb6e', '#e17055', '#a29bfe', '#00cec9', '#fd79a8', '#6c5ce7', '#55efc4', '#fab1a0'][updatedList.length] || '#00b894'
+    };
+    const newList = [...updatedList, newEmbed];
+    setEmbedsList(newList);
+    setEmbedData({...newEmbed});
+    setActiveEmbedIndex(newList.length - 1);
+    toast.success(`Embed ${newList.length} added`);
+  };
+
+  // Remove a specific embed
+  const removeEmbed = (index) => {
+    if (embedsList.length <= 1) {
+      toast.error('You need at least one embed');
+      return;
+    }
+    const updatedList = embedsList.filter((_, i) => i !== index);
+    setEmbedsList(updatedList);
+    // Adjust active index
+    let newActive = activeEmbedIndex;
+    if (index <= activeEmbedIndex) {
+      newActive = Math.max(0, activeEmbedIndex - 1);
+    }
+    if (newActive >= updatedList.length) {
+      newActive = updatedList.length - 1;
+    }
+    setActiveEmbedIndex(newActive);
+    setEmbedData({...updatedList[newActive]});
+    toast.success('Embed removed');
+  };
+
   const sendEmbed = async () => {
     if (selectedChannelIds.length === 0) {
       toast.error('Please select at least one channel');
       return;
     }
 
-    if (!embedData.title && !embedData.description) {
-      toast.error('Embed must have a title or description');
+    // Sync current editor to list
+    const finalList = embedsList.map((e, i) => i === activeEmbedIndex ? {...embedData} : e);
+    
+    // Validate all embeds have at least title or description
+    const validEmbeds = finalList.filter(e => e.title || e.description);
+    if (validEmbeds.length === 0) {
+      toast.error('At least one embed must have a title or description');
       return;
     }
 
     try {
-      // Build combined mentions array with type info
       const allMentions = [
         ...mentions.map(m => ({ type: 'role', id: m.id })),
         ...userMentions.map(u => ({ type: 'user', id: u.id }))
       ];
       
-      await announcements.sendToMultiple(
-        selectedChannelIds,
-        '',
-        embedData,
-        allMentions
-      );
-      toast.success(`Embed sent to ${selectedChannelIds.length} channel(s)!`);
+      if (validEmbeds.length === 1) {
+        // Single embed — use existing announcements route
+        await announcements.sendToMultiple(
+          selectedChannelIds,
+          '',
+          validEmbeds[0],
+          allMentions
+        );
+      } else {
+        // Multiple embeds — use new send-multiple route
+        await embeds.sendMultiple(
+          selectedChannelIds,
+          validEmbeds,
+          allMentions
+        );
+      }
+      toast.success(`${validEmbeds.length} embed(s) sent to ${selectedChannelIds.length} channel(s)!`);
       setMentions([]);
       setUserMentions([]);
     } catch (error) {
-      toast.error('Failed to send embed');
+      toast.error('Failed to send embed(s)');
     }
   };
 
@@ -840,20 +917,539 @@ function Embeds() {
   const charCount = (embedData.title?.length || 0) + (embedData.description?.length || 0) + 
     embedData.fields.reduce((acc, f) => acc + (f.name?.length || 0) + (f.value?.length || 0), 0);
 
+  // Parse Discord message link: https://discord.com/channels/{guild}/{channel}/{message}
+  const parseMessageLink = (link) => {
+    const match = link.match(/discord\.com\/channels\/(\d+)\/(\d+)\/(\d+)/);
+    if (!match) return null;
+    return { guildId: match[1], channelId: match[2], messageId: match[3] };
+  };
+
+  const loadMessageEmbed = async () => {
+    if (!messageLink.trim()) {
+      toast.error('Please enter a Discord message link');
+      return;
+    }
+    const parsed = parseMessageLink(messageLink);
+    if (!parsed) {
+      toast.error('Invalid message link. Format: https://discord.com/channels/guild/channel/message');
+      return;
+    }
+
+    setEditMessageLoading(true);
+    try {
+      const response = await embeds.fetchMessage(parsed.channelId, parsed.messageId);
+      const msgData = response.data;
+      
+      if (!msgData.embeds || msgData.embeds.length === 0) {
+        toast.error('This message has no embeds to edit');
+        setEditMessageLoading(false);
+        return;
+      }
+
+      const embed = msgData.embeds[0];
+      setEditEmbedData({
+        name: '',
+        title: embed.title || '',
+        description: embed.description || '',
+        color: embed.color || '#00b894',
+        thumbnail: embed.thumbnail || '',
+        image: embed.image || '',
+        footer: embed.footer || { text: '', iconURL: '' },
+        author: embed.author || { name: '', iconURL: '' },
+        fields: embed.fields || [],
+        timestamp: embed.timestamp || false,
+        buttons: [],
+        selectMenu: null
+      });
+      setEditMessageData({ channelId: parsed.channelId, messageId: parsed.messageId });
+      toast.success('Embed loaded successfully!');
+    } catch (error) {
+      const msg = error.response?.data?.error || error.message;
+      toast.error('Failed to load message: ' + msg);
+    } finally {
+      setEditMessageLoading(false);
+    }
+  };
+
+  const saveEditedEmbed = async () => {
+    if (!editMessageData || !editEmbedData) {
+      toast.error('No embed loaded to save');
+      return;
+    }
+    if (!editEmbedData.title && !editEmbedData.description) {
+      toast.error('Embed must have a title or description');
+      return;
+    }
+
+    setEditMessageLoading(true);
+    try {
+      await embeds.editMessage(
+        editMessageData.channelId,
+        editMessageData.messageId,
+        editEmbedData
+      );
+      toast.success('Embed updated successfully!');
+    } catch (error) {
+      const msg = error.response?.data?.error || error.message;
+      toast.error('Failed to update embed: ' + msg);
+    } finally {
+      setEditMessageLoading(false);
+    }
+  };
+
+  const editEmbedDescRef = useRef(null);
+
   if (loading) {
     return <div className="loading"><div className="spinner"></div></div>;
+  }
+
+  // Edit Embed View
+  if (editEmbedView) {
+    return (
+      <div className="page-container">
+        <div className="page-title">
+          <h1>Edit Existing Embed</h1>
+          <button className="btn btn-outline" onClick={() => { setEditEmbedView(false); setEditEmbedData(null); setEditMessageData(null); setMessageLink(''); }}>
+            ← Back to Builder
+          </button>
+        </div>
+
+        {/* Message Link Input */}
+        <div className="card" style={{ marginBottom: '24px' }}>
+          <h2 style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <FaLink style={{ color: '#5865F2' }} /> Load Embed from Message Link
+          </h2>
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-end' }}>
+            <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
+              <label>Discord Message Link</label>
+              <input
+                type="text"
+                value={messageLink}
+                onChange={(e) => setMessageLink(e.target.value)}
+                placeholder="https://discord.com/channels/123456/789012/345678"
+                style={{ width: '100%' }}
+              />
+            </div>
+            <button
+              className="btn btn-primary"
+              onClick={loadMessageEmbed}
+              disabled={editMessageLoading}
+              style={{ height: '42px', whiteSpace: 'nowrap' }}
+            >
+              {editMessageLoading ? '⏳ Loading...' : '📥 Load Embed'}
+            </button>
+          </div>
+          <p style={{ color: '#72767d', fontSize: '12px', marginTop: '10px' }}>
+            Paste the message link of a bot-sent embed. Right-click the message in Discord → Copy Message Link.
+          </p>
+        </div>
+
+        {/* Edit Form + Preview (shown after loading) */}
+        {editEmbedData && (
+          <div className="grid grid-2">
+            {/* Editor */}
+            <div className="card">
+              <h2 style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <FaEdit style={{ color: '#00b894' }} /> Edit Embed
+              </h2>
+
+              <div className="form-group">
+                <label>Title</label>
+                <input
+                  type="text"
+                  value={editEmbedData.title}
+                  onChange={(e) => setEditEmbedData({...editEmbedData, title: e.target.value})}
+                  placeholder="Embed Title"
+                  maxLength={256}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Description</label>
+                <FormattingToolbar
+                  targetRef={editEmbedDescRef}
+                  onInsert={(text, start, end) => {
+                    const current = editEmbedData.description;
+                    const newDesc = current.substring(0, start) + text + current.substring(end);
+                    setEditEmbedData({ ...editEmbedData, description: newDesc });
+                  }}
+                />
+                <textarea
+                  ref={editEmbedDescRef}
+                  value={editEmbedData.description}
+                  onChange={(e) => setEditEmbedData({...editEmbedData, description: e.target.value})}
+                  placeholder="Embed description..."
+                  maxLength={4096}
+                  rows={6}
+                />
+              </div>
+
+              <div className="grid grid-2">
+                <div className="form-group">
+                  <label>Color</label>
+                  <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                    <input
+                      type="color"
+                      value={editEmbedData.color?.length === 7 ? editEmbedData.color : '#00b894'}
+                      onChange={(e) => setEditEmbedData({...editEmbedData, color: e.target.value})}
+                      style={{ width: '60px', height: '40px', cursor: 'pointer', border: '2px solid #40444b', borderRadius: '8px', padding: '2px' }}
+                    />
+                    <input
+                      type="text"
+                      value={editEmbedData.color}
+                      onChange={(e) => setEditEmbedData({...editEmbedData, color: e.target.value})}
+                      placeholder="#00b894"
+                      maxLength={7}
+                    />
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label>Timestamp</label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={editEmbedData.timestamp}
+                      onChange={(e) => setEditEmbedData({...editEmbedData, timestamp: e.target.checked})}
+                      style={{ width: 'auto' }}
+                    />
+                    <span>Include timestamp</span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>Thumbnail URL</label>
+                <input
+                  type="text"
+                  value={editEmbedData.thumbnail}
+                  onChange={(e) => setEditEmbedData({...editEmbedData, thumbnail: e.target.value})}
+                  placeholder="https://..."
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Image URL</label>
+                <input
+                  type="text"
+                  value={editEmbedData.image}
+                  onChange={(e) => setEditEmbedData({...editEmbedData, image: e.target.value})}
+                  placeholder="https://..."
+                />
+              </div>
+
+              <div className="grid grid-2">
+                <div className="form-group">
+                  <label>Footer Text</label>
+                  <input
+                    type="text"
+                    value={editEmbedData.footer?.text || ''}
+                    onChange={(e) => setEditEmbedData({...editEmbedData, footer: {...editEmbedData.footer, text: e.target.value}})}
+                    placeholder="Footer text"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Footer Icon URL</label>
+                  <input
+                    type="text"
+                    value={editEmbedData.footer?.iconURL || ''}
+                    onChange={(e) => setEditEmbedData({...editEmbedData, footer: {...editEmbedData.footer, iconURL: e.target.value}})}
+                    placeholder="https://..."
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-2">
+                <div className="form-group">
+                  <label>Author Name</label>
+                  <input
+                    type="text"
+                    value={editEmbedData.author?.name || ''}
+                    onChange={(e) => setEditEmbedData({...editEmbedData, author: {...editEmbedData.author, name: e.target.value}})}
+                    placeholder="Author name"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Author Icon URL</label>
+                  <input
+                    type="text"
+                    value={editEmbedData.author?.iconURL || ''}
+                    onChange={(e) => setEditEmbedData({...editEmbedData, author: {...editEmbedData.author, iconURL: e.target.value}})}
+                    placeholder="https://..."
+                  />
+                </div>
+              </div>
+
+              <hr style={{ margin: '20px 0', border: 'none', borderTop: '1px solid #2C2F33' }} />
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                <h3>Fields</h3>
+                <button className="btn btn-outline" onClick={() => setEditEmbedData({...editEmbedData, fields: [...editEmbedData.fields, { name: '', value: '', inline: false }]})}>
+                  <FaPlus /> Add Field
+                </button>
+              </div>
+
+              {editEmbedData.fields.map((field, index) => (
+                <div key={index} style={{ padding: '15px', background: '#2C2F33', borderRadius: '8px', marginBottom: '10px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                    <strong>Field {index + 1}</strong>
+                    <button className="btn btn-danger" onClick={() => setEditEmbedData({...editEmbedData, fields: editEmbedData.fields.filter((_, i) => i !== index)})} style={{ padding: '5px 10px' }}>
+                      <FaTrash />
+                    </button>
+                  </div>
+                  <div className="form-group">
+                    <label>Name</label>
+                    <input
+                      type="text"
+                      value={field.name}
+                      onChange={(e) => {
+                        const newFields = [...editEmbedData.fields];
+                        newFields[index].name = e.target.value;
+                        setEditEmbedData({...editEmbedData, fields: newFields});
+                      }}
+                      placeholder="Field name"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Value</label>
+                    <textarea
+                      value={field.value}
+                      onChange={(e) => {
+                        const newFields = [...editEmbedData.fields];
+                        newFields[index].value = e.target.value;
+                        setEditEmbedData({...editEmbedData, fields: newFields});
+                      }}
+                      placeholder="Field value"
+                      rows={3}
+                    />
+                  </div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={field.inline}
+                      onChange={(e) => {
+                        const newFields = [...editEmbedData.fields];
+                        newFields[index].inline = e.target.checked;
+                        setEditEmbedData({...editEmbedData, fields: newFields});
+                      }}
+                      style={{ width: 'auto' }}
+                    />
+                    <span>Inline</span>
+                  </label>
+                </div>
+              ))}
+
+              <button
+                className="btn btn-primary"
+                onClick={saveEditedEmbed}
+                disabled={editMessageLoading}
+                style={{ width: '100%', marginTop: '20px', padding: '14px' }}
+              >
+                {editMessageLoading ? '⏳ Saving...' : '💾 Save Changes to Discord'}
+              </button>
+            </div>
+
+            {/* Live Preview */}
+            <div className="card">
+              <h2>Live Preview</h2>
+              <div style={{
+                borderLeft: `4px solid ${editEmbedData.color}`,
+                background: '#2C2F33',
+                padding: '15px',
+                borderRadius: '4px',
+                marginTop: '20px',
+                display: 'flex',
+                gap: '15px'
+              }}>
+                <div style={{ flex: 1 }}>
+                  {editEmbedData.author?.name && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                      {editEmbedData.author.iconURL && <img src={editEmbedData.author.iconURL} alt="" style={{ width: '24px', height: '24px', borderRadius: '50%' }} />}
+                      <strong style={{ fontSize: '14px', color: '#ffffff' }}>{renderDiscordMarkdown(editEmbedData.author.name)}</strong>
+                    </div>
+                  )}
+                  {editEmbedData.title && <h3 style={{ marginBottom: '10px', color: '#ffffff' }}>{renderDiscordMarkdown(editEmbedData.title)}</h3>}
+                  {editEmbedData.description && <div style={{ color: '#b9bbbe', marginBottom: '10px', lineHeight: '1.5' }}>{renderDiscordMarkdown(editEmbedData.description)}</div>}
+
+                  {editEmbedData.fields.length > 0 && (
+                    <div style={{ display: 'grid', gridTemplateColumns: editEmbedData.fields.some(f => f.inline) ? 'repeat(3, 1fr)' : '1fr', gap: '10px', marginTop: '10px' }}>
+                      {editEmbedData.fields.map((field, idx) => (
+                        <div key={idx}>
+                          <strong style={{ fontSize: '14px', display: 'block', marginBottom: '5px', color: '#ffffff' }}>{renderDiscordMarkdown(field.name)}</strong>
+                          <div style={{ fontSize: '13px', color: '#b9bbbe', lineHeight: '1.4' }}>{renderDiscordMarkdown(field.value)}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {editEmbedData.image && <img src={editEmbedData.image} alt="" style={{ width: '100%', borderRadius: '4px', marginTop: '15px' }} />}
+
+                  {editEmbedData.footer?.text && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '15px', fontSize: '12px', color: '#b9bbbe' }}>
+                      {editEmbedData.footer.iconURL && <img src={editEmbedData.footer.iconURL} alt="" style={{ width: '20px', height: '20px', borderRadius: '50%' }} />}
+                      <span>{renderDiscordMarkdown(editEmbedData.footer.text)}</span>
+                      {editEmbedData.timestamp && <span> • {new Date().toLocaleString()}</span>}
+                    </div>
+                  )}
+                </div>
+                {editEmbedData.thumbnail && (
+                  <div style={{ flexShrink: 0 }}>
+                    <img src={editEmbedData.thumbnail} alt="" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '4px' }} />
+                  </div>
+                )}
+              </div>
+
+              {/* Message Info */}
+              {editMessageData && (
+                <div style={{
+                  marginTop: '20px',
+                  padding: '14px',
+                  background: '#23272A',
+                  borderRadius: '8px',
+                  border: '1px solid #40444b'
+                }}>
+                  <p style={{ fontSize: '13px', color: '#b9bbbe', margin: 0 }}>
+                    <strong style={{ color: '#dcddde' }}>Channel ID:</strong> {editMessageData.channelId}
+                  </p>
+                  <p style={{ fontSize: '13px', color: '#b9bbbe', margin: '6px 0 0 0' }}>
+                    <strong style={{ color: '#dcddde' }}>Message ID:</strong> {editMessageData.messageId}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Empty state when no embed loaded */}
+        {!editEmbedData && (
+          <div style={{
+            textAlign: 'center',
+            padding: '60px 20px',
+            backgroundColor: '#2C2F33',
+            borderRadius: '12px',
+            border: '1px solid #40444b'
+          }}>
+            <FaEdit size={48} style={{ color: '#40444b', marginBottom: '16px' }} />
+            <h3 style={{ color: '#dcddde', marginBottom: '8px' }}>No Embed Loaded</h3>
+            <p style={{ color: '#72767d', maxWidth: '400px', margin: '0 auto' }}>
+              Paste a Discord message link above and click "Load Embed" to edit an existing embed sent by the bot.
+            </p>
+          </div>
+        )}
+      </div>
+    );
   }
 
   return (
     <div className="page-container">
       <div className="page-title">
-        <h1>Advanced Embed Builder</h1>
+        <h1>Embed Builder</h1>
+        <button className="btn btn-primary" onClick={() => setEditEmbedView(true)} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <FaEdit /> Edit Embed
+        </button>
       </div>
 
       <div className="grid grid-2">
         {/* Editor */}
         <div className="card">
           <h2>Embed Editor</h2>
+          
+          {/* Multi-embed tabs */}
+          <div style={{
+            display: 'flex',
+            gap: '6px',
+            marginBottom: '20px',
+            flexWrap: 'wrap',
+            alignItems: 'center'
+          }}>
+            {embedsList.map((_, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center' }}>
+                <button
+                  onClick={() => switchEmbed(i)}
+                  style={{
+                    padding: '8px 16px',
+                    borderRadius: embedsList.length > 1 ? '8px 0 0 8px' : '8px',
+                    border: i === activeEmbedIndex ? '1px solid #5865F2' : '1px solid #40444b',
+                    backgroundColor: i === activeEmbedIndex ? '#5865F2' : '#23272A',
+                    color: i === activeEmbedIndex ? '#ffffff' : '#b9bbbe',
+                    cursor: 'pointer',
+                    fontSize: '13px',
+                    fontWeight: i === activeEmbedIndex ? '600' : '400',
+                    transition: 'all 0.2s',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  <div style={{
+                    width: '10px',
+                    height: '10px',
+                    borderRadius: '3px',
+                    backgroundColor: (i === activeEmbedIndex ? embedData.color : embedsList[i].color) || '#00b894'
+                  }} />
+                  Embed {i + 1}
+                </button>
+                {embedsList.length > 1 && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); removeEmbed(i); }}
+                    style={{
+                      padding: '8px 10px',
+                      borderRadius: '0 8px 8px 0',
+                      border: '1px solid #40444b',
+                      borderLeft: 'none',
+                      backgroundColor: '#23272A',
+                      color: '#ed4245',
+                      cursor: 'pointer',
+                      fontSize: '12px',
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#ed424520'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#23272A'}
+                    title={`Remove Embed ${i + 1}`}
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
+            ))}
+            <button
+              onClick={addNewEmbed}
+              style={{
+                padding: '8px 14px',
+                borderRadius: '8px',
+                border: '1px dashed #5865F2',
+                backgroundColor: 'transparent',
+                color: '#5865F2',
+                cursor: 'pointer',
+                fontSize: '13px',
+                fontWeight: '500',
+                transition: 'all 0.2s',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#5865F215'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              title="Add another embed (max 10)"
+            >
+              <FaPlus style={{ fontSize: '10px' }} /> Add Embed
+            </button>
+          </div>
+
+          {embedsList.length > 1 && (
+            <div style={{
+              padding: '10px 14px',
+              background: '#5865F215',
+              borderRadius: '8px',
+              marginBottom: '16px',
+              fontSize: '12px',
+              color: '#b9bbbe',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              📦 Sending <strong style={{ color: '#ffffff' }}>{embedsList.length} embeds</strong> in one message (max 10)
+            </div>
+          )}
           
           <div className="form-group">
             <label>📍 Select Channels</label>
@@ -1134,7 +1730,7 @@ function Embeds() {
               <FaSave /> {editingEmbedId ? 'Update Template' : 'Save Template'}
             </button>
             <button className="btn btn-secondary" onClick={sendEmbed} style={{ flex: 1 }}>
-              <FaPaperPlane /> Send to {selectedChannelIds.length} Channel(s)
+              <FaPaperPlane /> Send {embedsList.length > 1 ? `${embedsList.length} Embeds` : 'Embed'} to {selectedChannelIds.length} Channel(s)
             </button>
           </div>
         </div>
@@ -1142,7 +1738,7 @@ function Embeds() {
         {/* Preview */}
         <div>
           <div className="card">
-            <h2>Live Preview</h2>
+            <h2>Live Preview {embedsList.length > 1 && <span style={{ fontSize: '14px', color: '#b9bbbe', fontWeight: '400' }}>({embedsList.length} embeds)</span>}</h2>
 
             {/* Mentions outside embed preview */}
             {(mentions.length > 0 || userMentions.length > 0) && (
@@ -1176,56 +1772,69 @@ function Embeds() {
               </div>
             )}
             
-            <div style={{ 
-              borderLeft: `4px solid ${embedData.color}`, 
-              background: '#2C2F33', 
-              padding: '15px', 
-              borderRadius: '4px',
-              marginTop: (mentions.length > 0 || userMentions.length > 0) ? '8px' : '20px',
-              display: 'flex',
-              gap: '15px'
-            }}>
-              <div style={{ flex: 1 }}>
-                {embedData.author.name && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-                    {embedData.author.iconURL && <img src={embedData.author.iconURL} alt="" style={{ width: '24px', height: '24px', borderRadius: '50%' }} />}
-                    <strong style={{ fontSize: '14px', color: '#ffffff' }}>{renderDiscordMarkdown(embedData.author.name)}</strong>
-                  </div>
-                )}
-                
-                {embedData.title && <h3 style={{ marginBottom: '10px', color: '#ffffff' }}>{renderDiscordMarkdown(embedData.title)}</h3>}
-                {embedData.description && <div style={{ color: '#b9bbbe', marginBottom: '10px', lineHeight: '1.5' }}>{renderDiscordMarkdown(embedData.description)}</div>}
-                
-                {embedData.fields.length > 0 && (
-                  <div style={{ display: 'grid', gridTemplateColumns: embedData.fields.some(f => f.inline) ? 'repeat(3, 1fr)' : '1fr', gap: '10px', marginTop: '10px' }}>
-                    {embedData.fields.map((field, idx) => (
-                      <div key={idx}>
-                        <strong style={{ fontSize: '14px', display: 'block', marginBottom: '5px', color: '#ffffff' }}>{renderDiscordMarkdown(field.name)}</strong>
-                        <div style={{ fontSize: '13px', color: '#b9bbbe', lineHeight: '1.4' }}>{renderDiscordMarkdown(field.value)}</div>
+            {/* Render all embeds stacked */}
+            {(() => {
+              const allEmbeds = embedsList.map((e, i) => i === activeEmbedIndex ? embedData : e);
+              return allEmbeds.map((emb, embIdx) => (
+                (emb.title || emb.description || emb.image) && (
+                  <div key={embIdx} style={{ 
+                    borderLeft: `4px solid ${emb.color || '#00b894'}`, 
+                    background: '#2C2F33', 
+                    padding: '15px', 
+                    borderRadius: '4px',
+                    marginTop: embIdx === 0 ? ((mentions.length > 0 || userMentions.length > 0) ? '8px' : '20px') : '4px',
+                    display: 'flex',
+                    gap: '15px',
+                    cursor: 'pointer',
+                    outline: embIdx === activeEmbedIndex ? '1px solid #5865F250' : 'none'
+                  }}
+                  onClick={() => switchEmbed(embIdx)}
+                  title={`Click to edit Embed ${embIdx + 1}`}
+                  >
+                    <div style={{ flex: 1 }}>
+                      {emb.author?.name && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                          {emb.author.iconURL && <img src={emb.author.iconURL} alt="" style={{ width: '24px', height: '24px', borderRadius: '50%' }} />}
+                          <strong style={{ fontSize: '14px', color: '#ffffff' }}>{renderDiscordMarkdown(emb.author.name)}</strong>
+                        </div>
+                      )}
+                      
+                      {emb.title && <h3 style={{ marginBottom: '10px', color: '#ffffff' }}>{renderDiscordMarkdown(emb.title)}</h3>}
+                      {emb.description && <div style={{ color: '#b9bbbe', marginBottom: '10px', lineHeight: '1.5' }}>{renderDiscordMarkdown(emb.description)}</div>}
+                      
+                      {emb.fields?.length > 0 && (
+                        <div style={{ display: 'grid', gridTemplateColumns: emb.fields.some(f => f.inline) ? 'repeat(3, 1fr)' : '1fr', gap: '10px', marginTop: '10px' }}>
+                          {emb.fields.map((field, idx) => (
+                            <div key={idx}>
+                              <strong style={{ fontSize: '14px', display: 'block', marginBottom: '5px', color: '#ffffff' }}>{renderDiscordMarkdown(field.name)}</strong>
+                              <div style={{ fontSize: '13px', color: '#b9bbbe', lineHeight: '1.4' }}>{renderDiscordMarkdown(field.value)}</div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {emb.image && (
+                        <img src={emb.image} alt="" style={{ width: '100%', borderRadius: '4px', marginTop: '15px' }} />
+                      )}
+
+                      {emb.footer?.text && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '15px', fontSize: '12px', color: '#b9bbbe' }}>
+                          {emb.footer.iconURL && <img src={emb.footer.iconURL} alt="" style={{ width: '20px', height: '20px', borderRadius: '50%' }} />}
+                          <span>{renderDiscordMarkdown(emb.footer.text)}</span>
+                          {emb.timestamp && <span> • {new Date().toLocaleString()}</span>}
+                        </div>
+                      )}
+                    </div>
+
+                    {emb.thumbnail && (
+                      <div style={{ flexShrink: 0 }}>
+                        <img src={emb.thumbnail} alt="" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '4px' }} />
                       </div>
-                    ))}
+                    )}
                   </div>
-                )}
-
-                {embedData.image && (
-                  <img src={embedData.image} alt="" style={{ width: '100%', borderRadius: '4px', marginTop: '15px' }} />
-                )}
-
-                {embedData.footer.text && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '15px', fontSize: '12px', color: '#b9bbbe' }}>
-                    {embedData.footer.iconURL && <img src={embedData.footer.iconURL} alt="" style={{ width: '20px', height: '20px', borderRadius: '50%' }} />}
-                    <span>{renderDiscordMarkdown(embedData.footer.text)}</span>
-                    {embedData.timestamp && <span> • {new Date().toLocaleString()}</span>}
-                  </div>
-                )}
-              </div>
-
-              {embedData.thumbnail && (
-                <div style={{ flexShrink: 0 }}>
-                  <img src={embedData.thumbnail} alt="" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '4px' }} />
-                </div>
-              )}
-            </div>
+                )
+              ));
+            })()}
           </div>
 
           <div className="card" style={{ marginTop: '20px' }}>
