@@ -35,7 +35,9 @@ module.exports = {
     STAFF_AVAILABILITY_CHANNEL_ID: '1291128212079771880', // Channel for staff availability checks
 
     channels: {
-        staffOpenings: '1291739954791059527'
+        staffOpenings: '1291739954791059527',
+        activeSuggestions: '1361402427517047008',
+        implementedFeatures: '1361402427517047008'
     },
 
     // Emoji configuration
