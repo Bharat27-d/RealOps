@@ -379,6 +379,7 @@ async function rebuildTicketsFromDiscord(client) {
 }
 
 // Try to recover a ticket from channel metadata when it's missing from activeTickets
+// This ensures ANY ticket can be closed even if the bot restarted since creation
 async function tryRecoverTicket(channel) {
     try {
         const channelName = channel.name || '';
@@ -391,10 +392,20 @@ async function tryRecoverTicket(channel) {
 
         if (nameOrCategory.includes('join') || nameOrCategory.includes('jointeam')) ticketType = 'joinTeam';
         else if (nameOrCategory.includes('book')) ticketType = 'bookUs';
-        else if (nameOrCategory.includes('hr')) ticketType = 'hr';
+        else if (nameOrCategory.includes('hr') && !nameOrCategory.includes('partner')) ticketType = 'hr';
         else if (nameOrCategory.includes('partner')) ticketType = 'partnership';
         else if (nameOrCategory.includes('founder')) ticketType = 'founders';
         else if (nameOrCategory.includes('support')) ticketType = 'support';
+
+        // Also try matching parent category ID against configured ticket categories
+        if (parent && config.ticketCategories) {
+            for (const [type, categoryId] of Object.entries(config.ticketCategories)) {
+                if (parent.id === categoryId) {
+                    ticketType = type;
+                    break;
+                }
+            }
+        }
 
         // Try to extract user ID from channel topic (format: "... | ID: 123456789")
         let userId = 'unknown';
@@ -406,27 +417,23 @@ async function tryRecoverTicket(channel) {
             const nameMatch = channelName.match(/(\d{17,19})/);
             if (nameMatch) {
                 userId = nameMatch[1];
-            }
-        }
-
-        // Check that this channel is under a ticket-related category
-        if (parent) {
-            const categoryName = parent.name.toLowerCase();
-            const isTicketCategory = categoryName.includes('ticket') ||
-                categoryName.includes('support') ||
-                categoryName.includes('book') ||
-                categoryName.includes('join') ||
-                categoryName.includes('partner') ||
-                categoryName.includes('founder') ||
-                categoryName.includes('hr');
-
-            // Also check if the category ID matches any configured ticket category
-            const configCategories = Object.values(config.ticketCategories || {});
-            const isConfiguredCategory = configCategories.includes(parent.id);
-
-            if (!isTicketCategory && !isConfiguredCategory) {
-                console.log(`Channel ${channel.id} parent category "${parent.name}" doesn't look like a ticket category`);
-                return null;
+            } else {
+                // Try to find the ticket creator from channel permission overwrites
+                try {
+                    const overwrites = channel.permissionOverwrites?.cache;
+                    if (overwrites) {
+                        for (const [id, overwrite] of overwrites) {
+                            // Skip @everyone role and bot roles
+                            if (id === channel.guild?.id) continue;
+                            if (overwrite.type === 1) { // type 1 = member
+                                userId = id;
+                                break;
+                            }
+                        }
+                    }
+                } catch (e) {
+                    // ignore permission read errors
+                }
             }
         }
 
@@ -648,6 +655,12 @@ function setupTicketSystem(client) {
 
                 // Handle ticket close confirmation
                 if (customId === 'ticket_close_confirm') {
+                    ensureTicketsLoaded();
+                    // Auto-recover ticket if missing (e.g. bot restarted between confirm prompt and click)
+                    if (!activeTickets.has(interaction.channel.id)) {
+                        console.log(`⚠️ ticket_close_confirm: Channel ${interaction.channel.id} not in activeTickets. Recovering...`);
+                        await tryRecoverTicket(interaction.channel);
+                    }
                     await closeTicketConfirmed(interaction);
                     return;
                 }
@@ -1517,7 +1530,34 @@ async function closeTicketConfirmed(interaction) {
         await channel.send({ embeds: [closedEmbed] });
 
         // Log ticket closing
-        const ticketData = activeTickets.get(channel.id);
+        let ticketData = activeTickets.get(channel.id);
+
+        // If ticket data is STILL missing after recovery attempts, create minimal data
+        // This ensures the close process ALWAYS works
+        if (!ticketData) {
+            console.log(`⚠️ closeTicketConfirmed: No ticket data for ${channel.id}, creating minimal data`);
+            ticketData = {
+                channelId: channel.id,
+                userId: 'unknown',
+                type: 'support',
+                createdAt: new Date(channel.createdTimestamp || Date.now()),
+                recoveredFromChannel: true
+            };
+            // Try to extract user from channel topic
+            const topic = channel.topic || '';
+            const topicMatch = topic.match(/ID:\s*(\d{17,19})/);
+            if (topicMatch) ticketData.userId = topicMatch[1];
+            // Try to detect type from channel/category name
+            const nameOrCategory = ((channel.name || '') + ' ' + (channel.parent?.name || '')).toLowerCase();
+            if (nameOrCategory.includes('join')) ticketData.type = 'joinTeam';
+            else if (nameOrCategory.includes('book')) ticketData.type = 'bookUs';
+            else if (nameOrCategory.includes('hr') && !nameOrCategory.includes('partner')) ticketData.type = 'hr';
+            else if (nameOrCategory.includes('partner')) ticketData.type = 'partnership';
+            else if (nameOrCategory.includes('founder')) ticketData.type = 'founders';
+
+            activeTickets.set(channel.id, ticketData);
+        }
+
         logTicketAction(interaction.guild, user, ticketData.type, 'closed', channel.id);
 
         // Generate HTML transcript before closing
