@@ -1,9 +1,9 @@
-const { 
-    ActionRowBuilder, 
-    ButtonBuilder, 
-    EmbedBuilder, 
-    ChannelType, 
-    PermissionFlagsBits, 
+const {
+    ActionRowBuilder,
+    ButtonBuilder,
+    EmbedBuilder,
+    ChannelType,
+    PermissionFlagsBits,
     ButtonStyle,
     AttachmentBuilder,
     StringSelectMenuBuilder,
@@ -18,8 +18,8 @@ const firebase = require('./firebase');
 
 // Ensure Firebase is initialized
 if (!firebase) {
-  console.error('❌ Firebase is not configured. Please check your configuration.');
-  process.exit(1);
+    console.error('❌ Firebase is not configured. Please check your configuration.');
+    process.exit(1);
 }
 
 // Import all panel modules
@@ -40,14 +40,14 @@ function loadActiveTickets() {
     if (fs.existsSync(TICKETS_FILE)) {
         try {
             const data = fs.readFileSync(TICKETS_FILE, 'utf8');
-            
+
             // Handle empty file
             if (!data || data.trim() === '') {
                 console.log('Active tickets file is empty. Starting fresh.');
                 saveActiveTickets(new Map()).catch(console.error);
                 return new Map();
             }
-            
+
             const tickets = JSON.parse(data);
             const ticketsMap = new Map();
             Object.entries(tickets).forEach(([key, value]) => {
@@ -62,7 +62,7 @@ function loadActiveTickets() {
         } catch (error) {
             console.error('⚠️ Error loading active tickets (corrupted file):', error.message);
             console.log('Creating backup and starting fresh...');
-            
+
             // Create backup of corrupted file
             try {
                 const timestamp = Date.now();
@@ -74,7 +74,7 @@ function loadActiveTickets() {
             } catch (backupError) {
                 console.error('Could not create backup:', backupError.message);
             }
-            
+
             // Start with empty map and save it
             const freshMap = new Map();
             saveActiveTickets(freshMap).catch(console.error);
@@ -95,7 +95,7 @@ let isSaving = false;
 function saveActiveTickets(tickets) {
     return new Promise((resolve, reject) => {
         saveQueue.push({ tickets: new Map(tickets), resolve, reject });
-        
+
         if (!isSaving) {
             processNextSave();
         }
@@ -107,22 +107,22 @@ async function processNextSave() {
         isSaving = false;
         return;
     }
-    
+
     isSaving = true;
     const { tickets, resolve, reject } = saveQueue.shift();
-    
+
     try {
         const ticketsObj = {};
         tickets.forEach((value, key) => {
             ticketsObj[key] = value;
         });
-        
+
         await fs.promises.writeFile(TICKETS_FILE, JSON.stringify(ticketsObj, null, 2));
-        
+
         // Don't sync all tickets to Firebase on every save - this causes payload size issues
         // Individual tickets are synced when they're closed via syncSingleTicketToFirebase
         // The batch sync was causing "Request payload size exceeds the limit" errors
-        
+
         resolve();
     } catch (error) {
         console.error('Error saving active tickets:', error);
@@ -135,61 +135,61 @@ async function processNextSave() {
 
 // Sync tickets to Firebase for dashboard access (only sync metadata, not transcripts)
 async function syncTicketsToFirebase(tickets) {
-  if (!firebase || !firebase.collections) return;
+    if (!firebase || !firebase.collections) return;
 
-  try {
-    // Only sync open tickets without transcripts to avoid payload size issues
-    const batch = firebase.db.batch();
-    let count = 0;
-    
-    tickets.forEach((ticket, channelId) => {
-      // Skip tickets with transcripts (they're too large for batch sync)
-      // Closed tickets with transcripts are synced individually
-      if (ticket.transcriptHtml) {
-        return;
-      }
-      
-      // Only sync essential metadata for open tickets
-      const ticketMetadata = {
-        channelId: ticket.channelId,
-        type: ticket.type,
-        userId: ticket.userId,
-        username: ticket.username,
-        status: ticket.status || 'open',
-        createdAt: ticket.createdAt,
-        formData: ticket.formData
-      };
-      
-      const ticketRef = firebase.collections.tickets.doc(channelId);
-      batch.set(ticketRef, ticketMetadata, { merge: true });
-      count++;
-    });
-    
-    if (count > 0) {
-      await batch.commit();
-      console.log(`✅ Synced ${count} ticket metadata to Firebase`);
+    try {
+        // Only sync open tickets without transcripts to avoid payload size issues
+        const batch = firebase.db.batch();
+        let count = 0;
+
+        tickets.forEach((ticket, channelId) => {
+            // Skip tickets with transcripts (they're too large for batch sync)
+            // Closed tickets with transcripts are synced individually
+            if (ticket.transcriptHtml) {
+                return;
+            }
+
+            // Only sync essential metadata for open tickets
+            const ticketMetadata = {
+                channelId: ticket.channelId,
+                type: ticket.type,
+                userId: ticket.userId,
+                username: ticket.username,
+                status: ticket.status || 'open',
+                createdAt: ticket.createdAt,
+                formData: ticket.formData
+            };
+
+            const ticketRef = firebase.collections.tickets.doc(channelId);
+            batch.set(ticketRef, ticketMetadata, { merge: true });
+            count++;
+        });
+
+        if (count > 0) {
+            await batch.commit();
+            console.log(`✅ Synced ${count} ticket metadata to Firebase`);
+        }
+    } catch (error) {
+        console.error('Error syncing tickets to Firebase:', error);
     }
-  } catch (error) {
-    console.error('Error syncing tickets to Firebase:', error);
-  }
 }
 
 // Sync single ticket to Firebase
 async function syncSingleTicketToFirebase(channelId, ticketData) {
-  console.log(`🔄 Attempting to sync ticket ${channelId} to Firebase...`);
+    console.log(`🔄 Attempting to sync ticket ${channelId} to Firebase...`);
 
-  if (!firebase || !firebase.collections) {
-    console.error('❌ Firebase is not configured. Cannot sync ticket.');
-    return;
-  }
+    if (!firebase || !firebase.collections) {
+        console.error('❌ Firebase is not configured. Cannot sync ticket.');
+        return;
+    }
 
-  try {
-    const ticketRef = firebase.collections.tickets.doc(channelId);
-    await ticketRef.set(ticketData, { merge: true });
-    console.log(`✅ Synced ticket ${channelId} to Firebase`);
-  } catch (error) {
-    console.error(`Error syncing ticket ${channelId} to Firebase:`, error);
-  }
+    try {
+        const ticketRef = firebase.collections.tickets.doc(channelId);
+        await ticketRef.set(ticketData, { merge: true });
+        console.log(`✅ Synced ticket ${channelId} to Firebase`);
+    } catch (error) {
+        console.error(`Error syncing ticket ${channelId} to Firebase:`, error);
+    }
 }
 
 const activeTickets = loadActiveTickets();
@@ -200,7 +200,7 @@ async function safeReply(interaction, options, isEdit = false) {
     try {
         if (isEdit) {
             if (!interaction.replied && !interaction.deferred) {
-                await interaction.deferReply({ ephemeral: true }).catch(() => {});
+                await interaction.deferReply({ ephemeral: true }).catch(() => { });
             }
             return await interaction.editReply(options);
         } else {
@@ -216,20 +216,23 @@ async function safeReply(interaction, options, isEdit = false) {
     }
 }
 
-// Safely handle interactions to prevent unknown interaction errors
 async function safeInteractionHandler(interaction, handler) {
     try {
         await handler(interaction);
     } catch (error) {
+        if (error.code === 40060 || error.code === 10062) return; // Ignore already acknowledged or unknown interaction errors
+
         console.error(`Error handling ${interaction.type} interaction:`, error);
         if (!interaction.replied && !interaction.deferred) {
             try {
-                await interaction.reply({ 
+                await interaction.reply({
                     content: 'An error occurred while processing your request.',
                     flags: MessageFlags.Ephemeral
                 });
             } catch (replyError) {
-                console.error('Failed to send error reply:', replyError);
+                if (replyError.code !== 40060 && replyError.code !== 10062) {
+                    console.error('Failed to send error reply:', replyError);
+                }
             }
         }
     }
@@ -284,7 +287,7 @@ function createTicketControlsRow(includeDelete = true) {
                 .setStyle(ButtonStyle.Danger)
                 .setEmoji(config.emojis?.close || '🔒')
         );
-        
+
     row.addComponents(
         new ButtonBuilder()
             .setCustomId('ticket_transcript')
@@ -292,7 +295,7 @@ function createTicketControlsRow(includeDelete = true) {
             .setStyle(ButtonStyle.Secondary)
             .setEmoji('📑')
     );
-    
+
     return row;
 }
 
@@ -315,7 +318,7 @@ function ensureTicketsLoaded() {
 async function rebuildTicketsFromDiscord(client) {
     console.log('🔄 Rebuilding ticket list from Discord channels...');
     let rebuiltCount = 0;
-    
+
     try {
         const guild = client.guilds.cache.first();
         if (!guild) {
@@ -325,17 +328,17 @@ async function rebuildTicketsFromDiscord(client) {
 
         // Fetch all channels
         await guild.channels.fetch();
-        
+
         // Find ticket category channels
-        const ticketCategories = guild.channels.cache.filter(c => 
+        const ticketCategories = guild.channels.cache.filter(c =>
             c.type === 4 && // Category type
-            (c.name.toLowerCase().includes('ticket') || 
-             c.name.toLowerCase().includes('support'))
+            (c.name.toLowerCase().includes('ticket') ||
+                c.name.toLowerCase().includes('support'))
         );
 
         for (const [, category] of ticketCategories) {
             const ticketChannels = category.children.cache.filter(c => c.type === 0); // Text channels
-            
+
             for (const [, channel] of ticketChannels) {
                 if (!activeTickets.has(channel.id)) {
                     // Try to determine ticket type from channel name or parent category
@@ -375,11 +378,82 @@ async function rebuildTicketsFromDiscord(client) {
     }
 }
 
+// Try to recover a ticket from channel metadata when it's missing from activeTickets
+async function tryRecoverTicket(channel) {
+    try {
+        const channelName = channel.name || '';
+        const topic = channel.topic || '';
+        const parent = channel.parent;
+
+        // Try to determine ticket type from channel name or parent category
+        let ticketType = 'support'; // default fallback
+        const nameOrCategory = (channelName + ' ' + (parent?.name || '')).toLowerCase();
+
+        if (nameOrCategory.includes('join') || nameOrCategory.includes('jointeam')) ticketType = 'joinTeam';
+        else if (nameOrCategory.includes('book')) ticketType = 'bookUs';
+        else if (nameOrCategory.includes('hr')) ticketType = 'hr';
+        else if (nameOrCategory.includes('partner')) ticketType = 'partnership';
+        else if (nameOrCategory.includes('founder')) ticketType = 'founders';
+        else if (nameOrCategory.includes('support')) ticketType = 'support';
+
+        // Try to extract user ID from channel topic (format: "... | ID: 123456789")
+        let userId = 'unknown';
+        const topicMatch = topic.match(/ID:\s*(\d{17,19})/);
+        if (topicMatch) {
+            userId = topicMatch[1];
+        } else {
+            // Try to extract from channel name (format: type-username or type-username-number)
+            const nameMatch = channelName.match(/(\d{17,19})/);
+            if (nameMatch) {
+                userId = nameMatch[1];
+            }
+        }
+
+        // Check that this channel is under a ticket-related category
+        if (parent) {
+            const categoryName = parent.name.toLowerCase();
+            const isTicketCategory = categoryName.includes('ticket') ||
+                categoryName.includes('support') ||
+                categoryName.includes('book') ||
+                categoryName.includes('join') ||
+                categoryName.includes('partner') ||
+                categoryName.includes('founder') ||
+                categoryName.includes('hr');
+
+            // Also check if the category ID matches any configured ticket category
+            const configCategories = Object.values(config.ticketCategories || {});
+            const isConfiguredCategory = configCategories.includes(parent.id);
+
+            if (!isTicketCategory && !isConfiguredCategory) {
+                console.log(`Channel ${channel.id} parent category "${parent.name}" doesn't look like a ticket category`);
+                return null;
+            }
+        }
+
+        const recoveredData = {
+            channelId: channel.id,
+            userId: userId,
+            type: ticketType,
+            createdAt: new Date(channel.createdTimestamp || Date.now()),
+            status: 'open',
+            recoveredFromChannel: true
+        };
+
+        activeTickets.set(channel.id, recoveredData);
+        await saveActiveTickets(activeTickets);
+        console.log(`🔄 Auto-recovered ticket: ${channel.name} (${channel.id}) as ${ticketType} for user ${userId}`);
+        return recoveredData;
+    } catch (error) {
+        console.error('Error trying to recover ticket:', error);
+        return null;
+    }
+}
+
 function setupTicketSystem(client) {
     Object.values(panelModules).forEach(panel => {
         buttonToPanel[panel.buttonId] = panel;
     });
-    
+
     // Check Firebase connection immediately
     if (firebase && firebase.collections && firebase.collections.tickets) {
         console.log('✅ Firebase connected - closed tickets will sync to dashboard');
@@ -390,13 +464,13 @@ function setupTicketSystem(client) {
 
     client.once('ready', async () => {
         console.log(`Bot is ready. Current date (UTC): ${formatDateUTC(new Date())}`);
-        
+
         // Check if we need to rebuild tickets (file was corrupted/empty)
         if (activeTickets.size === 0) {
             console.log('⚠️ No tickets loaded - checking Discord for existing ticket channels...');
             await rebuildTicketsFromDiscord(client);
         }
-        
+
         // Clean up invalid entries
         let removedCount = 0;
         for (const [channelId, ticketData] of activeTickets.entries()) {
@@ -409,11 +483,11 @@ function setupTicketSystem(client) {
                 console.log(`Found valid ticket channel: ${channel.name} (${channelId})`);
             }
         }
-        
+
         if (removedCount > 0) {
             await saveActiveTickets(activeTickets);
         }
-        
+
         console.log(`✅ Loaded ${activeTickets.size} active tickets (removed ${removedCount} invalid entries)`);
     });
 
@@ -423,17 +497,17 @@ function setupTicketSystem(client) {
         if (interaction.isButton()) {
             console.log(`[BUTTON] CustomId: ${interaction.customId}`);
         }
-        
+
         safeInteractionHandler(interaction, async (interaction) => {
             // --- PANEL SETUP COMMANDS ---
             if (interaction.isCommand() || interaction.isChatInputCommand()) {
                 const commandName = interaction.commandName;
-                
+
                 // Only defer for setup commands that need it
                 // Regular commands handle their own deferral
                 const setupCommands = ['setup-jointeam', 'setup-bookus', 'setup-support', 'setup-partnership', 'setup-founders', 'setup-hr', 'register-ticket', 'debug-tickets'];
                 if (setupCommands.includes(commandName) && !interaction.replied && !interaction.deferred) {
-                    await interaction.deferReply({ flags: MessageFlags.Ephemeral }).catch(() => {});
+                    await interaction.deferReply({ flags: MessageFlags.Ephemeral }).catch(() => { });
                 }
 
                 if (commandName === 'setup-jointeam') {
@@ -523,14 +597,27 @@ function setupTicketSystem(client) {
                     customId === 'ticket_reopen' ||
                     customId === 'ticket_transcript'
                 ) {
+                    // CRITICAL: Defer immediately to prevent 3-second Discord timeout
+                    try {
+                        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+                    } catch (deferError) {
+                        console.error('Error deferring ticket button interaction:', deferError);
+                        return; // Can't proceed without deferring
+                    }
+
                     ensureTicketsLoaded(); // Ensure tickets are loaded
-                    
+
+                    // Auto-recovery: if channel is not in activeTickets, try to recover
                     if (!activeTickets.has(interaction.channel.id)) {
-                        await safeReply(interaction, {
-                            content: 'This channel is not set up as a ticket. If this is an error, please contact an administrator.',
-                            flags: MessageFlags.Ephemeral
-                        });
-                        return;
+                        console.log(`⚠️ Channel ${interaction.channel.id} (${interaction.channel.name}) not found in activeTickets. Attempting recovery...`);
+                        const recovered = await tryRecoverTicket(interaction.channel);
+                        if (!recovered) {
+                            await interaction.editReply({
+                                content: 'This channel is not set up as a ticket. If this is an error, please use `/register-ticket` to register it, or contact an administrator.',
+                            });
+                            return;
+                        }
+                        console.log(`✅ Recovered ticket for channel ${interaction.channel.id} as type: ${recovered.type}`);
                     }
                     // --- STAFF CHECK for sensitive actions ---
                     if (
@@ -545,9 +632,8 @@ function setupTicketSystem(client) {
                         const isStaff = interaction.member.permissions.has(PermissionFlagsBits.Administrator) ||
                             staffRoleIds.some(roleId => interaction.member.roles.cache.has(roleId));
                         if (!isStaff) {
-                            await safeReply(interaction, {
+                            await interaction.editReply({
                                 content: "Only staff members can use ticket management buttons.",
-                                flags: MessageFlags.Ephemeral
                             });
                             return;
                         }
@@ -580,7 +666,7 @@ function setupTicketSystem(client) {
                 // --- ACCEPT/DECLINE EVENT BUTTONS ---
                 if (customId === 'event_accept' || customId === 'event_decline') {
                     ensureTicketsLoaded(); // Ensure tickets are loaded
-                    
+
                     // Get ticket creator from activeTickets
                     let ticketCreatorId = null;
                     const ticketData = activeTickets.get(interaction.channel.id);
@@ -670,7 +756,7 @@ function setupTicketSystem(client) {
             // --- REASON SELECTED FROM DROPDOWN ---
             if (interaction.isStringSelectMenu() && interaction.customId === 'decline_reason_select') {
                 ensureTicketsLoaded(); // Ensure tickets are loaded
-                
+
                 // Get ticket creator from activeTickets
                 let ticketCreatorId = null;
                 const ticketData = activeTickets.get(interaction.channel.id);
@@ -740,7 +826,7 @@ function setupTicketSystem(client) {
             // --- MODAL SUBMISSIONS ---
             if (interaction.isModalSubmit()) {
                 const { customId } = interaction;
-                
+
                 // CRITICAL: Defer IMMEDIATELY before any processing to prevent timeout
                 // Discord requires response within 3 seconds
                 const panelModule = Object.values(panelModules).find(panel => panel.modalId === customId);
@@ -763,7 +849,7 @@ function setupTicketSystem(client) {
                                 }
                                 const info = await panelModule.getEventTimeInfo(submittedData.eventLink);
                                 if (!info || (!info.startTs && !info.meetupTs)) {
-                                    await safeReply(interaction, { 
+                                    await safeReply(interaction, {
                                         content: 'We could not read your event date from the TruckerMP page. Please check the event link and try again.',
                                         flags: MessageFlags.Ephemeral
                                     }, true);
@@ -776,7 +862,7 @@ function setupTicketSystem(client) {
                                 const daysUntilEvent = Math.ceil((eventTs - nowTs) / 86400);
 
                                 if (daysUntilEvent <= 35) {
-                                    await safeReply(interaction, { 
+                                    await safeReply(interaction, {
                                         content: '❌ Sorry, your request is denied because your event date is past the deadline set by TMP Event Management.',
                                         flags: MessageFlags.Ephemeral
                                     }, true);
@@ -792,7 +878,7 @@ function setupTicketSystem(client) {
                                 submittedData.eventId = info.eventId || submittedData.eventId || null;
                             } catch (leadErr) {
                                 console.error('Lead-time check failed:', leadErr);
-                                await safeReply(interaction, { 
+                                await safeReply(interaction, {
                                     content: 'We could not validate your event date at this time. Please try again later or verify the event link.',
                                     flags: MessageFlags.Ephemeral
                                 }, true);
@@ -804,7 +890,7 @@ function setupTicketSystem(client) {
                         await createTicketWithFormData(interaction, panelModule.ticketType, submittedData, panelModule);
                     } catch (error) {
                         console.error('Error handling modal submission:', error);
-                        await safeReply(interaction, { 
+                        await safeReply(interaction, {
                             content: 'An error occurred while processing your submission. Please try again later.'
                         }, true);
                     }
@@ -827,21 +913,21 @@ async function registerExistingTicket(interaction) {
             flags: MessageFlags.Ephemeral
         });
     }
-    
+
     try {
         await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     } catch (error) {
         console.error('Error deferring reply for register-ticket:', error);
         return;
     }
-    
+
     try {
         ensureTicketsLoaded(); // Ensure tickets are loaded
-        
+
         const channel = interaction.options.getChannel('channel') || interaction.channel;
         const targetUser = interaction.options.getUser('user');
         const ticketType = interaction.options.getString('type');
-        
+
         // Validate ticket type
         if (!['support', 'joinTeam', 'bookUs', 'partnership', 'founders', 'hr'].includes(ticketType)) {
             return safeReply(interaction, {
@@ -849,7 +935,7 @@ async function registerExistingTicket(interaction) {
                 flags: MessageFlags.Ephemeral
             }, true);
         }
-        
+
         // Check if channel is already registered
         if (activeTickets.has(channel.id)) {
             return safeReply(interaction, {
@@ -857,7 +943,7 @@ async function registerExistingTicket(interaction) {
                 flags: MessageFlags.Ephemeral
             }, true);
         }
-        
+
         // Register the channel as a ticket
         activeTickets.set(channel.id, {
             channelId: channel.id,
@@ -866,27 +952,27 @@ async function registerExistingTicket(interaction) {
             createdAt: new Date(),
             manuallyRegistered: true
         });
-        
+
         // Save active tickets to file
         await saveActiveTickets(activeTickets);
-        
+
         // Add ticket controls
         const ticketControls = createTicketControlsRow(true);
-        
+
         await channel.send({
             content: `This channel has been registered as a ${formatTicketType(ticketType)} ticket for ${targetUser}.`,
             components: [ticketControls]
         });
-        
+
         // Log the action
         logTicketAction(
-            interaction.guild, 
-            interaction.user, 
-            ticketType, 
-            'manually-registered', 
+            interaction.guild,
+            interaction.user,
+            ticketType,
+            'manually-registered',
             channel.id
         );
-        
+
         await safeReply(interaction, {
             content: `Successfully registered ${channel} as a ${formatTicketType(ticketType)} ticket for ${targetUser}.`,
             flags: MessageFlags.Ephemeral
@@ -912,26 +998,26 @@ async function debugTickets(interaction) {
             flags: MessageFlags.Ephemeral
         });
     }
-    
+
     try {
         await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     } catch (error) {
         console.error('Error deferring reply for debug-tickets:', error);
         return;
     }
-    
+
     try {
         ensureTicketsLoaded(); // Ensure tickets are loaded
-        
+
         const currentChannel = interaction.channel;
         const debugInfo = [];
-        
+
         // Current channel info
         debugInfo.push(`**Current Channel**`);
         debugInfo.push(`- ID: ${currentChannel.id}`);
         debugInfo.push(`- Name: ${currentChannel.name}`);
         debugInfo.push(`- Is Ticket: ${activeTickets.has(currentChannel.id) ? 'Yes' : 'No'}`);
-        
+
         // If it's a ticket, show details
         if (activeTickets.has(currentChannel.id)) {
             const ticket = activeTickets.get(currentChannel.id);
@@ -940,10 +1026,10 @@ async function debugTickets(interaction) {
             debugInfo.push(`- Created: ${ticket.createdAt ? formatDateUTC(ticket.createdAt) : 'Unknown'}`);
             debugInfo.push(`- Status: ${ticket.closed ? 'Closed' : 'Open'}`);
         }
-        
+
         debugInfo.push(`\n**All Active Tickets**`);
         debugInfo.push(`Total: ${activeTickets.size}`);
-        
+
         // Show first 10 tickets
         let count = 0;
         for (const [id, ticket] of activeTickets.entries()) {
@@ -951,24 +1037,24 @@ async function debugTickets(interaction) {
                 debugInfo.push(`... and ${activeTickets.size - 10} more`);
                 break;
             }
-            
+
             const channel = interaction.guild.channels.cache.get(id);
             const channelExists = channel ? 'Yes' : 'No';
             debugInfo.push(`${count + 1}. ${ticket.type} - <#${id}> - Exists: ${channelExists}`);
             count++;
         }
-        
+
         debugInfo.push(`\n**System Information**`);
         debugInfo.push(`Current Date (UTC): ${formatDateUTC(new Date())}`);
         debugInfo.push(`Persistence File: ${TICKETS_FILE}`);
         debugInfo.push(`File Exists: ${fs.existsSync(TICKETS_FILE) ? 'Yes' : 'No'}`);
-        
+
         if (fs.existsSync(TICKETS_FILE)) {
             const stats = fs.statSync(TICKETS_FILE);
             debugInfo.push(`File Size: ${stats.size} bytes`);
             debugInfo.push(`Last Modified: ${formatDateUTC(new Date(stats.mtime))}`);
         }
-        
+
         await safeReply(interaction, {
             content: debugInfo.join('\n'),
             flags: MessageFlags.Ephemeral
@@ -985,37 +1071,37 @@ async function debugTickets(interaction) {
 // Create a ticket with form data
 async function createTicketWithFormData(interaction, ticketType, formData, panelModule) {
     ensureTicketsLoaded(); // Ensure tickets are loaded
-    
+
     const { guild, user } = interaction;
-    
+
     // Get ticket limits from config (with fallbacks if not defined)
     const maxTotal = config.ticketOptions?.maxTicketsPerUser ?? 999999;
     const maxPerType = config.ticketOptions?.maxTicketsPerUserPerType ?? 999999;
-    
+
     // Get user's open tickets
     const userTickets = Array.from(activeTickets.values())
         .filter(ticket => ticket.userId === user.id && !ticket.closed);
-    
+
     // Get user's open tickets of the current type
     const userTicketsOfType = userTickets
         .filter(ticket => ticket.type === ticketType);
-    
+
     // Check total ticket limit
     if (userTickets.length >= maxTotal) {
-        return safeReply(interaction, { 
+        return safeReply(interaction, {
             content: `You have reached the maximum limit of ${maxTotal} open tickets. Please close some of your existing tickets before creating more.`,
-            flags: MessageFlags.Ephemeral 
+            flags: MessageFlags.Ephemeral
         }, true);
     }
-    
+
     // Check per-type ticket limit
     if (userTicketsOfType.length >= maxPerType) {
-        return safeReply(interaction, { 
+        return safeReply(interaction, {
             content: `You can only have ${maxPerType} open ${formatTicketType(ticketType)} tickets at once. Please close some of your existing ${formatTicketType(ticketType)} tickets before creating more.`,
-            flags: MessageFlags.Ephemeral 
+            flags: MessageFlags.Ephemeral
         }, true);
     }
-    
+
     try {
         // Get appropriate category and roles for this ticket type
         const categoryId = config.ticketCategories[ticketType] || config.ticketCategories.support;
@@ -1027,7 +1113,7 @@ async function createTicketWithFormData(interaction, ticketType, formData, panel
             }
             return true;
         });
-        
+
         // Create permissions array for the channel
         const permissionOverwrites = [
             {
@@ -1046,7 +1132,7 @@ async function createTicketWithFormData(interaction, ticketType, formData, panel
                 ]
             }
         ];
-        
+
         // Add role permissions for valid roles only
         for (const roleId of visibleRoles) {
             // Validate that the role exists in the guild's cache
@@ -1064,13 +1150,13 @@ async function createTicketWithFormData(interaction, ticketType, formData, panel
                 console.warn(`Warning: Role ID ${roleId} not found in guild cache`);
             }
         }
-        
+
         // Add counter for multiple tickets if needed
         let ticketName = sanitizeChannelName(`${ticketType}-${user.username}`);
         if (userTicketsOfType.length > 0) {
             ticketName = sanitizeChannelName(`${ticketType}-${user.username}-${userTicketsOfType.length + 1}`);
         }
-        
+
         // Create the ticket channel
         const ticketChannel = await guild.channels.create({
             name: ticketName,
@@ -1079,10 +1165,10 @@ async function createTicketWithFormData(interaction, ticketType, formData, panel
             permissionOverwrites: permissionOverwrites,
             topic: `${formatTicketType(ticketType)} ticket for ${user.tag} | ID: ${user.id}`
         });
-        
+
         // Wait a moment for Discord to fully register the channel
         await new Promise(resolve => setTimeout(resolve, 500));
-        
+
         // Verify the channel exists before proceeding
         const verifiedChannel = await guild.channels.fetch(ticketChannel.id).catch(() => null);
         if (!verifiedChannel) {
@@ -1092,7 +1178,7 @@ async function createTicketWithFormData(interaction, ticketType, formData, panel
                 flags: MessageFlags.Ephemeral
             }, true);
         }
-        
+
         // Track the ticket
         const ticketData = {
             channelId: ticketChannel.id,
@@ -1103,43 +1189,43 @@ async function createTicketWithFormData(interaction, ticketType, formData, panel
             formData: formData,
             transcript: []
         };
-        
+
         activeTickets.set(ticketChannel.id, ticketData);
-        
+
         // Save active tickets to file (local only, not synced to Firebase until closed)
         await saveActiveTickets(activeTickets);
-        
+
         console.log(`📝 Ticket created locally: ${ticketChannel.id} (will sync to Firebase when closed)`);
-        
+
         // Create ticket management buttons
         const ticketControls = createTicketControlsRow(true);
-        
+
         // Create welcome embed
         const welcomeEmbed = new EmbedBuilder()
             .setTitle(`${formatTicketType(ticketType)} Ticket`)
             .setDescription(`Thank you for your submission, ${user}!\nOur team will assist you shortly.`)
             .setColor(getTicketColor(ticketType))
-            .setFooter({ 
-                text: `The RealOps Group`, 
+            .setFooter({
+                text: `The RealOps Group`,
                 iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'
             })
             .setTimestamp();
-        
+
         // Create response embed using the panel's formatter
         const responseEmbed = panelModule.createResponseEmbed(user, formData, ticketChannel.id);
-        
+
         // Get valid mentions for roles (with duplicate removal)
         const validRoleMentions = [...new Set(visibleRoles)]
             .filter(roleId => guild.roles.cache.has(roleId))
             .map(roleId => `<@&${roleId}>`)
             .join(' ');
-        
+
         // Send welcome message and form data to the ticket channel (use verified channel)
-        await verifiedChannel.send({ 
+        await verifiedChannel.send({
             content: `<@${user.id}>`,
             embeds: [welcomeEmbed, responseEmbed]
         });
-        
+
         // Then send controls only for staff/admins
         if (validRoleMentions) {
             await verifiedChannel.send({
@@ -1152,7 +1238,7 @@ async function createTicketWithFormData(interaction, ticketType, formData, panel
                 components: [ticketControls]
             });
         }
-        
+
         // If this is a "Book Us" ticket, fetch and send TruckerMP event details
         if (ticketType === 'bookUs' && formData && formData.eventLink) {
             try {
@@ -1170,14 +1256,14 @@ async function createTicketWithFormData(interaction, ticketType, formData, panel
                 console.error('Error queuing event details send:', eventError);
             }
         }
-        
+
         // Log ticket creation
         logTicketAction(guild, user, ticketType, 'created', verifiedChannel.id, formData);
-        
+
         // Reply to the user
-        await safeReply(interaction, { 
+        await safeReply(interaction, {
             content: `Your ${formatTicketType(ticketType)} ticket has been created: <#${verifiedChannel.id}>`,
-            flags: MessageFlags.Ephemeral 
+            flags: MessageFlags.Ephemeral
         }, true);
     } catch (error) {
         console.error('Error creating ticket:', error);
@@ -1196,44 +1282,44 @@ async function createTicket(interaction, ticketType) {
         console.error('Error deferring reply for createTicket:', error);
         return;
     }
-    
+
     ensureTicketsLoaded(); // Ensure tickets are loaded
-    
+
     const { guild, user } = interaction;
-    
+
     // Get ticket limits from config (with fallbacks if not defined)
     const maxTotal = config.ticketOptions?.maxTicketsPerUser ?? 10;
     const maxPerType = config.ticketOptions?.maxTicketsPerUserPerType ?? 3;
-    
+
     // Get user's open tickets
     const userTickets = Array.from(activeTickets.values())
         .filter(ticket => ticket.userId === user.id && !ticket.closed);
-    
+
     // Get user's open tickets of the current type
     const userTicketsOfType = userTickets
         .filter(ticket => ticket.type === ticketType);
-    
+
     // Check total ticket limit
     if (userTickets.length >= maxTotal) {
-        return safeReply(interaction, { 
+        return safeReply(interaction, {
             content: `You have reached the maximum limit of ${maxTotal} open tickets. Please close some of your existing tickets before creating more.`,
-            flags: MessageFlags.Ephemeral 
+            flags: MessageFlags.Ephemeral
         }, true);
     }
-    
+
     // Check per-type ticket limit
     if (userTicketsOfType.length >= maxPerType) {
-        return safeReply(interaction, { 
+        return safeReply(interaction, {
             content: `You can only have ${maxPerType} open ${formatTicketType(ticketType)} tickets at once. Please close some of your existing ${formatTicketType(ticketType)} tickets before creating more.`,
-            flags: MessageFlags.Ephemeral 
+            flags: MessageFlags.Ephemeral
         }, true);
     }
-    
+
     try {
         // Get appropriate category and roles for this ticket type
         const categoryId = config.ticketCategories[ticketType] || config.ticketCategories.support;
         const visibleRoles = getTicketRoles(ticketType).filter(roleId => isValidSnowflake(roleId));
-        
+
         // Create permissions array for the channel
         const permissionOverwrites = [
             {
@@ -1251,7 +1337,7 @@ async function createTicket(interaction, ticketType) {
                 ]
             }
         ];
-        
+
         // Add role permissions for valid roles only
         for (const roleId of visibleRoles) {
             const role = guild.roles.cache.get(roleId);
@@ -1266,13 +1352,13 @@ async function createTicket(interaction, ticketType) {
                 });
             }
         }
-        
+
         // Add counter for multiple tickets if needed
         let ticketName = sanitizeChannelName(`${ticketType}-${user.username}`);
         if (userTicketsOfType.length > 0) {
             ticketName = sanitizeChannelName(`${ticketType}-${user.username}-${userTicketsOfType.length + 1}`);
         }
-        
+
         // Create the ticket channel
         const ticketChannel = await guild.channels.create({
             name: ticketName,
@@ -1281,7 +1367,7 @@ async function createTicket(interaction, ticketType) {
             permissionOverwrites: permissionOverwrites,
             topic: `${formatTicketType(ticketType)} ticket for ${user.tag} | ID: ${user.id}`
         });
-        
+
         // Track the ticket
         activeTickets.set(ticketChannel.id, {
             channelId: ticketChannel.id,
@@ -1289,13 +1375,13 @@ async function createTicket(interaction, ticketType) {
             type: ticketType,
             createdAt: new Date()
         });
-        
+
         // Save active tickets to file
         await saveActiveTickets(activeTickets);
-        
+
         // Create ticket management buttons
         const ticketControls = createTicketControlsRow(true);
-        
+
         // Create welcome embed
         const welcomeEmbed = new EmbedBuilder()
             .setTitle(`${formatTicketType(ticketType)} Ticket`)
@@ -1306,39 +1392,39 @@ async function createTicket(interaction, ticketType) {
                 { name: 'Created', value: `<t:${getUnixTimestamp()}:F>`, inline: true }
             )
             .setColor(getTicketColor(ticketType))
-            .setFooter({ 
-                text: `The RealOps Group`, 
-                iconURL: guild.iconURL() 
+            .setFooter({
+                text: `The RealOps Group`,
+                iconURL: guild.iconURL()
             })
             .setTimestamp();
-        
+
         // Get valid mentions for roles (with duplicate removal)
         const validRoleMentions = [...new Set(visibleRoles)]
             .filter(roleId => guild.roles.cache.has(roleId))
             .map(roleId => `<@&${roleId}>`)
             .join(' ');
-        
+
         // Send welcome message to the ticket channel
-        await ticketChannel.send({ 
+        await ticketChannel.send({
             content: `<@${user.id}>`,
             embeds: [welcomeEmbed],
             components: [ticketControls]
         });
-        
+
         // Add separate staff notification message
         if (validRoleMentions) {
             await ticketChannel.send({
                 content: `Staff: ${validRoleMentions}`
             });
         }
-        
+
         // Log ticket creation
         logTicketAction(guild, user, ticketType, 'created', ticketChannel.id);
-        
+
         // Reply to the user
-        await safeReply(interaction, { 
+        await safeReply(interaction, {
             content: `Your ticket has been created: <#${ticketChannel.id}>`,
-            flags: MessageFlags.Ephemeral 
+            flags: MessageFlags.Ephemeral
         }, true);
     } catch (error) {
         console.error('Error creating ticket:', error);
@@ -1352,29 +1438,28 @@ async function createTicket(interaction, ticketType) {
 // Close a ticket
 async function closeTicket(interaction) {
     ensureTicketsLoaded(); // Ensure tickets are loaded
-    
+
     try {
         const { channel, user } = interaction;
-        
+
         // We already validated this is a ticket channel in the main handler
         if (!activeTickets.has(channel.id)) {
-            return await safeReply(interaction, {
+            return await interaction.editReply({
                 content: 'This channel is not set up as a ticket. If this is an error, please contact an administrator.',
-                flags: MessageFlags.Ephemeral
             });
         }
-        
+
         // Instead of closing immediately, send a confirmation message
         const confirmationEmbed = new EmbedBuilder()
             .setTitle('Confirm Ticket Closure')
             .setDescription(`${user}, are you sure you want to close this ticket?`)
             .setColor('#f39c12')
-            .setFooter({ 
+            .setFooter({
                 text: `The RealOps Group`,
                 iconURL: user.displayAvatarURL()
             })
             .setTimestamp();
-        
+
         const confirmationRow = new ActionRowBuilder()
             .addComponents(
                 new ButtonBuilder()
@@ -1386,17 +1471,17 @@ async function closeTicket(interaction) {
                     .setLabel('Cancel')
                     .setStyle(ButtonStyle.Secondary)
             );
-        
-        await safeReply(interaction, {
+
+        // Interaction was already deferred in the main handler, so use editReply
+        await interaction.editReply({
             embeds: [confirmationEmbed],
             components: [confirmationRow]
         });
     } catch (error) {
         console.error('Error initiating ticket closure:', error);
         try {
-            await safeReply(interaction, {
+            await interaction.editReply({
                 content: 'An error occurred while processing your request.',
-                flags: MessageFlags.Ephemeral
             });
         } catch (replyError) {
             console.error('Error sending error message:', replyError);
@@ -1407,34 +1492,34 @@ async function closeTicket(interaction) {
 // Confirmed ticket closing (actual closing process)
 async function closeTicketConfirmed(interaction) {
     ensureTicketsLoaded(); // Ensure tickets are loaded
-    
+
     try {
         const { channel, user } = interaction;
-        
+
         try {
             await interaction.deferUpdate(); // Update the original message
         } catch (error) {
             console.error('Error deferring update for closeTicketConfirmed:', error);
             // Continue even if this fails
         }
-        
+
         // Send closing message
         const closedEmbed = new EmbedBuilder()
             .setTitle('Ticket Closed')
             .setDescription(`This ticket was closed by <@${user.id}>\n\n⏳ Generating transcript and deleting channel in 5 seconds...`)
             .setColor('#f39c12')
-            .setFooter({ 
+            .setFooter({
                 text: `The RealOps Group`,
                 iconURL: user.displayAvatarURL()
             })
             .setTimestamp();
-        
+
         await channel.send({ embeds: [closedEmbed] });
-        
+
         // Log ticket closing
         const ticketData = activeTickets.get(channel.id);
         logTicketAction(interaction.guild, user, ticketData.type, 'closed', channel.id);
-        
+
         // Generate HTML transcript before closing
         try {
             const transcript = await generateTranscript(channel, {
@@ -1444,12 +1529,12 @@ async function closeTicketConfirmed(interaction) {
                 saveImages: true,
                 poweredBy: false
             });
-            
+
             // Convert buffer to base64 for storage in Firebase
             const transcriptBase64 = transcript.toString('base64');
             ticketData.transcriptHtml = transcriptBase64;
             ticketData.transcriptGenerated = new Date().toISOString();
-            
+
             console.log(`✅ Generated HTML transcript for ${channel.id} (${(transcriptBase64.length / 1024).toFixed(2)} KB)`);
         } catch (transcriptError) {
             console.error('Error generating HTML transcript on close:', transcriptError);
@@ -1465,13 +1550,13 @@ async function closeTicketConfirmed(interaction) {
                         message: m.content || '[Embed/Attachment]',
                         timestamp: m.createdAt.toISOString()
                     }));
-                
+
                 ticketData.transcript = transcriptMessages;
             } catch (fallbackError) {
                 console.error('Error with fallback transcript:', fallbackError);
             }
         }
-        
+
         // Update ticket data but don't remove from active tickets
         const updatedTicketData = {
             ...ticketData,
@@ -1481,20 +1566,20 @@ async function closeTicketConfirmed(interaction) {
         };
         activeTickets.set(channel.id, updatedTicketData);
         await saveActiveTickets(activeTickets);
-        
+
         // NOW sync to Firebase (only when closed)
         console.log(`🔄 Syncing closed ticket to Firebase: ${channel.id}`);
         await syncSingleTicketToFirebase(channel.id, updatedTicketData);
-        
+
         // Save transcript to transcript channel if configured
         const transcriptChannel = interaction.guild.channels.cache.get(config.transcriptChannel);
         if (transcriptChannel && ticketData.transcriptHtml) {
             try {
                 const transcriptBuffer = Buffer.from(ticketData.transcriptHtml, 'base64');
-                const attachment = new AttachmentBuilder(transcriptBuffer, { 
-                    name: `ticket-${channel.id}-${Date.now()}.html` 
+                const attachment = new AttachmentBuilder(transcriptBuffer, {
+                    name: `ticket-${channel.id}-${Date.now()}.html`
                 });
-                
+
                 const logEmbed = new EmbedBuilder()
                     .setTitle('Ticket Closed - Transcript Saved')
                     .addFields(
@@ -1507,7 +1592,7 @@ async function closeTicketConfirmed(interaction) {
                     .setColor('#f39c12')
                     .setFooter({ text: 'The RealOps Group' })
                     .setTimestamp();
-                
+
                 await transcriptChannel.send({
                     embeds: [logEmbed],
                     files: [attachment]
@@ -1517,7 +1602,7 @@ async function closeTicketConfirmed(interaction) {
                 console.error('Error sending transcript to channel:', transcriptError);
             }
         }
-        
+
         // Edit the original confirmation message
         try {
             await interaction.editReply({
@@ -1528,16 +1613,16 @@ async function closeTicketConfirmed(interaction) {
         } catch (error) {
             console.error('Error updating confirmation message:', error);
         }
-        
+
         // Remove from active tickets
         activeTickets.delete(channel.id);
         await saveActiveTickets(activeTickets);
-        
+
         // Delete channel after 5 seconds
         // Capture references to avoid closure issues
         const channelId = channel.id;
         const guild = interaction.guild;
-        
+
         setTimeout(async () => {
             try {
                 const channelToDelete = await guild.channels.fetch(channelId).catch(() => null);
@@ -1551,7 +1636,7 @@ async function closeTicketConfirmed(interaction) {
                 console.error('Error deleting channel:', deleteError);
             }
         }, 5000);
-        
+
     } catch (error) {
         console.error('Error closing ticket:', error);
         try {
@@ -1580,49 +1665,43 @@ async function closeTicketCancelled(interaction) {
 // Reopen a ticket
 async function reopenTicket(interaction) {
     ensureTicketsLoaded(); // Ensure tickets are loaded
-    
+
     try {
         const { channel, user } = interaction;
-        
+
         // We already validated this is a ticket channel in the main handler
         if (!activeTickets.has(channel.id)) {
-            return await safeReply(interaction, {
+            return await interaction.editReply({
                 content: 'This channel is not set up as a ticket. If this is an error, please contact an administrator.',
-                flags: MessageFlags.Ephemeral
             });
         }
-        
-        try {
-            await interaction.deferReply(); // Non-ephemeral for actual action
-        } catch (error) {
-            console.error('Error deferring reply for reopenTicket:', error);
-            // Continue even if this fails
-        }
-        
+
+        // Interaction was already deferred in the main handler
+
         // Update channel permissions
         await channel.permissionOverwrites.edit(activeTickets.get(channel.id).userId, {
             SendMessages: true
         });
-        
+
         // Create standard ticket controls
         const ticketControls = createTicketControlsRow(true);
-        
+
         const reopenedEmbed = new EmbedBuilder()
             .setTitle('Ticket Reopened')
             .setDescription(`This ticket was reopened by <@${user.id}>`)
             .setColor('#2ecc71')
-            .setFooter({ 
+            .setFooter({
                 text: `The RealOps Group`,
                 iconURL: user.displayAvatarURL()
             })
             .setTimestamp();
-        
+
         await channel.send({ embeds: [reopenedEmbed], components: [ticketControls] });
-        
+
         // Log ticket reopening
         const ticketData = activeTickets.get(channel.id);
         logTicketAction(interaction.guild, user, ticketData.type, 'reopened', channel.id);
-        
+
         // Update ticket data
         const updatedTicketData = {
             ...ticketData,
@@ -1632,11 +1711,11 @@ async function reopenTicket(interaction) {
         };
         activeTickets.set(channel.id, updatedTicketData);
         await saveActiveTickets(activeTickets);
-        
+
         // Delete from Firebase when reopened (no longer closed)
         console.log(`🗑️ Removing reopened ticket from Firebase: ${channel.id}`);
         await deleteTicketFromFirebase(channel.id);
-        
+
         // Edit the deferred reply
         try {
             await safeReply(interaction, {
@@ -1660,28 +1739,22 @@ async function reopenTicket(interaction) {
 // Delete a ticket
 async function deleteTicket(interaction) {
     ensureTicketsLoaded(); // Ensure tickets are loaded
-    
+
     try {
         const { channel, user } = interaction;
-        
+
         // We already validated this is a ticket channel in the main handler
         if (!activeTickets.has(channel.id)) {
-            return await safeReply(interaction, {
+            return await interaction.editReply({
                 content: 'This channel is not set up as a ticket. If this is an error, please contact an administrator.',
-                flags: MessageFlags.Ephemeral
             });
         }
-        
-        try {
-            await interaction.deferReply(); // Non-ephemeral for actual action
-        } catch (error) {
-            console.error('Error deferring reply for deleteTicket:', error);
-            // Continue even if this fails
-        }
-        
+
+        // Interaction was already deferred in the main handler
+
         // Generate a transcript before deleting
         const ticketData = activeTickets.get(channel.id);
-        
+
         try {
             // Try to create a transcript before deleting
             await createTranscriptForDeletion(channel, user, ticketData);
@@ -1690,22 +1763,22 @@ async function deleteTicket(interaction) {
             console.error('Failed to create transcript before deletion:', transcriptError);
             await safeReply(interaction, { content: `Failed to save transcript. Ticket will be deleted in 5 seconds...` }, true);
         }
-        
+
         // Log ticket deletion
         logTicketAction(interaction.guild, user, ticketData.type, 'deleted', channel.id);
-        
+
         // Remove from active tickets (local only)
         activeTickets.delete(channel.id);
         await saveActiveTickets(activeTickets);
-        
+
         // Do NOT delete from Firebase - keep closed tickets as permanent log in dashboard
         console.log(`📋 Keeping closed ticket in Firebase dashboard: ${channel.id}`);
-        
+
         // Delete after delay
         // Capture references to avoid closure issues
         const channelId = channel.id;
         const guild = interaction.guild;
-        
+
         setTimeout(async () => {
             try {
                 // Verify channel still exists before attempting to delete
@@ -1736,7 +1809,7 @@ async function deleteTicket(interaction) {
 async function createTranscriptForDeletion(channel, user, ticketData) {
     const timestamp = Date.now();
     const fileName = `transcript-${channel.name}-${timestamp}.html`;
-    
+
     // Create transcript
     const transcript = await generateTranscript(channel, {
         limit: -1,
@@ -1746,7 +1819,7 @@ async function createTranscriptForDeletion(channel, user, ticketData) {
         footerText: `Transcript saved before deletion by ${user.tag} | 2025-07-09 10:32:02`,
         headerText: `Ticket Transcript - ${formatTicketType(ticketData.type)} (Deleted)`
     });
-    
+
     // Send to transcript channel if configured
     const transcriptChannel = channel.guild.channels.cache.get(config.transcriptChannel);
     if (transcriptChannel) {
@@ -1759,12 +1832,12 @@ async function createTranscriptForDeletion(channel, user, ticketData) {
                 { name: 'Deleted At', value: `<t:${getUnixTimestamp()}:F>`, inline: true }
             )
             .setColor('#e74c3c')
-            .setFooter({ 
+            .setFooter({
                 text: `The RealOps Group`,
                 iconURL: user.displayAvatarURL()
             })
             .setTimestamp();
-        
+
         await transcriptChannel.send({
             embeds: [logEmbed],
             files: [transcript]
@@ -1775,30 +1848,24 @@ async function createTranscriptForDeletion(channel, user, ticketData) {
 // Create transcript
 async function createTranscript(interaction) {
     ensureTicketsLoaded(); // Ensure tickets are loaded
-    
+
     try {
         const { channel, user } = interaction;
-        
+
         // We already validated this is a ticket channel in the main handler
         if (!activeTickets.has(channel.id)) {
-            return await safeReply(interaction, {
+            return await interaction.editReply({
                 content: 'This channel is not set up as a ticket. If this is an error, please contact an administrator.',
-                flags: MessageFlags.Ephemeral
             });
         }
-        
-        try {
-            await interaction.deferReply();
-        } catch (error) {
-            console.error('Error deferring reply for createTranscript:', error);
-            // Continue even if this fails
-        }
-        
+
+        // Interaction was already deferred in the main handler
+
         // Get ticket data
         const ticketData = activeTickets.get(channel.id);
         const timestamp = Date.now();
         const fileName = `transcript-${channel.name}-${timestamp}.html`;
-        
+
         // Create transcript
         const transcript = await generateTranscript(channel, {
             limit: -1, // Fetch all messages
@@ -1808,13 +1875,13 @@ async function createTranscript(interaction) {
             footerText: `Transcript saved by ${user.tag} | 2025-07-09 10:32:02`,
             headerText: `Ticket Transcript - ${formatTicketType(ticketData.type)}`
         });
-        
+
         // Send the transcript as an attachment in the channel
         await channel.send({
             content: `Transcript saved by ${user}`,
             files: [transcript]
         });
-        
+
         // Collect message transcript for Firebase
         try {
             const messages = await channel.messages.fetch({ limit: 100 });
@@ -1826,7 +1893,7 @@ async function createTranscript(interaction) {
                     message: m.content || '[Embed/Attachment]',
                     timestamp: m.createdAt.toISOString()
                 }));
-            
+
             // Update ticket with transcript
             ticketData.transcript = transcriptMessages;
             activeTickets.set(channel.id, ticketData);
@@ -1835,15 +1902,15 @@ async function createTranscript(interaction) {
         } catch (transcriptError) {
             console.error('Error collecting transcript messages:', transcriptError);
         }
-        
+
         // Log transcript creation
         logTicketAction(interaction.guild, user, ticketData.type, 'transcript', channel.id);
-        
+
         // Reply to the interaction
         await safeReply(interaction, {
             content: 'Transcript has been created and saved!',
         }, true);
-        
+
         // Send transcript to dedicated transcript channel if configured
         const transcriptChannel = interaction.guild.channels.cache.get(config.transcriptChannel);
         if (transcriptChannel) {
@@ -1856,12 +1923,12 @@ async function createTranscript(interaction) {
                     { name: 'Created At', value: `<t:${getUnixTimestamp()}:F>`, inline: true }
                 )
                 .setColor('#3498db')
-                .setFooter({ 
+                .setFooter({
                     text: `The RealOps Group`,
                     iconURL: user.displayAvatarURL()
                 })
                 .setTimestamp();
-            
+
             await transcriptChannel.send({
                 embeds: [logEmbed],
                 files: [transcript]
@@ -1893,7 +1960,7 @@ function isValidSnowflake(id) {
 // Get roles that should see a specific ticket type
 function getTicketRoles(ticketType) {
     const roles = [];
-    switch(ticketType) {
+    switch (ticketType) {
         case 'joinTeam':
             if (Array.isArray(config.staffRoles.hr)) {
                 roles.push(...config.staffRoles.hr);
@@ -1941,7 +2008,7 @@ function getTicketRoles(ticketType) {
 }
 
 function getTicketColor(ticketType) {
-    switch(ticketType) {
+    switch (ticketType) {
         case 'joinTeam': return '#3498db';
         case 'bookUs': return '#e74c3c';
         case 'support': return '#2ecc71';
@@ -1954,7 +2021,7 @@ function getTicketColor(ticketType) {
 
 // Format ticket type for display
 function formatTicketType(ticketType) {
-    switch(ticketType) {
+    switch (ticketType) {
         case 'joinTeam': return 'Join the Team';
         case 'bookUs': return 'Book Us';
         case 'support': return 'Support';
@@ -1970,11 +2037,11 @@ function formatTicketType(ticketType) {
 function logTicketAction(guild, user, ticketType, action, ticketId, formData = null) {
     const logChannel = guild.channels.cache.get(config.logChannel);
     if (!logChannel) return;
-    
+
     // Use current time
     const currentTime = '2025-07-09 10:36:02'; // Current UTC time
     const timestamp = getUnixTimestamp();
-    
+
     const logEmbed = new EmbedBuilder()
         .setTitle(`Ticket ${action.charAt(0).toUpperCase() + action.slice(1)}`)
         .addFields(
@@ -1985,17 +2052,17 @@ function logTicketAction(guild, user, ticketType, action, ticketId, formData = n
             { name: 'Time', value: `<t:${timestamp}:F>`, inline: true }
         )
         .setColor(action === 'created' ? '#2ecc71' : action === 'closed' ? '#f39c12' : '#e74c3c')
-        .setFooter({ 
+        .setFooter({
             text: `The RealOps Group`,
             iconURL: user.displayAvatarURL()
         })
         .setTimestamp();
-    
+
     // If we have form data and it's a creation action, add a summary
     if (formData && action === 'created') {
         // Add a summary based on the ticket type
         let summary = '';
-        switch(ticketType) {
+        switch (ticketType) {
             case 'joinTeam':
                 summary = `Position: ${formData.position || 'N/A'}`;
                 break;
@@ -2015,12 +2082,12 @@ function logTicketAction(guild, user, ticketType, action, ticketId, formData = n
                 summary = `Discord Name: ${formData.discordName || 'N/A'}`;
                 break;
         }
-        
+
         if (summary) {
             logEmbed.addFields({ name: 'Summary', value: summary, inline: true });
         }
     }
-    
+
     logChannel.send({ embeds: [logEmbed] }).catch(error => {
         console.error('Failed to send log message:', error);
     });
