@@ -1,5 +1,9 @@
 const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } = require('discord.js');
 const axios = require('axios');
+const { getOverride } = require('../commandConfig');
+
+// Static default description for dashboard editing
+const DEFAULT_DESCRIPTION = 'Staff resources and event information. Please check the event link for more details.';
 
 // Helper to format ISO date as Discord timestamp
 function toDiscordTimestamp(iso, style = 'F') {
@@ -65,9 +69,10 @@ module.exports = {
         if (!eventData) return interaction.editReply('❌ Event not found!');
 
         const embed = new EmbedBuilder()
-            .setTitle(`📅 ${eventData.name}`)
+            .setTitle(getOverride('staff-resources', 'title', `📅 ${eventData.name}`))
+            .setDescription(getOverride('staff-resources', 'description', DEFAULT_DESCRIPTION))
             .setURL(`https://truckersmp.com/events/${eventId}`)
-            .setColor('#3498db')
+            .setColor(getOverride('staff-resources', 'color', '#3498db'))
             .addFields(
                 { name: 'Server', value: eventData.server?.name ?? 'N/A', inline: true },
                 { name: 'Game', value: eventData.game ?? 'N/A', inline: true }

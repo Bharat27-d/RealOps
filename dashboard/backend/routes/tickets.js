@@ -25,7 +25,7 @@ router.get('/', isStaff, async (req, res) => {
       query = query.where('assignedTo', '==', assignedTo);
     }
 
-    const snapshot = await query.orderBy('createdAt', 'desc').get();
+    const snapshot = await query.orderBy('createdAt', 'desc').limit(200).get();
     const tickets = [];
     snapshot.forEach(doc => {
       tickets.push({ id: doc.id, ...doc.data() });
@@ -103,19 +103,30 @@ router.get('/analytics/stats', isStaff, async (req, res) => {
       return res.json(cachedData);
     }
 
-    const snapshot = await collections.tickets.get();
-    const tickets = [];
-    snapshot.forEach(doc => {
-      tickets.push(doc.data());
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const thirtyDaysAgoStr = thirtyDaysAgo.toISOString();
+
+    const [totalSnap, activeSnap, pendingSnap, closedSnap, recentSnap] = await Promise.all([
+      collections.tickets.count().get(),
+      collections.tickets.where('status', '==', 'open').count().get(),
+      collections.tickets.where('status', '==', 'pending').count().get(),
+      collections.tickets.where('status', '==', 'closed').count().get(),
+      collections.tickets.where('createdAt', '>=', thirtyDaysAgoStr).get()
+    ]);
+
+    const recentTickets = [];
+    recentSnap.forEach(doc => {
+      recentTickets.push(doc.data());
     });
 
     const stats = {
-      total: tickets.length,
-      active: tickets.filter(t => t.status === 'open').length,
-      pending: tickets.filter(t => t.status === 'pending').length,
-      closed: tickets.filter(t => t.status === 'closed').length,
-      avgResponseTime: calculateAvgResponseTime(tickets),
-      byDepartment: groupByDepartment(tickets)
+      total: totalSnap.data().count,
+      active: activeSnap.data().count,
+      pending: pendingSnap.data().count,
+      closed: closedSnap.data().count,
+      avgResponseTime: calculateAvgResponseTime(recentTickets),
+      byDepartment: groupByDepartment(recentTickets)
     };
 
     // Cache for 2 minutes

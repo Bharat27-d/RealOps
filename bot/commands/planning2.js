@@ -1,4 +1,10 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { getOverride } = require('../commandConfig');
+
+// Static default description for dashboard editing
+const DEFAULT_DESCRIPTION = `Hello this is just to let you know your event is the next one our planners will be working on.
+If there are any scenarios you would like to see included then please let us know in this ticket within the next 24hr.
+We will contact you again once this stage is completed`;
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -18,18 +24,16 @@ module.exports = {
             // Get the optional user to tag
             const user = interaction.options.getUser('user');
 
+            const defaultTitle = 'Planning stage now commencing';
+
             const embed = new EmbedBuilder()
-                .setTitle('Planning stage now commencing')
-                .setDescription(
-                    `Hello this is just to let you know your event is the next one our planners will be working on.
-If there are any scenarios you would like to see included then please let us know in this ticket within the next 24hr.
-We will contact you again once this stage is completed`
-                )
-                .setThumbnail('https://i.ibb.co/FMYFdhk/real-ops-group-logo.png')
-                .setImage('https://i.imgur.com/wLwstVS.png')
+                .setTitle(getOverride('planning2', 'title', defaultTitle))
+                .setDescription(getOverride('planning2', 'description', DEFAULT_DESCRIPTION))
+                .setThumbnail(getOverride('planning2', 'thumbnail', 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'))
+                .setImage(getOverride('planning2', 'image', 'https://i.imgur.com/wLwstVS.png'))
                 .setFooter({
-                    text: 'The Real Ops Group',
-                    iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'
+                    text: getOverride('planning2', 'footerText', 'The Real Ops Group'),
+                    iconURL: getOverride('planning2', 'footerIcon', 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png')
                 });
 
             await interaction.editReply({ content: '✅ Planning stage 2 notification sent.' });

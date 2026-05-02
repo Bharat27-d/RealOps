@@ -3,15 +3,21 @@ const router = express.Router();
 const { collections } = require('../firebase');
 const botManager = require('../discordManager');
 const { isStaff } = require('../auth');
+const { cache, CACHE_TTL } = require('../cache');
 
 // Get all partnerships
 router.get('/', isStaff, async (req, res) => {
   try {
+    const cacheKey = 'partnerships:list';
+    const cachedData = cache.get(cacheKey);
+    if (cachedData) return res.json(cachedData);
+
     const snapshot = await collections.partnerships.orderBy('createdAt', 'desc').get();
     const partnerships = [];
     snapshot.forEach(doc => {
       partnerships.push({ id: doc.id, ...doc.data() });
     });
+    cache.set(cacheKey, partnerships, CACHE_TTL.MEDIUM);
     res.json(partnerships);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -29,6 +35,7 @@ router.post('/', isStaff, async (req, res) => {
     };
 
     const docRef = await collections.partnerships.add(partnershipData);
+    cache.invalidate('partnerships:*');
     res.json({ id: docRef.id, ...partnershipData });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -45,6 +52,7 @@ router.put('/:id/status', isStaff, async (req, res) => {
       updatedAt: new Date().toISOString(),
       updatedBy: req.user.id
     });
+    cache.invalidate('partnerships:*');
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: error.message });

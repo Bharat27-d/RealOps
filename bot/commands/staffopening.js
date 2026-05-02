@@ -1,4 +1,10 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { getOverride } = require('../commandConfig');
+
+// Static default description for dashboard editing
+const DEFAULT_DESCRIPTION = `Hello this is to inform you that we have a new staff opening available.
+If you are interested in this position please submit an application by clicking the button below.
+Please note all applications are reviewed by our management team and we will get back to you as soon as possible.`;
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -6,27 +12,17 @@ module.exports = {
     .setDescription('Show staff openings and recruitment information'),
   async execute(interaction) {
     try {
+      const defaultTitle = 'The Real-Ops Group Recruitment';
+
       const embed = new EmbedBuilder()
-        .setTitle('The Real-Ops Group Recruitment')
-        .setDescription(
-`**Staff openings**
-
-Thank you for your interest in joining our team, you will find all available positions below.  
-Good luck.
-
-**Planner** 🟢  
-**Jnr Planner** 🟢  
-**Real-Ops Staff** 🟢  
-**Media Team** 🟢  
-
-If you would like to join the team then please open a ticket in <#join-the-team> and good luck 🤞`
-        )
-        .setImage('https://i.imgur.com/GUywUAQ.png')
-        .setColor('#00b894')
-        .setThumbnail('https://i.ibb.co/FMYFdhk/real-ops-group-logo.png')
+        .setTitle(getOverride('staffopening', 'title', defaultTitle))
+        .setDescription(getOverride('staffopening', 'description', DEFAULT_DESCRIPTION))
+        .setImage(getOverride('staffopening', 'image', 'https://i.imgur.com/GUywUAQ.png'))
+        .setColor(getOverride('staffopening', 'color', '#00b894'))
+        .setThumbnail(getOverride('staffopening', 'thumbnail', 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'))
         .setFooter({
-          text: 'The Real Ops Group',
-          iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'
+          text: getOverride('staffopening', 'footerText', 'The Real Ops Group'),
+          iconURL: getOverride('staffopening', 'footerIcon', 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png')
         });
 
       await interaction.reply({ embeds: [embed] });

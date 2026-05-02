@@ -12,6 +12,8 @@ const TOKEN = config.BOT_TOKEN;
 const CLIENT_ID = config.CLIENT_ID;
 const GUILD_ID = config.GUILD_ID;
 const { setupTicketSystem } = require('./ticketSystem');
+const { setupCustomCommandsListener } = require('./customCommandsHandler');
+const { setupCommandConfig } = require('./commandConfig');
 const fs = require('fs');
 const path = require('path');
 
@@ -78,7 +80,6 @@ const panelCommands = [
 
 // Load commands dynamically from the ./commands folder
 client.commands = new Collection();
-const commandsArray = [];
 const commandsPath = path.join(__dirname, 'commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
@@ -88,27 +89,35 @@ for (const file of commandFiles) {
     const command = require(filePath);
     if ('data' in command && 'execute' in command) {
         client.commands.set(command.data.name, command);
-        commandsArray.push(command.data.toJSON());
     } else {
         console.warn(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
     }
-}
-
-// Add panel setup commands to registration array
-for (const cmd of panelCommands) {
-    commandsArray.push(cmd.toJSON());
 }
 
 // Function to register commands
 async function registerCommands() {
     try {
         console.log('Started refreshing application (/) commands.');
+        
+        const dynamicCommandsArray = [];
+        // Add all static and custom commands currently loaded in client.commands
+        for (const [name, command] of client.commands.entries()) {
+            if ('data' in command) {
+                dynamicCommandsArray.push(command.data.toJSON());
+            }
+        }
+        
+        // Add panel setup commands to registration array (these are standalone)
+        for (const cmd of panelCommands) {
+            dynamicCommandsArray.push(cmd.toJSON());
+        }
+
         const rest = new REST({ version: '10' }).setToken(TOKEN);
         await rest.put(
             Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID),
-            { body: commandsArray }
+            { body: dynamicCommandsArray }
         );
-        console.log('Successfully reloaded application (/) commands.');
+        console.log(`Successfully reloaded ${dynamicCommandsArray.length} application (/) commands globally.`);
     } catch (error) {
         console.error('Error registering commands:', error);
     }
@@ -125,7 +134,14 @@ client.once('ready', async () => {
         name: 'customstatus',
         state: 'Join RealOps Group 🎯' 
     });
+    
+    // Load command overrides from Firebase (for dashboard editing)
+    setupCommandConfig();
+    
+    // Register commands directly once, and setup the Firebase listener to re-register on updates
     await registerCommands();
+    setupCustomCommandsListener(client, registerCommands);
+    
     setupTicketSystem(client);
 });
 

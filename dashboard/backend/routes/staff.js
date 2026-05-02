@@ -3,11 +3,16 @@ const router = express.Router();
 const { collections } = require('../firebase');
 const botManager = require('../discordManager');
 const { isStaff } = require('../auth');
+const { cache, CACHE_TTL } = require('../cache');
 
 // Get all staff with filters
 router.get('/', isStaff, async (req, res) => {
   try {
     const { role, department, status } = req.query;
+    const cacheKey = `staff:list:${role || 'all'}:${department || 'all'}:${status || 'all'}`;
+    const cachedData = cache.get(cacheKey);
+    if (cachedData) return res.json(cachedData);
+
     let query = collections.staff.where('isStaff', '==', true);
 
     if (role) {
@@ -25,6 +30,7 @@ router.get('/', isStaff, async (req, res) => {
     snapshot.forEach(doc => {
       staff.push({ id: doc.id, ...doc.data() });
     });
+    cache.set(cacheKey, staff, CACHE_TTL.MEDIUM);
     res.json(staff);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -59,6 +65,7 @@ router.get('/:id', isStaff, async (req, res) => {
 router.put('/:id', isStaff, async (req, res) => {
   try {
     await collections.staff.doc(req.params.id).update(req.body);
+    cache.invalidate('staff:*');
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -68,11 +75,16 @@ router.put('/:id', isStaff, async (req, res) => {
 // Get staff availability
 router.get('/availability/calendar', isStaff, async (req, res) => {
   try {
+    const cacheKey = 'staff:availability';
+    const cachedData = cache.get(cacheKey);
+    if (cachedData) return res.json(cachedData);
+
     const snapshot = await collections.staffAvailability.get();
     const availability = [];
     snapshot.forEach(doc => {
       availability.push({ id: doc.id, ...doc.data() });
     });
+    cache.set(cacheKey, availability, CACHE_TTL.MEDIUM);
     res.json(availability);
   } catch (error) {
     res.status(500).json({ error: error.message });

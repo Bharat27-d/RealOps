@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { 
   FaHome, FaCalendar, FaTicketAlt, FaUsers, 
   FaPalette, FaLayerGroup, FaChartBar, FaSignOutAlt,
-  FaHandshake, FaComments, FaUserShield, FaBullhorn, FaCog
+  FaHandshake, FaComments, FaTerminal, FaUserShield, FaBullhorn, FaCog
 } from 'react-icons/fa';
 
 function Sidebar({ user, onLogout }) {
@@ -58,6 +58,11 @@ function Sidebar({ user, onLogout }) {
         <li>
           <NavLink to="/feedback">
             <FaComments /> <span>Documentation</span>
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/custom-commands">
+            <FaTerminal /> <span>Commands</span>
           </NavLink>
         </li>
         <li>

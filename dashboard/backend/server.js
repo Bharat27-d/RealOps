@@ -154,6 +154,7 @@ app.use('/api/feedback', require('./routes/feedback'));
 app.use('/api/roles', require('./routes/roles'));
 app.use('/api/bot', require('./routes/bot'));
 app.use('/api/upload', require('./routes/upload'));
+app.use('/api/custom-commands', require('./routes/customCommands'));
 const { router: announcementsRouter, initializeScheduledMessages } = require('./routes/announcements');
 app.use('/api/announcements', announcementsRouter);
 app.use('/api/config', require('./routes/config'));

@@ -16,7 +16,7 @@ router.get('/', isStaff, async (req, res) => {
       return res.json(cachedData);
     }
 
-    const snapshot = await collections.events.orderBy('date', 'desc').get();
+    const snapshot = await collections.events.orderBy('date', 'desc').limit(250).get();
     const events = [];
     const now = new Date();
     const deletedEvents = [];

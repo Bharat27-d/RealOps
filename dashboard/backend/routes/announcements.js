@@ -4,6 +4,7 @@ const cron = require('node-cron');
 const { collections } = require('../firebase');
 const botManager = require('../discordManager');
 const { isStaff } = require('../auth');
+const { cache, CACHE_TTL } = require('../cache');
 
 // Store scheduled tasks
 const scheduledTasks = new Map();
@@ -233,6 +234,10 @@ async function sendScheduledMessage(id, messageData) {
 // Get all scheduled messages
 router.get('/', isStaff, async (req, res) => {
   try {
+    const cacheKey = 'announcements:list';
+    const cachedData = cache.get(cacheKey);
+    if (cachedData) return res.json(cachedData);
+
     // Get all documents without ordering (to avoid index requirement)
     const snapshot = await collections.scheduledMessages.get();
     
@@ -249,6 +254,7 @@ router.get('/', isStaff, async (req, res) => {
     });
     
     console.log(`Retrieved ${messages.length} scheduled messages`);
+    cache.set(cacheKey, messages, CACHE_TTL.SHORT);
     res.json(messages);
   } catch (error) {
     console.error('Error fetching scheduled messages:', error);
@@ -297,6 +303,7 @@ router.post('/', isStaff, async (req, res) => {
     // Schedule the message
     scheduleMessage(docRef.id, messageData);
 
+    cache.invalidate('announcements:*');
     res.json({ id: docRef.id, ...messageData });
   } catch (error) {
     console.error('Error creating scheduled message:', error);

@@ -3,15 +3,21 @@ const router = express.Router();
 const { collections } = require('../firebase');
 const botManager = require('../discordManager');
 const { isStaff } = require('../auth');
+const { cache, CACHE_TTL } = require('../cache');
 
 // Get all embeds (templates and saved)
 router.get('/', isStaff, async (req, res) => {
   try {
+    const cacheKey = 'embeds:list';
+    const cachedData = cache.get(cacheKey);
+    if (cachedData) return res.json(cachedData);
+
     const snapshot = await collections.embeds.orderBy('createdAt', 'desc').get();
     const embeds = [];
     snapshot.forEach(doc => {
       embeds.push({ id: doc.id, ...doc.data() });
     });
+    cache.set(cacheKey, embeds, CACHE_TTL.SHORT);
     res.json(embeds);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -28,6 +34,7 @@ router.post('/save', isStaff, async (req, res) => {
     };
 
     const docRef = await collections.embeds.add(embedData);
+    cache.invalidate('embeds:*');
     res.json({ id: docRef.id, ...embedData });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -152,6 +159,7 @@ router.put('/:id', isStaff, async (req, res) => {
       updatedAt: new Date().toISOString()
     }, { merge: true });
 
+    cache.invalidate('embeds:*');
     res.json({ success: true });
   } catch (error) {
     console.error('Error updating embed:', error);
@@ -163,6 +171,7 @@ router.put('/:id', isStaff, async (req, res) => {
 router.delete('/:id', isStaff, async (req, res) => {
   try {
     await collections.embeds.doc(req.params.id).delete();
+    cache.invalidate('embeds:*');
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: error.message });

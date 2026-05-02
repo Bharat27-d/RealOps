@@ -176,4 +176,15 @@ export const upload = {
   delete: (filename) => api.delete(`/api/upload/${filename}`)
 };
 
+// Custom Commands endpoints
+export const customCommands = {
+  getAll: () => api.get('/api/custom-commands'),
+  getBuiltIn: () => api.get('/api/custom-commands/built-in'),
+  updateBuiltIn: (commandName, data) => api.put(`/api/custom-commands/built-in/${commandName}`, data),
+  resetBuiltIn: (commandName) => api.delete(`/api/custom-commands/built-in/${commandName}`),
+  create: (data) => api.post('/api/custom-commands', data),
+  update: (id, data) => api.put(`/api/custom-commands/${id}`, data),
+  delete: (id) => api.delete(`/api/custom-commands/${id}`)
+};
+
 export default api;

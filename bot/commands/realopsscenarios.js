@@ -1,4 +1,8 @@
 const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder } = require('discord.js');
+const { getOverride } = require('../commandConfig');
+
+// Static default description for dashboard editing
+const DEFAULT_DESCRIPTION = 'Our planning team have completed the scenarios for your event, please look over these and let us know if you would like any changes.';
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -126,10 +130,10 @@ module.exports = {
 
       // Intro embed
       const introEmbed = new EmbedBuilder()
-        .setTitle('Real Ops Event Scenarios')
-        .setDescription('Our planning team have completed the scenarios for your event, please look over these and let us know if you would like any changes.')
-        .setColor('#00b894')
-        .setThumbnail('https://i.ibb.co/FMYFdhk/real-ops-group-logo.png');
+        .setTitle(getOverride('realopsscenarios', 'title', 'Real Ops Event Scenarios'))
+        .setDescription(getOverride('realopsscenarios', 'description', DEFAULT_DESCRIPTION))
+        .setColor(getOverride('realopsscenarios', 'color', '#00b894'))
+        .setThumbnail(getOverride('realopsscenarios', 'thumbnail', 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'));
 
       // Create embeds per scenario
       const embeds = [

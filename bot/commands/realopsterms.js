@@ -1,4 +1,17 @@
 const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } = require('discord.js');
+const { getOverride } = require('../commandConfig');
+
+// Static default description for dashboard editing
+const DEFAULT_DESCRIPTION = `**Real Ops Group Terms and Conditions**
+
+1. **Event Attendance**: All members must attend scheduled events unless excused in advance.
+2. **Professional Conduct**: Maintain professional behavior at all times.
+3. **Communication**: Respond to staff messages within 48 hours.
+4. **Event Protocol**: Follow all Real Ops event protocols and guidelines.
+5. **Discord Activity**: Remain active on Discord and participate in discussions.
+6. **Confidentiality**: Keep internal information confidential.
+7. **Respect**: Treat all members and partners with respect.
+8. **Violations**: Violations may result in removal from the group.`;
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -20,24 +33,17 @@ module.exports = {
         return await interaction.editReply({ content: 'User not found.' });
       }
 
-      const embed = new EmbedBuilder()
-        .setTitle('Real Ops Terms and Conditions')
-        .setDescription(
-`Thank you for requesting our services for your event. Before we supply you with the required document, please read the following and reply with **Accept** if you agree to the following terms and conditions.\n
+      const defaultTitle = 'Real Ops Terms and Conditions';
 
-1. All information within this ticket is not to be shared outside of this community except for the real-ops document.\n
-2. You are not allowed to withdraw from this agreement once you have received your Real-ops document unless the event is cancelled.\n
-3. You are not permitted to use our document to pass to another team to carry out the real operations.\n
-   - If found doing this, then this will result in an instant ban from our services in the future.\n
-4. All Real-ops must be passed by the TMP event management team and a clear screenshot of this must be posted in this ticket.\n
-5. This ticket will remain open until 48hrs after your event so you may give any feedback on our services, good or bad.\n`
-        )
-        .setImage('https://i.imgur.com/thTwvxr.png')
-        .setColor('#00b894')
-        .setThumbnail('https://i.ibb.co/FMYFdhk/real-ops-group-logo.png')
+      const embed = new EmbedBuilder()
+        .setTitle(getOverride('realopsterms', 'title', defaultTitle))
+        .setDescription(getOverride('realopsterms', 'description', DEFAULT_DESCRIPTION))
+        .setImage(getOverride('realopsterms', 'image', 'https://i.imgur.com/thTwvxr.png'))
+        .setColor(getOverride('realopsterms', 'color', '#00b894'))
+        .setThumbnail(getOverride('realopsterms', 'thumbnail', 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'))
         .setFooter({
-          text: 'The Real Ops Group',
-          iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'
+          text: getOverride('realopsterms', 'footerText', 'The Real Ops Group'),
+          iconURL: getOverride('realopsterms', 'footerIcon', 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png')
         });
 
       await interaction.editReply({ content: `📄 Terms and conditions sent for <@${user.id}>.` });

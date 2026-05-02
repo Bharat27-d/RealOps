@@ -19,6 +19,7 @@ import Roles from './pages/Roles';
 import Announcements from './pages/Announcements';
 import Settings from './pages/Settings';
 import Login from './pages/Login';
+import CustomCommands from './pages/CustomCommands';
 
 import { auth } from './services/api';
 
@@ -80,6 +81,7 @@ function App() {
             <Route path="/roles" element={<Roles />} />
             <Route path="/announcements" element={<Announcements />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/custom-commands" element={<CustomCommands />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </div>

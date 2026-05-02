@@ -1,4 +1,14 @@
 const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } = require('discord.js');
+const { getOverride } = require('../commandConfig');
+
+// Static default description for dashboard editing (placeholder for dynamic application text)
+const DEFAULT_DESCRIPTION = `Thank you for submitting your application for your application.
+
+Our team is reviewing your submission to ensure it meets our standards and requirements. We appreciate your interest and the time you've invested in applying to join us.
+
+You will receive a response shortly once the review is complete. If you have any questions in the meantime, feel free to reach out to our staff team.
+
+Best of luck!`;
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -20,14 +30,18 @@ module.exports = {
 
       const applicationText = interaction.options.getString('application_text');
 
+      const defaultTitle = '⏳ Application Under Review';
+      const dynamicDescription = `Thank you for submitting your application for **${applicationText}**.\n\nOur team is reviewing your submission to ensure it meets our standards and requirements. We appreciate your interest and the time you've invested in applying to join us.\n\nYou will receive a response shortly once the review is complete. If you have any questions in the meantime, feel free to reach out to our staff team.\n\nBest of luck!`;
+
       const embed = new EmbedBuilder()
-        .setTitle('⏳ Application Under Review')
-        .setDescription(
-          `Thank you for submitting your application for **${applicationText}**.\n\nOur team is reviewing your submission to ensure it meets our standards and requirements. We appreciate your interest and the time you've invested in applying to join us.\n\nYou will receive a response shortly once the review is complete. If you have any questions in the meantime, feel free to reach out to our staff team.\n\nBest of luck!`
-        )
-        .setColor('#e67e22')
-        .setThumbnail('https://i.ibb.co/FMYFdhk/real-ops-group-logo.png')
-        .setFooter({ text: 'The Real Ops Group', iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png' });
+        .setTitle(getOverride('under-review', 'title', defaultTitle))
+        .setDescription(dynamicDescription)
+        .setColor(getOverride('under-review', 'color', '#e67e22'))
+        .setThumbnail(getOverride('under-review', 'thumbnail', 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'))
+        .setFooter({
+          text: getOverride('under-review', 'footerText', 'The Real Ops Group'),
+          iconURL: getOverride('under-review', 'footerIcon', 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png')
+        });
 
       // Only edit reply if not already replied
       if (!interaction.replied) {

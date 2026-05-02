@@ -1,4 +1,8 @@
 const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } = require('discord.js');
+const { getOverride } = require('../commandConfig');
+
+// Static default description for dashboard editing (placeholder for dynamic reason)
+const DEFAULT_DESCRIPTION = 'Thank you for your application to join the team, unfortunately on this occasion your application has been declined due to requirements.\\n\\nYou can reapply 30 days after the date of this application.';
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -43,17 +47,17 @@ module.exports = {
           reasonText = "an unspecified reason";
       }
 
+      const dynamicDescription = `Thank you for your application to join the team, unfortunately on this occasion your application has been declined due to ${reasonText}.\n\nYou can reapply 30 days after the date of this application, <@${user.id}>.`;
+
       const embed = new EmbedBuilder()
-        .setTitle('Team Application Declined')
-        .setDescription(
-          `Thank you for your application to join the team, unfortunately on this occasion your application has been declined due to ${reasonText}.\n\nYou can reapply 30 days after the date of this application, <@${user.id}>.`
-        )
-        .setColor('#e74c3c')
-        .setImage('https://i.postimg.cc/5t3m40Nn/simple.png')
-        .setThumbnail('https://i.ibb.co/FMYFdhk/real-ops-group-logo.png')
+        .setTitle(getOverride('joindecline', 'title', 'Team Application Declined'))
+        .setDescription(dynamicDescription)
+        .setColor(getOverride('joindecline', 'color', '#e74c3c'))
+        .setImage(getOverride('joindecline', 'image', 'https://i.postimg.cc/5t3m40Nn/simple.png'))
+        .setThumbnail(getOverride('joindecline', 'thumbnail', 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'))
         .setFooter({
-          text: 'The Real Ops Group',
-          iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'
+          text: getOverride('joindecline', 'footerText', 'The Real Ops Group'),
+          iconURL: getOverride('joindecline', 'footerIcon', 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png')
         });
 
       await interaction.editReply({ content: `❌ Application declined for <@${user.id}>.` });

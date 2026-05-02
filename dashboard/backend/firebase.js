@@ -42,7 +42,9 @@ const collections = {
   documentation: db.collection('documentation'),
   botConfig: db.collection('botConfig'),
   embeds: db.collection('embeds'),
-  settings: db.collection('settings')
+  settings: db.collection('settings'),
+  customCommands: db.collection('customCommands'),
+  commandOverrides: db.collection('commandOverrides')
 };
 
 // Realtime Database references (if you want to use both)

@@ -1,5 +1,9 @@
 const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder } = require('discord.js');
 const axios = require('axios');
+const { getOverride } = require('../commandConfig');
+
+// Static default description for dashboard editing (placeholder for dynamic event data)
+const DEFAULT_DESCRIPTION = 'Event details and information. Please check the event link for more details.';
 
 const CONFIG = {
   EVENTS_CATEGORY_ID: '1291383475315806238', 
@@ -191,10 +195,12 @@ module.exports = {
   },
   
   // Function to create an embed for event details
-  createEventEmbed(eventData, eventLink, currentTime) {    const embed = new EmbedBuilder()
-      .setTitle(`📅 ${eventData.name}`)
+  createEventEmbed(eventData, eventLink, currentTime) {
+    const embed = new EmbedBuilder()
+      .setTitle(getOverride('upcoming-events', 'title', `📅 ${eventData.name}`))
+      .setDescription(getOverride('upcoming-events', 'description', DEFAULT_DESCRIPTION))
       .setURL(eventLink)
-      .setColor(CONFIG.DEFAULT_COLOR)
+      .setColor(getOverride('upcoming-events', 'color', CONFIG.DEFAULT_COLOR))
       .addFields(
         { name: 'Server', value: eventData.server?.name ?? 'N/A', inline: true },
         { name: 'Game', value: eventData.game ?? 'N/A', inline: true },
@@ -230,8 +236,8 @@ module.exports = {
     
     // Add footer with The RealOps Group and logo
     embed.setFooter({ 
-      text: `The RealOps Group`,
-      iconURL: CONFIG.LOGO_URL    });
+      text: getOverride('upcoming-events', 'footerText', 'The RealOps Group'),
+      iconURL: getOverride('upcoming-events', 'footerIcon', CONFIG.LOGO_URL)    });
     
     return embed;
   },

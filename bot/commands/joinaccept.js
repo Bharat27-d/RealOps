@@ -1,4 +1,8 @@
 const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } = require('discord.js');
+const { getOverride } = require('../commandConfig');
+
+// Static default description for dashboard editing (placeholder for dynamic user mention)
+const DEFAULT_DESCRIPTION = 'Thank you for your application to join the team, I am pleased to say your application has been accepted and welcome to the team!';
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -28,15 +32,17 @@ module.exports = {
         return;
       }
 
+      const dynamicDescription = `Thank you for your application to join the team, I am pleased to say your application has been accepted and welcome to the team, <@${user.id}>!`;
+
       const embed = new EmbedBuilder()
-        .setTitle('Team Application Accepted')
-        .setDescription(`Thank you for your application to join the team, I am pleased to say your application has been accepted and welcome to the team, <@${user.id}>!`)
-        .setColor('#00b894')
-        .setImage('https://i.postimg.cc/5t3m40Nn/simple.png')
-        .setThumbnail('https://i.ibb.co/FMYFdhk/real-ops-group-logo.png')
+        .setTitle(getOverride('joinaccept', 'title', 'Team Application Accepted'))
+        .setDescription(dynamicDescription)
+        .setColor(getOverride('joinaccept', 'color', '#00b894'))
+        .setImage(getOverride('joinaccept', 'image', 'https://i.postimg.cc/5t3m40Nn/simple.png'))
+        .setThumbnail(getOverride('joinaccept', 'thumbnail', 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'))
         .setFooter({
-          text: 'The Real Ops Group',
-          iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'
+          text: getOverride('joinaccept', 'footerText', 'The Real Ops Group'),
+          iconURL: getOverride('joinaccept', 'footerIcon', 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png')
         });
 
       if (!interaction.replied) {
@@ -51,7 +57,7 @@ module.exports = {
         } else if (interaction.deferred && !interaction.replied) {
           await interaction.editReply({ content: 'An error occurred while processing the acceptance.' });
         }
-      } catch (err) {}
+      } catch (err) { }
     }
   }
 };

@@ -16,17 +16,15 @@ function Tickets() {
 
   useEffect(() => {
     fetchTickets();
-    const interval = setInterval(fetchTickets, 30000); // Auto-refresh every 30 seconds
-    return () => clearInterval(interval);
   }, []);
 
   const fetchTickets = async () => {
     setLoading(true);
     try {
-      const response = await tickets.getAll();
+      const response = await tickets.getAll({ status: 'closed' });
       console.log('Fetched tickets:', response.data);
       
-      // Filter: Show CLOSED tickets (transcripts are optional)
+      // Filter: Make sure they are closed (in case backend returns mixed data)
       const closedTickets = (response.data || []).filter(ticket => 
         ticket.status === 'closed' || ticket.closedAt
       );

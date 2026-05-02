@@ -5,6 +5,7 @@ const botManager = require('../discordManager');
 const { isStaff } = require('../auth');
 const fs = require('fs').promises;
 const path = require('path');
+const { cache, CACHE_TTL } = require('../cache');
 
 // Bot panel default configurations (core/built-in panels)
 const BOT_PANEL_DEFAULTS = {
@@ -101,6 +102,9 @@ router.post('/toggle-button', isStaff, async (req, res) => {
 // Get all panels (built-in + custom panels from Firestore)
 router.get('/', isStaff, async (req, res) => {
   try {
+    const cacheKey = 'panels:list';
+    const cachedData = cache.get(cacheKey);
+    if (cachedData) return res.json(cachedData);
     // Get panel states and button states from Firestore
     const [panelStatesSnapshot, buttonStatesSnapshot] = await Promise.all([
       collections.settings.doc('panelStates').get(),
@@ -131,6 +135,7 @@ router.get('/', isStaff, async (req, res) => {
     // Combine both
     const allPanels = [...builtInPanels, ...customPanels];
     
+    cache.set(cacheKey, allPanels, CACHE_TTL.MEDIUM);
     res.json(allPanels);
   } catch (error) {
     console.error('Error fetching panels:', error);

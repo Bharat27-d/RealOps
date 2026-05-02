@@ -6,6 +6,7 @@ const {
   ButtonStyle,
   PermissionFlagsBits
 } = require('discord.js');
+const { getOverride } = require('../commandConfig');
 
 // ==== NOTIFICATION ROLES ====
 // Make sure each role id is unique!
@@ -18,7 +19,7 @@ const NOTI_ROLES = [
 const TITLE_ICON_URL = 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png';
 const SIDE_IMAGE_URL = 'https://i.postimg.cc/5t3m40Nn/simple.png';
 
-const EMBED_DESCRIPTION = `
+const DEFAULT_DESCRIPTION = `
 👉 Hey want to be kept in the loop of events we have / are attending, Then why not register for our socials and events notifications below.
 
 👉 To select what you want to be notified about, just click on the emoji below! You can pick one or all of the options, it's up to you!
@@ -39,13 +40,13 @@ module.exports = {
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageRoles),
   async execute(interaction) {
     const embed = new EmbedBuilder()
-      .setAuthor({ name: 'The Real Ops Group Notifications', iconURL: TITLE_ICON_URL })
-      .setTitle('Our socials and Event Notifications')
-      .setDescription(EMBED_DESCRIPTION)
-      .setThumbnail(TITLE_ICON_URL)
-      .setImage(SIDE_IMAGE_URL)
-      .setColor('#FF0000')
-      .setFooter({ text: 'The Real Ops Group', iconURL: TITLE_ICON_URL });
+      .setAuthor({ name: 'The Real Ops Group Notifications', iconURL: getOverride('notireaction', 'thumbnail', TITLE_ICON_URL) })
+      .setTitle(getOverride('notireaction', 'title', 'Our socials and Event Notifications'))
+      .setDescription(getOverride('notireaction', 'description', DEFAULT_DESCRIPTION))
+      .setThumbnail(getOverride('notireaction', 'thumbnail', TITLE_ICON_URL))
+      .setImage(getOverride('notireaction', 'image', SIDE_IMAGE_URL))
+      .setColor(getOverride('notireaction', 'color', '#FF0000'))
+      .setFooter({ text: getOverride('notireaction', 'footerText', 'The Real Ops Group'), iconURL: getOverride('notireaction', 'footerIcon', TITLE_ICON_URL) });
 
     const row = new ActionRowBuilder().addComponents(
       NOTI_ROLES.map(role =>

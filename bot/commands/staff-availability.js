@@ -1,5 +1,9 @@
 const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } = require('discord.js');
 const axios = require('axios');
+const { getOverride } = require('../commandConfig');
+
+// Static default description for dashboard editing (placeholder for dynamic event data)
+const DEFAULT_DESCRIPTION = 'Staff availability check for the event. Please respond with your availability by reacting with the emojis below.';
 
 // Helper function to format as Discord timestamp
 function toDiscordTimestamp(iso, style = 'F') {
@@ -39,9 +43,10 @@ module.exports = {
         if (!eventData) return interaction.editReply('❌ Event not found!');
 
         const embed = new EmbedBuilder()
-            .setTitle(`📅 ${eventData.name}`)
+            .setTitle(getOverride('staff-availability', 'title', `📅 ${eventData.name}`))
+            .setDescription(getOverride('staff-availability', 'description', DEFAULT_DESCRIPTION))
             .setURL(`https://truckersmp.com/events/${eventId}`)
-            .setColor('#3498db')
+            .setColor(getOverride('staff-availability', 'color', '#3498db'))
             .addFields(
                 { name: 'Server', value: eventData.server?.name ?? 'N/A', inline: true },
                 { name: 'Game', value: eventData.game ?? 'N/A', inline: true }

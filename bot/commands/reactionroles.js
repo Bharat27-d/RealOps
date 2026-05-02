@@ -6,6 +6,7 @@ const {
   ButtonStyle,
   PermissionFlagsBits
 } = require('discord.js');
+const { getOverride } = require('../commandConfig');
 
 const VTC_ROLES = [
   { id: '1325812176543289354', label: 'Black Pearl Trucking', emoji: '1️⃣' },
@@ -44,7 +45,7 @@ function chunkArray(array, chunkSize) {
 const TITLE_ICON_URL = 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png';
 
 const EMBED_TITLE = `**<:realops:${TITLE_ICON_URL}> Real Ops Partner Roles**`;
-const EMBED_DESCRIPTION =
+const DEFAULT_DESCRIPTION =
 `**Partner Reaction Roles**
 
 If you are a member of one of our partners you can assign your role here by selecting your **VTC** or **Group** below.
@@ -71,12 +72,12 @@ module.exports = {
       await interaction.deferReply({ flags: 64 });
 
       const embed = new EmbedBuilder()
-        .setAuthor({ name: 'Real Ops Partner Roles', iconURL: TITLE_ICON_URL })
-        .setDescription(EMBED_DESCRIPTION)
-        .setThumbnail(EMBED_THUMBNAIL)
-        .setImage(EMBED_IMAGE)
-        .setColor('#FF0000')
-        .setFooter({ text: EMBED_FOOTER_TEXT, iconURL: EMBED_FOOTER_ICON });
+        .setAuthor({ name: 'Real Ops Partner Roles', iconURL: getOverride('reactionroles', 'thumbnail', TITLE_ICON_URL) })
+        .setDescription(getOverride('reactionroles', 'description', DEFAULT_DESCRIPTION))
+        .setThumbnail(getOverride('reactionroles', 'thumbnail', EMBED_THUMBNAIL))
+        .setImage(getOverride('reactionroles', 'image', EMBED_IMAGE))
+        .setColor(getOverride('reactionroles', 'color', '#FF0000'))
+        .setFooter({ text: getOverride('reactionroles', 'footerText', EMBED_FOOTER_TEXT), iconURL: getOverride('reactionroles', 'footerIcon', EMBED_FOOTER_ICON) });
 
       const ALL_ROLES = [...VTC_ROLES, ...GROUP_ROLES];
       const buttonChunks = chunkArray(ALL_ROLES, 5);

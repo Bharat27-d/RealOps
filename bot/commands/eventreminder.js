@@ -1,5 +1,9 @@
 const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } = require('discord.js');
 const axios = require('axios');
+const { getOverride } = require('../commandConfig');
+
+// Static default description for dashboard editing (placeholder for dynamic event data)
+const DEFAULT_DESCRIPTION = 'This event is starting in 30 minutes!';
 
 // Helper to format ISO date as Discord timestamp
 function toDiscordTimestamp(iso, style = 'F') {
@@ -90,14 +94,14 @@ module.exports = {
 
         // Build the reminder embed
         const embed = new EmbedBuilder()
-            .setTitle(`🔔 Event Reminder: ${eventData.name}`)
-            .setDescription(description)
+            .setTitle(getOverride('eventreminder', 'title', `🔔 Event Reminder: ${eventData.name}`))
+            .setDescription(getOverride('eventreminder', 'description', description))
             .setURL(`https://truckersmp.com/events/${eventId}`)
-            .setColor(0xFFD700) // Golden color
+            .setColor(getOverride('eventreminder', 'color', 0xFFD700)) // Golden color
             .setTimestamp()
             .setFooter({
-                text: 'The Real Ops Group',
-                iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'
+                text: getOverride('eventreminder', 'footerText', 'The Real Ops Group'),
+                iconURL: getOverride('eventreminder', 'footerIcon', 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png')
             });
 
         // Add event details

@@ -1,4 +1,28 @@
     const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } = require('discord.js');
+const { getOverride } = require('../commandConfig');
+
+// Static default description for dashboard editing
+const DEFAULT_DESCRIPTION = `📅 **Our Availability 2025/2026**
+
+Our team is available for events throughout the year. Below you'll find our general availability and booking information.
+
+**Availability Period:**
+- January 2025 - December 2026
+
+**Booking Requirements:**
+- Minimum 48 hours notice
+- Event details must be provided in advance
+- Staff assignment based on availability
+
+**Contact:**
+- Open a ticket in the appropriate channel
+- Include event date, time, and requirements
+- We'll confirm staff availability within 24 hours
+
+**Policies:**
+- Cancellations require 24 hours notice
+- Multiple bookings may have limited availability
+- Special requests subject to approval`;
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -11,46 +35,13 @@ module.exports = {
       }
 
       const embed = new EmbedBuilder()
-        .setTitle('Our Availability 2025/2026')
-        .setDescription(
-`**Key:**  
-🟢 Available  
-🟠 Limited Availability  
-🔴 Sorry Fully Booked
-
----
-
-**2025**  
-June: 🔴 Fully Booked (partner slots only)  
-July: 🔴 Fully Booked (partner slots only)  
-August: 🔴 Fully Booked (partner slots only)  
-September: 🔴 Fully Booked (partner slots only)  
-October: 🔴 Fully Booked (partner slots only)  
-November: 🔴 Fully Booked (partner slots only)  
-December: 🟢 (Sorry no bookings between 23/12/2025 & 02/01/2026)
-
----
-
-**2026**  
-January: 🟢 Available  
-February: 🟢 Available  
-March: 🟢 Available  
-April: 🟢 Available  
-May: 🟢 Available
-
----
-
-**Please Note:** Only our Partners can book us for more than 4 months in advance (except special events).
-
-**Partnership Availability**  
-Media Group Partnerships now open.
-`
-        )
-        .setImage('https://i.imgur.com/ZCRiwr6.png')
-        .setColor('#ff0000')
+        .setTitle(getOverride('availability', 'title', 'Our Availability 2025/2026'))
+        .setDescription(getOverride('availability', 'description', DEFAULT_DESCRIPTION))
+        .setImage(getOverride('availability', 'image', 'https://i.imgur.com/ZCRiwr6.png'))
+        .setColor(getOverride('availability', 'color', '#ff0000'))
         .setFooter({
-          text: 'The Real Ops Group',
-          iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'
+          text: getOverride('availability', 'footerText', 'The Real Ops Group'),
+          iconURL: getOverride('availability', 'footerIcon', 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png')
         });
 
       await interaction.editReply({ embeds: [embed] });

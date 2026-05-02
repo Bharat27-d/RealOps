@@ -3,11 +3,16 @@ const router = express.Router();
 const { collections } = require('../firebase');
 const botManager = require('../discordManager');
 const { isStaff } = require('../auth');
+const { cache, CACHE_TTL } = require('../cache');
 
 // Get all feedback
 router.get('/', isStaff, async (req, res) => {
   try {
     const { category, status } = req.query;
+    const cacheKey = `feedback:list:${category || 'all'}:${status || 'all'}`;
+    const cachedData = cache.get(cacheKey);
+    if (cachedData) return res.json(cachedData);
+
     let query = collections.feedback;
 
     if (category) {
@@ -22,6 +27,7 @@ router.get('/', isStaff, async (req, res) => {
     snapshot.forEach(doc => {
       feedback.push({ id: doc.id, ...doc.data() });
     });
+    cache.set(cacheKey, feedback, CACHE_TTL.SHORT);
     res.json(feedback);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -38,6 +44,7 @@ router.post('/', isStaff, async (req, res) => {
     };
 
     const docRef = await collections.feedback.add(feedbackData);
+    cache.invalidate('feedback:*');
     res.json({ id: docRef.id, ...feedbackData });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -93,11 +100,16 @@ router.post('/:id/respond', isStaff, async (req, res) => {
 // Get all documentation
 router.get('/documentation/list', isStaff, async (req, res) => {
   try {
+    const cacheKey = 'documentation:list';
+    const cachedData = cache.get(cacheKey);
+    if (cachedData) return res.json(cachedData);
+
     const snapshot = await collections.documentation.orderBy('createdAt', 'desc').get();
     const docs = [];
     snapshot.forEach(doc => {
       docs.push({ id: doc.id, ...doc.data() });
     });
+    cache.set(cacheKey, docs, CACHE_TTL.MEDIUM);
     res.json(docs);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -114,6 +126,7 @@ router.post('/documentation', isStaff, async (req, res) => {
     };
 
     const docRef = await collections.documentation.add(docData);
+    cache.invalidate('documentation:*');
     res.json({ id: docRef.id, ...docData });
   } catch (error) {
     res.status(500).json({ error: error.message });

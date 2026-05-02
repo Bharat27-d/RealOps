@@ -15,32 +15,77 @@ router.get('/overview', isStaff, async (req, res) => {
       return res.json(cachedData);
     }
 
-    // Fetch all data once (instead of multiple times)
-    const [ticketSnapshot, eventSnapshot, staffSnapshot] = await Promise.all([
-      collections.tickets.get(),
-      collections.events.get(),
+    // Prepare date boundaries
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const thirtyDaysAgoStr = thirtyDaysAgo.toISOString();
+
+    // Fetch counts and recent data
+    const [
+      totalTicketsSnap, openTicketsSnap, closedTicketsSnap, pendingTicketsSnap,
+      totalEventsSnap, scheduledEventsSnap, completedEventsSnap, cancelledEventsSnap,
+      recentTicketsSnap, recentEventsSnap, staffSnapshot
+    ] = await Promise.all([
+      collections.tickets.count().get(),
+      collections.tickets.where('status', '==', 'open').count().get(),
+      collections.tickets.where('status', '==', 'closed').count().get(),
+      collections.tickets.where('status', '==', 'pending').count().get(),
+      
+      collections.events.count().get(),
+      collections.events.where('status', '==', 'scheduled').count().get(),
+      collections.events.where('status', '==', 'completed').count().get(),
+      collections.events.where('status', '==', 'cancelled').count().get(),
+      
+      collections.tickets.where('createdAt', '>=', thirtyDaysAgoStr).get(),
+      collections.events.where('createdAt', '>=', thirtyDaysAgoStr).get(),
       collections.staff.where('isStaff', '==', true).get()
     ]);
 
-    // Convert snapshots to arrays once
-    const tickets = [];
-    ticketSnapshot.forEach(doc => tickets.push(doc.data()));
+    // Extract recent arrays
+    const recentTickets = [];
+    recentTicketsSnap.forEach(doc => recentTickets.push(doc.data()));
     
-    const events = [];
-    eventSnapshot.forEach(doc => events.push(doc.data()));
+    const recentEvents = [];
+    let upcomingEventsCount = 0;
+    recentEventsSnap.forEach(doc => {
+      const data = doc.data();
+      recentEvents.push(data);
+      if (data.date && new Date(data.date) > new Date()) {
+        upcomingEventsCount++;
+      }
+    });
     
     const staff = [];
     staffSnapshot.forEach(doc => staff.push(doc.data()));
 
     // Get Team Member role count from Discord (cached separately)
     const TEAM_MEMBER_ROLE_ID = '1291122795190812774';
-    const teamMemberCount = await discordManager.getMembersWithRoleCount(TEAM_MEMBER_ROLE_ID);
+    let teamMemberCount = 0;
+    try {
+      teamMemberCount = await discordManager.getMembersWithRoleCount(TEAM_MEMBER_ROLE_ID);
+    } catch (err) {}
 
     const stats = {
-      tickets: getTicketStats(tickets),
-      events: getEventStats(events),
+      tickets: {
+        total: totalTicketsSnap.data().count,
+        open: openTicketsSnap.data().count,
+        closed: closedTicketsSnap.data().count,
+        pending: pendingTicketsSnap.data().count,
+        avgResponseTime: calculateAvgResponseTime(recentTickets),
+        dailyTickets: getDailyTickets(recentTickets)
+      },
+      events: {
+        total: totalEventsSnap.data().count,
+        scheduled: scheduledEventsSnap.data().count,
+        completed: completedEventsSnap.data().count,
+        cancelled: cancelledEventsSnap.data().count,
+        upcoming: upcomingEventsCount
+      },
       staff: getStaffStats(staff, teamMemberCount),
-      engagement: getEngagementStats(tickets, events)
+      engagement: {
+        totalInteractions: totalTicketsSnap.data().count + totalEventsSnap.data().count,
+        last7Days: calculateLast7DaysActivity(recentTickets, recentEvents)
+      }
     };
 
     // Cache for 3 minutes
@@ -48,7 +93,6 @@ router.get('/overview', isStaff, async (req, res) => {
 
     res.json(stats);
   } catch (error) {
-    // Handle quota exceeded gracefully
     if (error.code === 8 || error.message?.includes('Quota exceeded')) {
       const cachedData = cache.get('analytics:overview');
       if (cachedData) {
@@ -63,30 +107,6 @@ router.get('/overview', isStaff, async (req, res) => {
   }
 });
 
-// Get ticket statistics (uses pre-fetched data)
-function getTicketStats(tickets) {
-  return {
-    total: tickets.length,
-    open: tickets.filter(t => t.status === 'open').length,
-    closed: tickets.filter(t => t.status === 'closed').length,
-    pending: tickets.filter(t => t.status === 'pending').length,
-    avgResponseTime: calculateAvgResponseTime(tickets),
-    dailyTickets: getDailyTickets(tickets)
-  };
-}
-
-// Get event statistics (uses pre-fetched data)
-function getEventStats(events) {
-  return {
-    total: events.length,
-    scheduled: events.filter(e => e.status === 'scheduled').length,
-    completed: events.filter(e => e.status === 'completed').length,
-    cancelled: events.filter(e => e.status === 'cancelled').length,
-    upcoming: events.filter(e => new Date(e.date) > new Date()).length
-  };
-}
-
-// Get staff statistics (uses pre-fetched data)
 function getStaffStats(staff, teamMemberCount) {
   return {
     total: teamMemberCount,
@@ -96,15 +116,6 @@ function getStaffStats(staff, teamMemberCount) {
   };
 }
 
-// Get engagement statistics (uses pre-fetched data)
-function getEngagementStats(tickets, events) {
-  return {
-    totalInteractions: tickets.length + events.length,
-    last7Days: calculateLast7DaysActivity(tickets, events)
-  };
-}
-
-// Helper functions
 function calculateAvgResponseTime(tickets) {
   const responseTimes = tickets
     .filter(t => t.firstResponseAt && t.createdAt)
@@ -147,7 +158,6 @@ function calculateLast7DaysActivity(tickets, events) {
     
     let count = 0;
     
-    // Count tickets created on this date
     tickets.forEach(ticket => {
       if (ticket.createdAt) {
         const createdAtStr = typeof ticket.createdAt === 'string' ? ticket.createdAt : (ticket.createdAt instanceof Date ? ticket.createdAt.toISOString() : String(ticket.createdAt));
@@ -155,7 +165,6 @@ function calculateLast7DaysActivity(tickets, events) {
       }
     });
     
-    // Count events created on this date
     events.forEach(event => {
       if (event.createdAt) {
         const createdAtStr = typeof event.createdAt === 'string' ? event.createdAt : (event.createdAt instanceof Date ? event.createdAt.toISOString() : String(event.createdAt));

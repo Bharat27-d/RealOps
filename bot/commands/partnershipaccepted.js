@@ -1,4 +1,8 @@
 const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } = require('discord.js');
+const { getOverride } = require('../commandConfig');
+
+// Static default description for dashboard editing
+const DEFAULT_DESCRIPTION = 'Thank you for requesting a partnership with the Real Ops Group. I can confirm that your request has been accepted.\n\nCould you please let us have your "about us" text and any links to your Discord server channels for our partner channels?\n\nI will post our text below for your partner channels.';
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -20,21 +24,17 @@ module.exports = {
         return await interaction.editReply({ content: 'User not found.' });
       }
 
+      const defaultTitle = 'Partnership Accepted';
+
       const embed = new EmbedBuilder()
-        .setTitle('Partnership Accepted')
-        .setDescription(
-`Thank you for requesting a partnership with the Real Ops Group. I can confirm that your request has been accepted.
-
-Could you please let us have your "about us" text and any links to your Discord server channels for our partner channels?
-
-I will post our text below for your partner channels.`
-        )
-        .setImage('https://i.imgur.com/58wgkaF.png')
-        .setColor('#00b894')
-        .setThumbnail('https://i.ibb.co/FMYFdhk/real-ops-group-logo.png')
+        .setTitle(getOverride('partnershipaccept', 'title', defaultTitle))
+        .setDescription(getOverride('partnershipaccept', 'description', DEFAULT_DESCRIPTION))
+        .setImage(getOverride('partnershipaccept', 'image', 'https://i.imgur.com/58wgkaF.png'))
+        .setColor(getOverride('partnershipaccept', 'color', '#00b894'))
+        .setThumbnail(getOverride('partnershipaccept', 'thumbnail', 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'))
         .setFooter({
-          text: 'The Real Ops Group',
-          iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'
+          text: getOverride('partnershipaccept', 'footerText', 'The Real Ops Group'),
+          iconURL: getOverride('partnershipaccept', 'footerIcon', 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png')
         });
 
       await interaction.editReply({ content: `🤝 Partnership accepted and information request sent for <@${user.id}>.` });
@@ -47,7 +47,7 @@ I will post our text below for your partner channels.`
         } else if (interaction.deferred && !interaction.replied) {
           await interaction.editReply({ content: 'An error occurred while sending the partnership acceptance.' });
         }
-      } catch (err) {}
+      } catch (err) { }
     }
   }
 };

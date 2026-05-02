@@ -1,5 +1,9 @@
 const { SlashCommandBuilder, ChannelType, EmbedBuilder, PermissionFlagsBits } = require('discord.js');
 const axios = require('axios');
+const { getOverride } = require('../commandConfig');
+
+// Static default description for dashboard editing
+const DEFAULT_DESCRIPTION = 'Event details and information. Please check the event link for more details.';
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -42,9 +46,10 @@ module.exports = {
 
         // 3. Prepare embed for event details (with map image, no banner)
         const embed = new EmbedBuilder()
-            .setTitle(`📅 ${eventData.name}`)
+            .setTitle(getOverride('eventforum', 'title', `📅 ${eventData.name}`))
+            .setDescription(getOverride('eventforum', 'description', DEFAULT_DESCRIPTION))
             .setURL(`https://truckersmp.com/events/${eventId}`)
-            .setColor('#3498db')
+            .setColor(getOverride('eventforum', 'color', '#3498db'))
             .addFields(
                 { name: 'Server', value: eventData.server?.name ?? 'N/A', inline: true },
                 { name: 'Game', value: eventData.game ?? 'N/A', inline: true },

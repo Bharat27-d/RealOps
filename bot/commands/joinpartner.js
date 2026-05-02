@@ -1,4 +1,8 @@
 const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } = require('discord.js');
+const { getOverride } = require('../commandConfig');
+
+// Static default description for dashboard editing (placeholder for dynamic user mention)
+const DEFAULT_DESCRIPTION = 'Thank you for your application to join the team, after our staff have done their checks and found you are a member of one of our partners and as such can bypass the application process. Your roles have been added!';
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -20,15 +24,17 @@ module.exports = {
         return await interaction.editReply({ content: 'User not found.' });
       }
 
+      const dynamicDescription = `Thank you for your application to join the team, after our staff have done their checks and found you are a member of one of our partners and as such can bypass the application process. Your roles have been added, <@${user.id}>!`;
+
       const embed = new EmbedBuilder()
-        .setTitle('Application Accepted')
-        .setDescription(`Thank you for your application to join the team, after our staff have done their checks and found you are a member of one of our partners and as such can bypass the application process. Your roles have been added, <@${user.id}>!`)
-        .setColor('#00b894')
-        .setImage('https://i.postimg.cc/5t3m40Nn/simple.png')
-        .setThumbnail('https://i.ibb.co/FMYFdhk/real-ops-group-logo.png')
+        .setTitle(getOverride('joinpartner', 'title', 'Application Accepted'))
+        .setDescription(dynamicDescription)
+        .setColor(getOverride('joinpartner', 'color', '#00b894'))
+        .setImage(getOverride('joinpartner', 'image', 'https://i.postimg.cc/5t3m40Nn/simple.png'))
+        .setThumbnail(getOverride('joinpartner', 'thumbnail', 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'))
         .setFooter({
-          text: 'The Real Ops Group',
-          iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'
+          text: getOverride('joinpartner', 'footerText', 'The Real Ops Group'),
+          iconURL: getOverride('joinpartner', 'footerIcon', 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png')
         });
 
       await interaction.editReply({ content: `✅ Partner application accepted for <@${user.id}>.` });
@@ -42,7 +48,7 @@ module.exports = {
         } else if (interaction.deferred && !interaction.replied) {
           await interaction.editReply({ content: 'An error occurred while processing the partner acceptance.' });
         }
-      } catch (err) {}
+      } catch (err) { }
     }
   }
 };

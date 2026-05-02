@@ -1,4 +1,13 @@
 const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } = require('discord.js');
+const { getOverride } = require('../commandConfig');
+
+// Static default description for dashboard editing (placeholder for dynamic document and event links)
+const DEFAULT_DESCRIPTION = `Here are the documents for the event:
+
+**Event Sheet:** [Link]
+**Attendance Sheet:** [Link]
+
+Please review the documents and provide feedback on the event sheet and attendance sheet.`;
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -41,10 +50,8 @@ module.exports = {
         return await interaction.editReply({ content: 'Please provide an event link.' });
       }
 
-      const embed = new EmbedBuilder()
-        .setTitle('Your Real Ops Event Document & Feedback Instructions')
-        .setDescription(
-`Thank you for requesting our services for your event, please find below the link for your document.
+      const defaultTitle = 'Your Real Ops Event Document & Feedback Instructions';
+      const dynamicDescription = `Thank you for requesting our services for your event, please find below the link for your document.
 
 **Document Link:** [Click here to view your document](${documentLink})
 
@@ -58,13 +65,16 @@ As you already have your event server, you will need to follow these steps to re
 \`\`\`
 we wish to request real ops for our event TMP link ${eventLink} [HERE](${documentLink}) is the link to our document
 \`\`\`
-`
-        )
-        .setColor('#00b894')
-        .setThumbnail('https://i.ibb.co/FMYFdhk/real-ops-group-logo.png')
+`;
+
+      const embed = new EmbedBuilder()
+        .setTitle(getOverride('documentfeedback', 'title', defaultTitle))
+        .setDescription(dynamicDescription)
+        .setColor(getOverride('documentfeedback', 'color', '#00b894'))
+        .setThumbnail(getOverride('documentfeedback', 'thumbnail', 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'))
         .setFooter({
-          text: 'The Real Ops Group',
-          iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'
+          text: getOverride('documentfeedback', 'footerText', 'The Real Ops Group'),
+          iconURL: getOverride('documentfeedback', 'footerIcon', 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png')
         });
 
       await interaction.editReply({ content: `📄 Document feedback instructions sent for <@${user.id}>.` });

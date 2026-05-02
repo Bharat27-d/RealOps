@@ -3,15 +3,21 @@ const router = express.Router();
 const { collections } = require('../firebase');
 const botManager = require('../discordManager');
 const { isStaff } = require('../auth');
+const { cache, CACHE_TTL } = require('../cache');
 
 // Get all reaction roles
 router.get('/reaction-roles', isStaff, async (req, res) => {
   try {
+    const cacheKey = 'roles:reaction';
+    const cachedData = cache.get(cacheKey);
+    if (cachedData) return res.json(cachedData);
+
     const snapshot = await collections.roles.where('type', '==', 'reaction').get();
     const reactionRoles = [];
     snapshot.forEach(doc => {
       reactionRoles.push({ id: doc.id, ...doc.data() });
     });
+    cache.set(cacheKey, reactionRoles, CACHE_TTL.MEDIUM);
     res.json(reactionRoles);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -52,6 +58,7 @@ router.post('/reaction-roles', isStaff, async (req, res) => {
     };
 
     const docRef = await collections.roles.add(roleData);
+    cache.invalidate('roles:*');
 
     res.json({ id: docRef.id, ...roleData });
   } catch (error) {
@@ -62,11 +69,16 @@ router.post('/reaction-roles', isStaff, async (req, res) => {
 // Get auto-role rules
 router.get('/auto-roles', isStaff, async (req, res) => {
   try {
+    const cacheKey = 'roles:auto';
+    const cachedData = cache.get(cacheKey);
+    if (cachedData) return res.json(cachedData);
+
     const snapshot = await collections.roles.where('type', '==', 'auto').get();
     const autoRoles = [];
     snapshot.forEach(doc => {
       autoRoles.push({ id: doc.id, ...doc.data() });
     });
+    cache.set(cacheKey, autoRoles, CACHE_TTL.MEDIUM);
     res.json(autoRoles);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -111,6 +123,10 @@ router.put('/auto-roles/:id/toggle', isStaff, async (req, res) => {
 // Get join requests
 router.get('/join-requests', isStaff, async (req, res) => {
   try {
+    const cacheKey = 'roles:join-requests';
+    const cachedData = cache.get(cacheKey);
+    if (cachedData) return res.json(cachedData);
+
     const snapshot = await collections.roles
       .where('type', '==', 'join-request')
       .where('status', '==', 'pending')
@@ -121,6 +137,7 @@ router.get('/join-requests', isStaff, async (req, res) => {
     snapshot.forEach(doc => {
       requests.push({ id: doc.id, ...doc.data() });
     });
+    cache.set(cacheKey, requests, CACHE_TTL.SHORT);
     res.json(requests);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -160,11 +177,16 @@ router.post('/join-requests/:id/handle', isStaff, async (req, res) => {
 // Get nickname rules
 router.get('/nickname-rules', isStaff, async (req, res) => {
   try {
+    const cacheKey = 'roles:nickname';
+    const cachedData = cache.get(cacheKey);
+    if (cachedData) return res.json(cachedData);
+
     const snapshot = await collections.roles.where('type', '==', 'nickname').get();
     const rules = [];
     snapshot.forEach(doc => {
       rules.push({ id: doc.id, ...doc.data() });
     });
+    cache.set(cacheKey, rules, CACHE_TTL.MEDIUM);
     res.json(rules);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -193,6 +215,7 @@ router.post('/nickname-rules', isStaff, async (req, res) => {
 router.delete('/:id', isStaff, async (req, res) => {
   try {
     await collections.roles.doc(req.params.id).delete();
+    cache.invalidate('roles:*');
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: error.message });

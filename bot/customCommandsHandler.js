@@ -1,8 +1,152 @@
-const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js');
+const {
+    SlashCommandBuilder,
+    MessageFlags,
+    ContainerBuilder,
+    TextDisplayBuilder,
+    MediaGalleryBuilder,
+    MediaGalleryItemBuilder,
+    SectionBuilder,
+    SeparatorBuilder,
+    ThumbnailBuilder
+} = require('discord.js');
 const { collections } = require('./firebase');
+const { parseEmbedPlaceholders } = require('./placeholderParser');
 
 let unsubscribe = null;
 let registerDebounceTimer = null;
+
+/**
+ * Build a Components V2 Container from a dynamic command data object.
+ * Matches the panel visual style: Container > Section(title+thumbnail) > Separator > Text > MediaGallery > Footer
+ */
+function buildContainer(data) {
+    const accentColor = data.color && data.color.trim()
+        ? parseInt(data.color.trim().replace('#', ''), 16)
+        : 0x00b894;
+
+    const container = new ContainerBuilder().setAccentColor(accentColor);
+
+    // ── Header Section: Title + Thumbnail ──
+    const hasTitle = data.title && data.title.trim();
+    const hasThumbnail = data.thumbnail && data.thumbnail.trim();
+    const hasAuthor = data.authorName && data.authorName.trim();
+
+    if (hasTitle || hasAuthor) {
+        let headerText = '';
+        if (hasAuthor) {
+            const authorLine = data.authorUrl && data.authorUrl.trim()
+                ? `[${data.authorName.trim()}](${data.authorUrl.trim()})`
+                : data.authorName.trim();
+            headerText += authorLine + '\n';
+        }
+        if (hasTitle) {
+            const titleLine = data.url && data.url.trim()
+                ? `## [${data.title.trim()}](${data.url.trim()})`
+                : `## ${data.title.trim()}`;
+            headerText += titleLine;
+        }
+
+        // SectionBuilder REQUIRES an accessory — only use it when there's a thumbnail
+        if (hasThumbnail) {
+            container.addSectionComponents(
+                new SectionBuilder()
+                    .addTextDisplayComponents(
+                        new TextDisplayBuilder().setContent(headerText.trim())
+                    )
+                    .setThumbnailAccessory(
+                        new ThumbnailBuilder({ media: { url: data.thumbnail.trim() } })
+                    )
+            );
+        } else {
+            container.addTextDisplayComponents(
+                new TextDisplayBuilder().setContent(headerText.trim())
+            );
+        }
+
+        container.addSeparatorComponents(new SeparatorBuilder().setDivider(true));
+    }
+
+    // ── Description / Body Text ──
+    if (data.text && data.text.trim()) {
+        container.addTextDisplayComponents(
+            new TextDisplayBuilder().setContent(data.text.trim())
+        );
+    }
+
+    // ── Fields ──
+    if (Array.isArray(data.fields) && data.fields.length > 0) {
+        const validFields = data.fields.filter(f => f.name?.trim() && f.value?.trim());
+        if (validFields.length > 0) {
+            container.addSeparatorComponents(new SeparatorBuilder().setDivider(true));
+            let fieldText = '';
+            for (const field of validFields) {
+                fieldText += `**${field.name.trim()}**\n${field.value.trim()}\n\n`;
+            }
+            container.addTextDisplayComponents(
+                new TextDisplayBuilder().setContent(fieldText.trim())
+            );
+        }
+    }
+
+    // ── Main Image (Media Gallery) ──
+    if (data.image && data.image.trim()) {
+        container.addMediaGalleryComponents(
+            new MediaGalleryBuilder().addItems(
+                new MediaGalleryItemBuilder({ media: { url: data.image.trim() } })
+            )
+        );
+    }
+
+    // ── Footer ──
+    const hasFooter = data.footerText && data.footerText.trim();
+    const hasTimestamp = data.timestamp && data.timestamp.trim();
+
+    if (hasFooter || hasTimestamp) {
+        container.addSeparatorComponents(new SeparatorBuilder().setDivider(true));
+
+        let footerText = '';
+        if (hasFooter) footerText += data.footerText.trim();
+        if (hasFooter && hasTimestamp) footerText += ' • ';
+        if (hasTimestamp) {
+            const ts = data.timestamp.trim();
+            if (ts === 'auto' || ts === 'now') {
+                footerText += `<t:${Math.floor(Date.now() / 1000)}:F>`;
+            } else {
+                const parsed = new Date(ts);
+                if (!isNaN(parsed.getTime())) {
+                    footerText += `<t:${Math.floor(parsed.getTime() / 1000)}:F>`;
+                }
+            }
+        }
+
+        if (footerText) {
+            if (data.footerIcon && data.footerIcon.trim()) {
+                container.addSectionComponents(
+                    new SectionBuilder()
+                        .addTextDisplayComponents(
+                            new TextDisplayBuilder().setContent(`-# ${footerText}`)
+                        )
+                        .setThumbnailAccessory(
+                            new ThumbnailBuilder({ media: { url: data.footerIcon.trim() } })
+                        )
+                );
+            } else {
+                container.addTextDisplayComponents(
+                    new TextDisplayBuilder().setContent(`-# ${footerText}`)
+                );
+            }
+        }
+    }
+
+    // Fallback if completely empty
+    if (!hasTitle && !hasAuthor && (!data.text || !data.text.trim()) && (!data.image || !data.image.trim())) {
+        container.addTextDisplayComponents(
+            new TextDisplayBuilder().setContent('*No content provided for this command.*')
+        );
+    }
+
+    return container;
+}
 
 /**
  * Mounts a Firebase real-time listener to automatically load and execute newly created Custom Commands
@@ -44,32 +188,58 @@ function setupCustomCommandsListener(client, triggerRegisterCallback) {
 
             if (!cleanName) continue;
 
+            const builder = new SlashCommandBuilder()
+                .setName(cleanName)
+                .setDescription(cleanDescription);
+
+            // Dynamically register command options from dashboard config
+            if (Array.isArray(cmdData.options)) {
+                for (const opt of cmdData.options) {
+                    const optName = (opt.name || '').toLowerCase().replace(/[^a-z0-9_-]/g, '').substring(0, 32);
+                    const optDesc = (opt.description || 'No description').substring(0, 100);
+                    if (!optName) continue;
+
+                    switch (opt.type) {
+                        case 'user':
+                            builder.addUserOption(o => o.setName(optName).setDescription(optDesc).setRequired(!!opt.required));
+                            break;
+                        case 'role':
+                            builder.addRoleOption(o => o.setName(optName).setDescription(optDesc).setRequired(!!opt.required));
+                            break;
+                        case 'channel':
+                            builder.addChannelOption(o => o.setName(optName).setDescription(optDesc).setRequired(!!opt.required));
+                            break;
+                        case 'number':
+                            builder.addNumberOption(o => o.setName(optName).setDescription(optDesc).setRequired(!!opt.required));
+                            break;
+                        case 'boolean':
+                            builder.addBooleanOption(o => o.setName(optName).setDescription(optDesc).setRequired(!!opt.required));
+                            break;
+                        default: // string
+                            builder.addStringOption(o => o.setName(optName).setDescription(optDesc).setRequired(!!opt.required));
+                            break;
+                    }
+                }
+            }
+
             const commandObj = {
                 isCustomCommand: true,
-                data: new SlashCommandBuilder()
-                    .setName(cleanName)
-                    .setDescription(cleanDescription),
+                data: builder,
                 
                 async execute(interaction) {
                     try {
-                        const embed = new EmbedBuilder()
-                            .setColor('#00b894');
-                            
-                        let hasContent = false;
-                        if (cmdData.title && cmdData.title.trim() !== '') { embed.setTitle(cmdData.title); hasContent = true; }
-                        if (cmdData.text && cmdData.text.trim() !== '') { embed.setDescription(cmdData.text); hasContent = true; }
-                        if (cmdData.image && cmdData.image.trim() !== '') { embed.setImage(cmdData.image); hasContent = true; }
-                        if (cmdData.thumbnail && cmdData.thumbnail.trim() !== '') { embed.setThumbnail(cmdData.thumbnail); hasContent = true; }
-
-                        if (!hasContent) {
-                            embed.setDescription('*No content provided for this command.*');
-                        }
+                        // Resolve all ${...} placeholders using interaction options
+                        const resolvedData = parseEmbedPlaceholders(cmdData, interaction);
+                        const container = buildContainer(resolvedData);
                         
                         // Defer ephemerally so no public "User used /command" message appears
                         await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
-                        // Send the embed as a regular channel message (no user attribution)
-                        await interaction.channel.send({ embeds: [embed] });
+                        // Send the container as a regular channel message (no user attribution)
+                        await interaction.channel.send({
+                            components: [container],
+                            flags: MessageFlags.IsComponentsV2
+                        });
 
                         // Delete the ephemeral acknowledgment so nothing remains
                         await interaction.deleteReply();
@@ -109,4 +279,4 @@ function setupCustomCommandsListener(client, triggerRegisterCallback) {
     });
 }
 
-module.exports = { setupCustomCommandsListener };
+module.exports = { setupCustomCommandsListener, buildContainer };

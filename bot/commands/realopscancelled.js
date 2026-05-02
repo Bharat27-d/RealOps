@@ -1,4 +1,8 @@
 const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } = require('discord.js');
+const { getOverride } = require('../commandConfig');
+
+// Static default description for dashboard editing
+const DEFAULT_DESCRIPTION = `Thank you for letting us know you wish to cancel your real ops request. This is to confirm your real ops request has been cancelled and will be removed from our system within 48hrs.`;
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -20,16 +24,16 @@ module.exports = {
         return await interaction.editReply({ content: 'User not found.' });
       }
 
+      const defaultTitle = 'Real Ops Request Cancelled';
+
       const embed = new EmbedBuilder()
-        .setTitle('Real Ops Request Cancelled')
-        .setDescription(
-`Thank you for letting us know you wish to cancel your real ops request. This is to confirm your real ops request has been cancelled and will be removed from our system within 48hrs.`
-        )
-        .setColor('#e74c3c')
-        .setThumbnail('https://i.ibb.co/FMYFdhk/real-ops-group-logo.png')
+        .setTitle(getOverride('realopscancelled', 'title', defaultTitle))
+        .setDescription(getOverride('realopscancelled', 'description', DEFAULT_DESCRIPTION))
+        .setColor(getOverride('realopscancelled', 'color', '#e74c3c'))
+        .setThumbnail(getOverride('realopscancelled', 'thumbnail', 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'))
         .setFooter({
-          text: 'The Real Ops Group',
-          iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'
+          text: getOverride('realopscancelled', 'footerText', 'The Real Ops Group'),
+          iconURL: getOverride('realopscancelled', 'footerIcon', 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png')
         });
 
       await interaction.editReply({ content: `❌ Real Ops cancellation confirmed for <@${user.id}>.` });

@@ -1,4 +1,8 @@
 const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } = require('discord.js');
+const { getOverride } = require('../commandConfig');
+
+// Static default description for dashboard editing (placeholder for dynamic reason)
+const DEFAULT_DESCRIPTION = 'Thank you for requesting a partnership with the Real Ops Group. Unfortunately, on this occasion, we have declined your request due to requirements.\n\nYou can request a new partnership after 30 days from the date of this ticket.';
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -34,19 +38,20 @@ module.exports = {
         return await interaction.editReply({ content: 'Please provide a reason.' });
       }
 
-      const embed = new EmbedBuilder()
-        .setTitle('Partnership Request Declined')
-        .setDescription(
-`Thank you for requesting a partnership with the Real Ops Group. Unfortunately, on this occasion, we have declined your request due to **${reason}**.
+      const defaultTitle = 'Partnership Request Declined';
+      const dynamicDescription = `Thank you for requesting a partnership with the Real Ops Group. Unfortunately, on this occasion, we have declined your request due to **${reason}**.
 
-You can request a new partnership after 30 days from the date of this ticket.`
-        )
-        .setImage('https://i.imgur.com/58wgkaF.png')
-        .setColor('#e74c3c')
-        .setThumbnail('https://i.ibb.co/FMYFdhk/real-ops-group-logo.png')
+You can request a new partnership after 30 days from the date of this ticket.`;
+
+      const embed = new EmbedBuilder()
+        .setTitle(getOverride('partnershipdeclined', 'title', defaultTitle))
+        .setDescription(dynamicDescription)
+        .setImage(getOverride('partnershipdeclined', 'image', 'https://i.imgur.com/58wgkaF.png'))
+        .setColor(getOverride('partnershipdeclined', 'color', '#e74c3c'))
+        .setThumbnail(getOverride('partnershipdeclined', 'thumbnail', 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'))
         .setFooter({
-          text: 'The Real Ops Group',
-          iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'
+          text: getOverride('partnershipdeclined', 'footerText', 'The Real Ops Group'),
+          iconURL: getOverride('partnershipdeclined', 'footerIcon', 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png')
         });
 
       await interaction.editReply({ content: `❌ Partnership declined for <@${user.id}>.` });
