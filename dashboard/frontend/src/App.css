@@ -292,6 +292,66 @@ code {
   box-shadow: 0 6px 20px rgba(255, 215, 0, 0.3);
 }
 
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #1a1a1a 0%, #111 100%);
+  color: #FFD700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-icon:hover {
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  color: #000;
+  border-color: #FFD700;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(255, 215, 0, 0.35);
+}
+
+.btn-icon:active {
+  transform: translateY(0);
+}
+
+.btn-icon.danger {
+  color: #f04747;
+  border-color: rgba(240, 71, 71, 0.25);
+}
+
+.btn-icon.danger:hover {
+  background: linear-gradient(135deg, #f04747 0%, #c0392b 100%);
+  color: #fff;
+  border-color: #f04747;
+  box-shadow: 0 4px 14px rgba(240, 71, 71, 0.35);
+}
+
+/* Modal Footer */
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 18px 28px;
+  border-top: 1px solid #2a2a2a;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 0 0 16px 16px;
+}
+
 /* Forms */
 .form-group {
   margin-bottom: 22px;
