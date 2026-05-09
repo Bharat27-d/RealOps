@@ -85,6 +85,27 @@ function sanitizeEmbedData(body) {
   return data;
 }
 
+function decodeSourceString(value, quote) {
+  if (!value) return '';
+  if (quote === '`') {
+    return value.replace(/\\`/g, '`').replace(/\\\$/g, '$');
+  }
+
+  return value
+    .replace(/\\n/g, '\n')
+    .replace(/\\r/g, '\r')
+    .replace(/\\t/g, '\t')
+    .replace(/\\'/g, "'")
+    .replace(/\\"/g, '"')
+    .replace(/\\\\/g, '\\');
+}
+
+function extractConstString(content, constName) {
+  const match = content.match(new RegExp(`const\\s+${constName}\\s*=\\s*(['"\`])([\\s\\S]*?)\\1`));
+  if (!match) return null;
+  return decodeSourceString(match[2], match[1]);
+}
+
 // Helper: extract editable fields from a command source file
 function parseCommandFile(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
@@ -116,9 +137,9 @@ function parseCommandFile(filePath) {
 
   // Extract description (first static one) - full content
   // Check for DEFAULT_DESCRIPTION constant (for dynamic descriptions) - support multi-line - highest priority
-  const defaultDescMatch = content.match(/const DEFAULT_DESCRIPTION\s*=\s*`([\s\S]*?)`/);
+  const defaultDescription = extractConstString(content, 'DEFAULT_DESCRIPTION');
   // Check for defaultDescription variable assignment - second priority
-  const defaultDescVarMatch = content.match(/const defaultDescription\s*=\s*`([\s\S]*?)`/);
+  const defaultDescriptionVar = extractConstString(content, 'defaultDescription');
   // Look for setDescription in EmbedBuilder context - third priority
   const descMatch = content.match(/const embed = new EmbedBuilder\(\)[\s\S]*?\.setDescription\s*\(\s*['"`]([^'"`]+)['"`]\s*\)/);
   // Also check for template literal descriptions - fourth priority
@@ -126,10 +147,10 @@ function parseCommandFile(filePath) {
   // Check for any setDescription call (more flexible) - fifth priority
   const descAnyMatch = content.match(/\.setDescription\s*\(\s*['"`]([^'"`]+)['"`]\s*\)/);
   
-  if (defaultDescMatch) {
-    fields.embedDescription = defaultDescMatch[1];
-  } else if (defaultDescVarMatch) {
-    fields.embedDescription = defaultDescVarMatch[1];
+  if (defaultDescription) {
+    fields.embedDescription = defaultDescription;
+  } else if (defaultDescriptionVar) {
+    fields.embedDescription = defaultDescriptionVar;
   } else if (descTemplateMatch) {
     fields.embedDescription = descTemplateMatch[1];
   } else if (descMatch) {

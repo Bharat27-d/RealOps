@@ -8,7 +8,7 @@ module.exports = {
 
     // Staff roles that can see and manage tickets
     staffRoles: {
-        admin: [''],
+        admin: [],
         moderator: ['1292218198028058674', '1300518058749853716'],
         support: ['1291394387888177193'],
         partnership: ['1300834129780150272'],

@@ -139,12 +139,8 @@ module.exports = {
         }
       }
       
-      // 7. Get the current UTC time
-      const now = new Date();
-      const currentTime = this.formatUTCDate(now);
-      
-      // 8. Create event embed with current time
-      const eventEmbed = this.createEventEmbed(eventData, eventLink, currentTime);      
+      // 7. Create event embed
+      const eventEmbed = this.createEventEmbed(eventData, eventLink);      
       // 9. Create the event post in the forum channel
       const thread = await monthChannel.threads.create({
         name: eventData.name,
@@ -195,7 +191,7 @@ module.exports = {
   },
   
   // Function to create an embed for event details
-  createEventEmbed(eventData, eventLink, currentTime) {
+  createEventEmbed(eventData, eventLink) {
     const embed = new EmbedBuilder()
       .setTitle(getOverride('upcoming-events', 'title', `📅 ${eventData.name}`))
       .setDescription(getOverride('upcoming-events', 'description', DEFAULT_DESCRIPTION))
@@ -242,15 +238,4 @@ module.exports = {
     return embed;
   },
   
-  // Helper function to format date in YYYY-MM-DD HH:MM:SS UTC format
-  formatUTCDate(date) {
-    const year = date.getUTCFullYear();
-    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-    const day = String(date.getUTCDate()).padStart(2, '0');
-    const hours = String(date.getUTCHours()).padStart(2, '0');
-    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
-    const seconds = String(date.getUTCSeconds()).padStart(2, '0');
-    
-    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-  }
 };

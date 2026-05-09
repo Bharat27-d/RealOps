@@ -47,10 +47,8 @@ function Analytics() {
   ];
 
   const eventStatusData = [
-    { name: 'Scheduled', value: stats?.events?.scheduled || 0 },
-    { name: 'Upcoming', value: stats?.events?.upcoming || 0 },
-    { name: 'Completed', value: stats?.events?.completed || 0 },
-    { name: 'Cancelled', value: stats?.events?.cancelled || 0 }
+    { name: 'Scheduled', value: stats?.events?.scheduled || 0, color: '#5865F2' },
+    { name: 'Completed', value: stats?.events?.completed || 0, color: '#00b894' }
   ];
 
   // Compute event completion rate
@@ -208,7 +206,7 @@ function Analytics() {
                       width: '10px', 
                       height: '10px', 
                       borderRadius: '3px', 
-                      backgroundColor: COLORS[i] 
+                      backgroundColor: item.color || COLORS[i] 
                     }} />
                     {item.name}: {item.value}
                   </div>

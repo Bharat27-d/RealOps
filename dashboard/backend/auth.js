@@ -2,6 +2,7 @@ const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
+const bcrypt = require('bcrypt');
 const { collections } = require('./firebase');
 
 // Serialize user for session
@@ -30,6 +31,25 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
+/**
+ * Compare a plaintext password against the stored ADMIN_PASSWORD.
+ * Supports both bcrypt hashed passwords ($2b$...) and legacy plaintext.
+ */
+async function verifyAdminPassword(inputPassword) {
+  const stored = process.env.ADMIN_PASSWORD;
+  if (!stored) return false;
+
+  // If the stored password looks like a bcrypt hash, use bcrypt.compare
+  if (stored.startsWith('$2b$') || stored.startsWith('$2a$')) {
+    return bcrypt.compare(inputPassword, stored);
+  }
+
+  // Legacy plaintext fallback — compare directly
+  // (log a warning so the admin knows to upgrade)
+  console.warn('⚠️  ADMIN_PASSWORD is stored in plaintext. Run the hash-password script to upgrade.');
+  return inputPassword === stored;
+}
+
 // Local Strategy for email/password login
 passport.use(new LocalStrategy(
   {
@@ -40,7 +60,8 @@ passport.use(new LocalStrategy(
     try {
       // Check admin credentials
       if (email === process.env.ADMIN_EMAIL) {
-        if (password === process.env.ADMIN_PASSWORD) {
+        const isValid = await verifyAdminPassword(password);
+        if (isValid) {
           const adminUser = {
             id: 'admin',
             email: process.env.ADMIN_EMAIL,
@@ -115,4 +136,4 @@ const isAdmin = async (req, res, next) => {
   res.status(403).json({ error: 'Admin access required' });
 };
 
-module.exports = { passport, isAuthenticated, isStaff, isAdmin };
+module.exports = { passport, isAuthenticated, isStaff, isAdmin, verifyAdminPassword };

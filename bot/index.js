@@ -23,13 +23,22 @@ if (!TOKEN || !CLIENT_ID || !GUILD_ID) {
     process.exit(1);
 }
 
+// Global error handlers — prevent silent crashes
+process.on('unhandledRejection', (error) => {
+    console.error('⚠️ Unhandled promise rejection:', error);
+});
+process.on('uncaughtException', (error) => {
+    console.error('🔴 Uncaught exception:', error);
+});
+
 // Create client instance
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.GuildMembers,
-        GatewayIntentBits.MessageContent
+        GatewayIntentBits.MessageContent,
+        GatewayIntentBits.GuildMessageReactions
     ],
     partials: [Partials.Channel, Partials.Message, Partials.Reaction]
 });
@@ -45,15 +54,6 @@ fs.readdirSync(eventsPath)
         } else {
             console.warn(`[WARNING] Event file ${file} does not export { name, execute }!`);
         }
-    });
-
-// Load all panel modules
-const panelModules = {};
-fs.readdirSync(path.join(__dirname, 'panels'))
-    .filter(file => file.endsWith('.js'))
-    .forEach(file => {
-        const key = path.parse(file).name;
-        panelModules[key] = require(path.join(__dirname, 'panels', file));
     });
 
 // Define special panel setup commands
@@ -143,7 +143,54 @@ client.once('ready', async () => {
     setupCustomCommandsListener(client, registerCommands);
     
     setupTicketSystem(client);
+
+    // Start lightweight health check HTTP server
+    startHealthServer();
 });
+
+// ─── Bot Health Check Server ───
+// Allows PM2, monitoring tools, or load balancers to check if the bot is alive
+const http = require('http');
+const HEALTH_PORT = process.env.BOT_HEALTH_PORT || 3002;
+
+function startHealthServer() {
+    const server = http.createServer((req, res) => {
+        if (req.url === '/health' && req.method === 'GET') {
+            const wsStatus = client.ws?.status;
+            const wsStatusName = ['READY', 'CONNECTING', 'RECONNECTING', 'IDLE', 'NEARLY', 'DISCONNECTED', 'WAITING_FOR_GUILDS', 'IDENTIFYING', 'RESUMING'][wsStatus] || 'UNKNOWN';
+            const isHealthy = wsStatus === 0; // 0 = READY
+
+            const healthData = {
+                status: isHealthy ? 'ok' : 'degraded',
+                bot: client.user?.tag || 'Not logged in',
+                wsStatus: wsStatusName,
+                uptime: client.uptime ? `${Math.floor(client.uptime / 1000 / 60)} minutes` : 'N/A',
+                guilds: client.guilds?.cache.size || 0,
+                ping: `${client.ws?.ping || 0}ms`,
+                memoryUsage: `${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)}MB`,
+                timestamp: new Date().toISOString()
+            };
+
+            res.writeHead(isHealthy ? 200 : 503, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(healthData));
+        } else {
+            res.writeHead(404);
+            res.end('Not found');
+        }
+    });
+
+    server.listen(HEALTH_PORT, () => {
+        console.log(`🏥 Bot health check server running on port ${HEALTH_PORT}`);
+    });
+
+    server.on('error', (err) => {
+        if (err.code === 'EADDRINUSE') {
+            console.warn(`⚠️ Health check port ${HEALTH_PORT} already in use, skipping health server`);
+        } else {
+            console.error('Health server error:', err);
+        }
+    });
+}
 
 // Global error handler
 process.on('uncaughtException', (error) => {

@@ -19,17 +19,35 @@ router.get('/', isStaff, async (req, res) => {
     let query = collections.tickets;
 
     if (status) {
-      query = query.where('status', '==', status);
+      if (status === 'closed') {
+        // The bot saves closed tickets with { closed: true }
+        query = query.where('closed', '==', true);
+      } else {
+        query = query.where('status', '==', status);
+      }
     }
     if (assignedTo) {
       query = query.where('assignedTo', '==', assignedTo);
     }
 
-    const snapshot = await query.orderBy('createdAt', 'desc').limit(200).get();
-    const tickets = [];
+    // Remove .orderBy('createdAt', 'desc') from the Firestore query to avoid the 
+    // "FAILED_PRECONDITION: The query requires an index" error.
+    // Instead, we will fetch the matching documents and sort them in memory.
+    const snapshot = await query.get();
+    let tickets = [];
     snapshot.forEach(doc => {
       tickets.push({ id: doc.id, ...doc.data() });
     });
+    
+    // Sort in memory (newest first)
+    tickets.sort((a, b) => {
+      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return dateB - dateA;
+    });
+    
+    // Limit to 200 after sorting
+    tickets = tickets.slice(0, 200);
     
     // Cache for 30 seconds
     cache.set(cacheKey, tickets, CACHE_TTL.SHORT);

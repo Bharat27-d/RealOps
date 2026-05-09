@@ -82,6 +82,14 @@ function scheduleReminder(eventId, delay) {
 
   // Schedule new timeout
   const timeoutId = setTimeout(async () => {
+    // If delay was capped, re-check if more waiting is needed
+    if (delay > MAX_TIMEOUT) {
+      const remaining = delay - MAX_TIMEOUT;
+      if (remaining > 1000) {
+        scheduleReminder(eventId, remaining); // Re-schedule with remaining time
+        return;
+      }
+    }
     await sendCalendarEventReminder(eventId);
     activeReminders.delete(eventId);
   }, safeDelay);

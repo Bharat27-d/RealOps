@@ -37,6 +37,14 @@ class DiscordBotManager {
     };
   }
 
+  // Normalize embed color to #RRGGBB format
+  _normalizeColor(color) {
+    if (typeof color === 'number') color = color.toString(16).padStart(6, '0');
+    else if (typeof color !== 'string') return '#00b894';
+    else if (color.startsWith('#')) color = color.substring(1);
+    return /^[0-9A-Fa-f]{6}$/.test(color) ? `#${color}` : '#00b894';
+  }
+
   initialize(token) {
     this.client = new Client({
       intents: [
@@ -46,9 +54,6 @@ class DiscordBotManager {
         GatewayIntentBits.MessageContent
       ]
     });
-
-    // Debug log for Discord bot token
-    console.log('DEBUG: DISCORD_BOT_TOKEN used for login:', token);
 
     this.client.login(token);
 
@@ -63,24 +68,7 @@ class DiscordBotManager {
       const channel = await this.client.channels.fetch(channelId);
       if (!channel) throw new Error('Channel not found');
 
-      // Validate and normalize color to 6-digit hex
-      let color = embedData.color || '#00b894';
-      
-      // Convert to string if it's a number
-      if (typeof color === 'number') {
-        color = color.toString(16).padStart(6, '0');
-      } else if (typeof color !== 'string') {
-        color = '00b894';
-      } else if (color.startsWith('#')) {
-        color = color.substring(1);
-      }
-      
-      // Ensure it's exactly 6 characters, pad with 0s or use default
-      if (!/^[0-9A-Fa-f]{6}$/.test(color)) {
-        console.log(`Invalid color format: ${embedData.color}, using default #00b894`);
-        color = '00b894';
-      }
-      color = `#${color}`;
+      const color = this._normalizeColor(embedData.color);
 
       const embed = new EmbedBuilder()
         .setTitle(embedData.title || null)
@@ -173,50 +161,8 @@ class DiscordBotManager {
     }
   }
 
-  // Send multiple embeds (scenario pack system)
-  async sendMultipleEmbeds(channelId, embedsData) {
-    try {
-      const channel = await this.client.channels.fetch(channelId);
-      if (!channel) throw new Error('Channel not found');
-
-      const embeds = embedsData.map(data => {
-        const embed = new EmbedBuilder()
-          .setTitle(data.title || null)
-          .setDescription(data.description || null)
-          .setColor(data.color || '#00b894')
-          .setTimestamp(data.timestamp ? new Date() : null);
-
-        if (data.footer) {
-          embed.setFooter({
-            text: data.footer.text,
-            iconURL: data.footer.iconURL || null
-          });
-        }
-
-        if (data.thumbnail) {
-          console.log('Setting thumbnail for scenario:', data.thumbnail);
-          embed.setThumbnail(data.thumbnail);
-        }
-        
-        if (data.image) {
-          console.log('Setting image for scenario:', data.image);
-          embed.setImage(data.image);
-        }
-
-        return embed;
-      });
-
-      const message = await channel.send({
-        content: embedsData[0]?.mention || null,
-        embeds
-      });
-
-      return { success: true, messageId: message.id };
-    } catch (error) {
-      console.error('Error sending multiple embeds:', error);
-      throw error;
-    }
-  }
+  // NOTE: sendMultipleEmbeds is defined below (line ~476) with full color validation.
+  // The duplicate that was here has been removed.
 
   // Send DM to user
   async sendDM(userId, content, embed = null) {
@@ -248,7 +194,7 @@ class DiscordBotManager {
       let allMembers = this.getCached('members');
       
       if (!allMembers) {
-        console.log('Fetching guild members from Discord API...');
+        // Fetching guild members from Discord API
         const guild = await this.client.guilds.fetch(process.env.DISCORD_GUILD_ID);
         
         // Use chunk-based fetching to avoid rate limits
@@ -271,9 +217,9 @@ class DiscordBotManager {
         
         // Cache the results
         this.setCache('members', allMembers);
-        console.log(`Cached ${allMembers.length} guild members`);
+        // Cached guild members
       } else {
-        console.log(`Using cached members: ${allMembers.length} members`);
+        // Using cached members
       }
 
       // Ensure allMembers is always an array
@@ -287,11 +233,11 @@ class DiscordBotManager {
         const filtered = allMembers.filter(member =>
           member.roles.some(role => roleIds.includes(role.id))
         );
-        console.log(`Filtered to ${filtered.length} members with roles:`, roleIds);
+        // Filtered members by roles
         return filtered;
       }
 
-      console.log(`Returning all ${allMembers.length} members`);
+      // Returning all members
       return allMembers;
     } catch (error) {
       console.error('Error getting guild members:', error);
@@ -482,15 +428,7 @@ class DiscordBotManager {
       if (!channel) throw new Error('Channel not found');
 
       const embeds = embedsData.map(embedData => {
-        // Validate and normalize color
-        let color = embedData.color || '#00b894';
-        if (color.startsWith('#')) {
-          color = color.substring(1);
-        }
-        if (!/^[0-9A-Fa-f]{6}$/.test(color)) {
-          color = '00b894';
-        }
-        color = `#${color}`;
+        const color = this._normalizeColor(embedData.color);
 
         const embed = new EmbedBuilder()
           .setTitle(embedData.title || null)
@@ -684,18 +622,7 @@ class DiscordBotManager {
       }
 
       // Build the new embed
-      let color = embedData.color || '#00b894';
-      if (typeof color === 'number') {
-        color = color.toString(16).padStart(6, '0');
-      } else if (typeof color !== 'string') {
-        color = '00b894';
-      } else if (color.startsWith('#')) {
-        color = color.substring(1);
-      }
-      if (!/^[0-9A-Fa-f]{6}$/.test(color)) {
-        color = '00b894';
-      }
-      color = `#${color}`;
+      const color = this._normalizeColor(embedData.color);
 
       const embed = new EmbedBuilder()
         .setTitle(embedData.title || null)

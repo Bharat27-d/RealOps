@@ -43,6 +43,8 @@ module.exports = {
           text: getOverride('partnerannouncement', 'footerText', 'The Real Ops Group Partnership Manager'),
           iconURL: getOverride('partnerannouncement', 'footerIcon', 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png')
         });
+
+      await interaction.editReply({ embeds: [embed] });
     } catch (error) {
       console.error('Error in /partnerannouncement:', error);
       if (!interaction.replied && !interaction.deferred) {

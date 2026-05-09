@@ -10,12 +10,15 @@ const OPTION_TYPES = [
   { value: 'boolean', label: 'True/False', icon: '✅' },
 ];
 
+const OPTION_PLACEHOLDER = ['$', '{optionName}'].join('');
+const OPTION_MENTION_PLACEHOLDER = ['$', '{optionName.mention}'].join('');
+
 const inputStyle = {
-  width: '100%', padding: '7px 10px', background: '#2C2F33', border: '1px solid #40444b',
-  borderRadius: '5px', color: '#dcddde', fontSize: '12px', outline: 'none', boxSizing: 'border-box'
+  width: '100%', padding: '9px 11px', background: '#2C2F33', border: '1px solid #40444b',
+  borderRadius: '6px', color: '#dcddde', fontSize: '13px', outline: 'none', boxSizing: 'border-box'
 };
 const sectionStyle = {
-  background: '#202225', borderRadius: '8px', padding: '15px',
+  background: '#202225', borderRadius: '8px', padding: '16px',
   marginBottom: '15px', border: '1px solid #2d2f34'
 };
 
@@ -44,8 +47,8 @@ function OptionsEditor({ options = [], onChange }) {
       </div>
 
       <p style={{ color: '#72767d', fontSize: '11px', margin: '0 0 10px 0', lineHeight: '1.5' }}>
-        Add input options that users fill in when running the command. Use <code style={{ color: '#e67e22', background: '#2C2F33', padding: '1px 4px', borderRadius: '3px' }}>${'${optionName}'}</code> in your embed to insert their value.
-        For user/role/channel, use <code style={{ color: '#e67e22', background: '#2C2F33', padding: '1px 4px', borderRadius: '3px' }}>${'${optionName.mention}'}</code> to tag them.
+        Add input options that users fill in when running the command. Use <code style={{ color: '#e67e22', background: '#2C2F33', padding: '1px 4px', borderRadius: '3px' }}>{OPTION_PLACEHOLDER}</code> in your embed to insert their value.
+        For user/role/channel, use <code style={{ color: '#e67e22', background: '#2C2F33', padding: '1px 4px', borderRadius: '3px' }}>{OPTION_MENTION_PLACEHOLDER}</code> to tag them.
       </p>
 
       {options.length === 0 && (
@@ -59,16 +62,16 @@ function OptionsEditor({ options = [], onChange }) {
           background: '#2C2F33', borderRadius: '6px', padding: '10px',
           marginBottom: '8px', border: '1px solid #40444b'
         }}>
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '6px', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
             {/* Type */}
             <select value={opt.type || 'string'} onChange={e => setOpt(i, 'type', e.target.value)}
-              style={{ ...inputStyle, width: '130px', cursor: 'pointer' }}>
+              style={{ ...inputStyle, width: '150px', cursor: 'pointer', flex: '0 0 150px' }}>
               {OPTION_TYPES.map(t => (
                 <option key={t.value} value={t.value}>{t.icon} {t.label}</option>
               ))}
             </select>
             {/* Name */}
-            <input style={{ ...inputStyle, flex: 1, fontFamily: 'monospace' }}
+            <input style={{ ...inputStyle, flex: '1 1 220px', minWidth: '180px', fontFamily: 'monospace' }}
               value={opt.name || ''} placeholder="option-name"
               onChange={e => setOpt(i, 'name', e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ''))} />
             {/* Required toggle */}

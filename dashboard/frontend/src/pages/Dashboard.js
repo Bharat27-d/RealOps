@@ -266,9 +266,7 @@ function Dashboard() {
           <div>
             {[
               { label: 'Scheduled', value: stats?.events?.scheduled || 0, color: '#5865F2' },
-              { label: 'Upcoming', value: stats?.events?.upcoming || 0, color: '#fdcb6e' },
               { label: 'Completed', value: stats?.events?.completed || 0, color: '#00b894' },
-              { label: 'Cancelled', value: stats?.events?.cancelled || 0, color: '#ed4245' },
             ].map((item, i) => (
               <div key={i} style={{ 
                 display: 'flex', 
@@ -277,7 +275,7 @@ function Dashboard() {
                 padding: '14px 16px',
                 backgroundColor: '#23272A',
                 borderRadius: '8px',
-                marginBottom: i < 3 ? '10px' : '0',
+                marginBottom: i < 1 ? '10px' : '0',
                 border: '1px solid #40444b'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>

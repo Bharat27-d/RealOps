@@ -227,7 +227,7 @@ module.exports = {
       console.error('Error in suggestion handler:', error);
       try {
         await interaction.followUp({
-          content: `❌ An unexpected error occurred handling this suggestion:\n\`\`\`js\n${error.stack || error.message}\n\`\`\`\nPlease send this error to the developer.`,
+          content: '❌ An unexpected error occurred handling this suggestion. Please try again or contact an administrator.',
           flags: MessageFlags.Ephemeral
         });
       } catch (e) {}

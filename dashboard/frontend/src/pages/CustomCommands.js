@@ -1,39 +1,254 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import { FaTerminal, FaPlus, FaEdit, FaTrash, FaTimes, FaCog, FaUndo, FaImage, FaSave } from 'react-icons/fa';
+import { FaTerminal, FaPlus, FaTrash, FaCog, FaUndo, FaImage, FaSave, FaEdit } from 'react-icons/fa';
 import { customCommands } from '../services/api';
 import EmbedEditor from '../components/EmbedEditor';
 import OptionsEditor from '../components/OptionsEditor';
 
-// Default empty embed form
 const EMPTY_FORM = {
-  name: '', description: '', title: '', text: '', image: '', thumbnail: '',
-  color: '', url: '', timestamp: '',
-  authorName: '', authorIcon: '', authorUrl: '',
-  footerText: '', footerIcon: '',
-  fields: [], options: [], enabled: true
+  name: '',
+  description: '',
+  title: '',
+  text: '',
+  image: '',
+  thumbnail: '',
+  color: '',
+  url: '',
+  timestamp: '',
+  authorName: '',
+  authorIcon: '',
+  authorUrl: '',
+  footerText: '',
+  footerIcon: '',
+  fields: [],
+  options: [],
+  enabled: true
 };
+
+const commandLabelStyle = {
+  color: '#b9bbbe',
+  fontSize: '12px',
+  marginBottom: '6px',
+  display: 'block',
+  fontWeight: '600'
+};
+
+const commandInputStyle = {
+  width: '100%',
+  padding: '12px 14px',
+  background: '#0f1115',
+  border: '1px solid #40444b',
+  borderRadius: '6px',
+  color: '#dcddde',
+  fontSize: '14px',
+  outline: 'none',
+  boxSizing: 'border-box'
+};
+
+const commandPanelStyle = {
+  background: '#202225',
+  borderRadius: '8px',
+  padding: '16px',
+  marginBottom: '16px',
+  border: '1px solid #2d2f34'
+};
+
+const makeEmptyForm = () => ({
+  ...EMPTY_FORM,
+  fields: [],
+  options: []
+});
+
+const hasOverrides = (cmd) => cmd.overrides && Object.keys(cmd.overrides).length > 0;
+
+const commandToForm = (command) => ({
+  ...makeEmptyForm(),
+  name: command.name || '',
+  description: command.description || '',
+  title: command.title || '',
+  text: command.text || '',
+  image: command.image || '',
+  thumbnail: command.thumbnail || '',
+  color: command.color || '',
+  url: command.url || '',
+  timestamp: command.timestamp || '',
+  authorName: command.authorName || '',
+  authorIcon: command.authorIcon || '',
+  authorUrl: command.authorUrl || '',
+  footerText: command.footerText || '',
+  footerIcon: command.footerIcon || '',
+  fields: Array.isArray(command.fields) ? command.fields : [],
+  options: Array.isArray(command.options) ? command.options : [],
+  enabled: command.enabled !== false
+});
+
+const builtInToForm = (command) => {
+  const current = command.current || {};
+  const overrides = command.overrides || {};
+
+  return {
+    ...makeEmptyForm(),
+    name: command.name || '',
+    description: command.description || '',
+    title: overrides.title ?? current.title ?? '',
+    text: overrides.description ?? current.description ?? current.embedDescription ?? '',
+    image: overrides.image ?? current.image ?? '',
+    thumbnail: overrides.thumbnail ?? current.thumbnail ?? '',
+    color: overrides.color ?? current.color ?? '',
+    url: overrides.url ?? current.url ?? '',
+    timestamp: overrides.timestamp ?? current.timestamp ?? '',
+    authorName: overrides.authorName ?? current.authorName ?? '',
+    authorIcon: overrides.authorIcon ?? current.authorIcon ?? '',
+    authorUrl: overrides.authorUrl ?? current.authorUrl ?? '',
+    footerText: overrides.footerText ?? current.footerText ?? '',
+    footerIcon: overrides.footerIcon ?? current.footerIcon ?? '',
+    fields: Array.isArray(overrides.fields)
+      ? overrides.fields
+      : Array.isArray(current.fields)
+        ? current.fields
+        : [],
+    options: [],
+    enabled: true,
+    sourceFile: command.file || ''
+  };
+};
+
+const cleanFields = (fields = []) => fields
+  .filter(field => field && field.name && field.name.trim() && field.value && field.value.trim())
+  .map(field => ({
+    name: field.name.trim(),
+    value: field.value.trim(),
+    inline: !!field.inline
+  }));
+
+const buildBuiltInPayload = (data) => ({
+  image: (data.image || '').trim(),
+  thumbnail: (data.thumbnail || '').trim(),
+  color: (data.color || '').trim(),
+  title: (data.title || '').trim(),
+  description: (data.text || '').trim(),
+  footerText: (data.footerText || '').trim(),
+  footerIcon: (data.footerIcon || '').trim(),
+  authorName: (data.authorName || '').trim(),
+  authorIcon: (data.authorIcon || '').trim(),
+  authorUrl: (data.authorUrl || '').trim(),
+  url: (data.url || '').trim(),
+  timestamp: (data.timestamp || '').trim(),
+  fields: cleanFields(data.fields)
+});
+
+const embedCharCount = (data) => {
+  const fieldCount = (data.fields || []).reduce((total, field) => (
+    total + (field.name || '').length + (field.value || '').length
+  ), 0);
+
+  return [
+    data.title,
+    data.text,
+    data.footerText,
+    data.authorName
+  ].reduce((total, value) => total + (value || '').length, fieldCount);
+};
+
+function CommandBuilderPreview({ data, type }) {
+  const options = Array.isArray(data.options) ? data.options.filter(opt => opt.name) : [];
+  const optionText = options.length
+    ? options.map(opt => `${opt.required ? '<' : '['}${opt.name}${opt.required ? '>' : ']'}`).join(' ')
+    : '';
+  const hasResponse = !!(data.title || data.text || data.image || data.thumbnail || data.authorName || data.footerText || (data.fields || []).length);
+
+  return (
+    <div className="custom-command-preview">
+      <div>
+        <div className="custom-command-preview-label">
+          {type === 'built-in' ? 'Built-in command' : type === 'custom' ? 'Custom command' : 'New custom command'}
+        </div>
+        <div className="custom-command-preview-command">
+          /{data.name || 'command-name'}{optionText && <span> {optionText}</span>}
+        </div>
+        <div className="custom-command-preview-description">
+          {data.description || 'Add the slash-command description users will see in Discord.'}
+        </div>
+      </div>
+      <div className="custom-command-preview-stats">
+        <span>{options.length} options</span>
+        <span>{(data.fields || []).length} fields</span>
+        <span className={data.enabled !== false ? 'is-enabled' : 'is-disabled'}>{data.enabled !== false ? 'Enabled' : 'Disabled'}</span>
+        <span>{hasResponse ? 'Response ready' : 'No response yet'}</span>
+      </div>
+    </div>
+  );
+}
+
+function CommandResponsePreview({ data }) {
+  const color = data.color || '#00b894';
+  const fields = (data.fields || []).filter(field => field.name?.trim() && field.value?.trim());
+  const hasAuthor = data.authorName && data.authorName.trim();
+  const hasFooter = data.footerText && data.footerText.trim();
+  const hasContent = !!(data.title || data.text || data.image || data.thumbnail || hasAuthor || hasFooter || fields.length);
+
+  if (!hasContent) {
+    return (
+      <div className="command-empty-preview">
+        <FaImage />
+        <strong>No response content yet</strong>
+        <span>Add a title, description, field, image, or footer in the editor.</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="command-discord-preview" style={{ borderLeftColor: color }}>
+      <div className="command-discord-preview-main">
+        {hasAuthor && (
+          <div className="command-preview-author">
+            {data.authorIcon && <img src={data.authorIcon} alt="" onError={e => { e.currentTarget.style.display = 'none'; }} />}
+            <strong>{data.authorName}</strong>
+          </div>
+        )}
+        {data.title && (
+          <div className={data.url ? 'command-preview-title is-link' : 'command-preview-title'}>
+            {data.title}
+          </div>
+        )}
+        {data.text && <div className="command-preview-text">{data.text}</div>}
+        {fields.length > 0 && (
+          <div className="command-preview-fields">
+            {fields.map((field, index) => (
+              <div key={`${field.name}-${index}`} style={{ gridColumn: field.inline ? 'span 1' : 'span 3' }}>
+                <strong>{field.name}</strong>
+                <span>{field.value}</span>
+              </div>
+            ))}
+          </div>
+        )}
+        {data.image && <img className="command-preview-image" src={data.image} alt="" onError={e => { e.currentTarget.style.display = 'none'; }} />}
+        {(hasFooter || data.timestamp) && (
+          <div className="command-preview-footer">
+            {data.footerIcon && hasFooter && <img src={data.footerIcon} alt="" onError={e => { e.currentTarget.style.display = 'none'; }} />}
+            {hasFooter && <span>{data.footerText}</span>}
+            {hasFooter && data.timestamp && <span>•</span>}
+            {data.timestamp && <span>{data.timestamp === 'auto' ? 'Today at 12:00 PM' : data.timestamp}</span>}
+          </div>
+        )}
+      </div>
+      {data.thumbnail && (
+        <img className="command-preview-thumbnail" src={data.thumbnail} alt="" onError={e => { e.currentTarget.style.display = 'none'; }} />
+      )}
+    </div>
+  );
+}
 
 function CustomCommands() {
   const [commands, setCommands] = useState([]);
   const [builtInCommands, setBuiltInCommands] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isBuiltInModalOpen, setIsBuiltInModalOpen] = useState(false);
-  const [editingCommand, setEditingCommand] = useState(null);
-  const [editingBuiltIn, setEditingBuiltIn] = useState(null);
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState('all');
-
-  // Form state for custom commands
-  const [formData, setFormData] = useState({ ...EMPTY_FORM });
-
-  // Override form state for built-in commands
-  const [overrideData, setOverrideData] = useState({
-    image: '', thumbnail: '', color: '', title: '', description: '',
-    footerText: '', footerIcon: '', authorName: '', authorIcon: '', authorUrl: '',
-    url: '', timestamp: '', fields: []
-  });
+  const [selectedKey, setSelectedKey] = useState('new');
+  const [builderType, setBuilderType] = useState('new');
+  const [selectedCustom, setSelectedCustom] = useState(null);
+  const [selectedBuiltIn, setSelectedBuiltIn] = useState(null);
+  const [formData, setFormData] = useState(makeEmptyForm());
 
   useEffect(() => { fetchAll(); }, []);
 
@@ -43,441 +258,349 @@ function CustomCommands() {
         customCommands.getAll(),
         customCommands.getBuiltIn()
       ]);
-      setCommands(customRes.data);
-      setBuiltInCommands(builtInRes.data);
+      const customData = customRes.data || [];
+      const builtInData = builtInRes.data || [];
+
+      setCommands(customData);
+      setBuiltInCommands(builtInData);
+      return { custom: customData, builtIn: builtInData };
     } catch (error) {
       toast.error('Failed to load commands');
       console.error(error);
+      return { custom: [], builtIn: [] };
     } finally {
       setLoading(false);
     }
   };
 
-  // --- Custom Command Handlers ---
-  const handleOpenModal = (command = null) => {
-    if (command) {
-      setEditingCommand(command);
-      setFormData({
-        name: command.name || '', description: command.description || '',
-        title: command.title || '', text: command.text || '',
-        image: command.image || '', thumbnail: command.thumbnail || '',
-        color: command.color || '', url: command.url || '',
-        timestamp: command.timestamp || '',
-        authorName: command.authorName || '', authorIcon: command.authorIcon || '',
-        authorUrl: command.authorUrl || '',
-        footerText: command.footerText || '', footerIcon: command.footerIcon || '',
-        fields: Array.isArray(command.fields) ? command.fields : [],
-        options: Array.isArray(command.options) ? command.options : [],
-        enabled: command.enabled !== false
-      });
-    } else {
-      setEditingCommand(null);
-      setFormData({ ...EMPTY_FORM });
-    }
-    setIsModalOpen(true);
+  const handleNewCommand = () => {
+    setSelectedKey('new');
+    setBuilderType('new');
+    setSelectedCustom(null);
+    setSelectedBuiltIn(null);
+    setFormData(makeEmptyForm());
   };
 
-  const handleCloseModal = () => { setIsModalOpen(false); setEditingCommand(null); };
+  const loadCustomCommand = (command) => {
+    setSelectedKey(`custom:${command.id}`);
+    setBuilderType('custom');
+    setSelectedCustom(command);
+    setSelectedBuiltIn(null);
+    setFormData(commandToForm(command));
+  };
 
-  const handleSave = async (e) => {
-    e.preventDefault();
-    if (!formData.name.trim()) { toast.error('Command name is required'); return; }
+  const loadBuiltInCommand = (command) => {
+    setSelectedKey(`built-in:${command.name}`);
+    setBuilderType('built-in');
+    setSelectedBuiltIn(command);
+    setSelectedCustom(null);
+    setFormData(builtInToForm(command));
+  };
+
+  const handleSelectCommand = (value) => {
+    if (value === 'new') {
+      handleNewCommand();
+      return;
+    }
+
+    if (value.startsWith('custom:')) {
+      const id = value.replace('custom:', '');
+      const command = commands.find(cmd => cmd.id === id);
+      if (command) loadCustomCommand(command);
+      return;
+    }
+
+    if (value.startsWith('built-in:')) {
+      const name = value.replace('built-in:', '');
+      const command = builtInCommands.find(cmd => cmd.name === name);
+      if (command) loadBuiltInCommand(command);
+    }
+  };
+
+  const validateCustomCommand = () => {
+    const cleanName = formData.name.toLowerCase().replace(/[^a-z0-9_-]/g, '');
+    if (!cleanName) {
+      toast.error('Command name is required');
+      return false;
+    }
+    if (!formData.description.trim()) {
+      toast.error('Command description is required');
+      return false;
+    }
+
+    const customNameExists = commands.some(cmd => cmd.name === cleanName && cmd.id !== selectedCustom?.id);
+    const builtInNameExists = builtInCommands.some(cmd => cmd.name === cleanName);
+    if (builderType === 'new' && (customNameExists || builtInNameExists)) {
+      toast.error(`/${cleanName} already exists`);
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSave = async () => {
     setSaving(true);
+
     try {
-      if (editingCommand) {
-        await customCommands.update(editingCommand.id, formData);
-        toast.success(`Command /${formData.name} updated!`);
-      } else {
-        await customCommands.create(formData);
-        toast.success(`Command /${formData.name} created!`);
+      if (builderType === 'built-in') {
+        if (!selectedBuiltIn) return;
+        await customCommands.updateBuiltIn(selectedBuiltIn.name, buildBuiltInPayload(formData));
+        toast.success(`/${selectedBuiltIn.name} updated! Changes apply instantly.`);
+        const next = await fetchAll();
+        const updated = next.builtIn.find(cmd => cmd.name === selectedBuiltIn.name);
+        if (updated) loadBuiltInCommand(updated);
+        return;
       }
-      handleCloseModal();
-      fetchAll();
+
+      if (!validateCustomCommand()) return;
+      const payload = {
+        ...formData,
+        name: formData.name.toLowerCase().replace(/[^a-z0-9_-]/g, '')
+      };
+      delete payload.sourceFile;
+
+      if (builderType === 'custom' && selectedCustom) {
+        const res = await customCommands.update(selectedCustom.id, payload);
+        toast.success(`Command /${selectedCustom.name} updated!`);
+        const updated = { ...selectedCustom, ...res.data };
+        setSelectedCustom(updated);
+        setFormData(commandToForm(updated));
+        await fetchAll();
+      } else {
+        const res = await customCommands.create(payload);
+        toast.success(`Command /${res.data.name} created!`);
+        await fetchAll();
+        loadCustomCommand(res.data);
+      }
     } catch (error) {
       toast.error(error.response?.data?.error || 'Failed to save command');
-    } finally { setSaving(false); }
-  };
-
-  const handleDelete = async (id, name) => {
-    if (window.confirm(`Delete /${name}? This cannot be undone.`)) {
-      try {
-        await customCommands.delete(id);
-        toast.success(`Command /${name} deleted!`);
-        fetchAll();
-      } catch (error) { toast.error('Failed to delete command'); }
+    } finally {
+      setSaving(false);
     }
   };
 
-  const handleToggle = async (command) => {
+  const handleDeleteSelected = async () => {
+    if (!selectedCustom) return;
+    if (!window.confirm(`Delete /${selectedCustom.name}? This cannot be undone.`)) return;
+
     try {
-      await customCommands.update(command.id, { ...command, enabled: !command.enabled });
-      fetchAll();
-      toast.success(`/${command.name} ${!command.enabled ? 'enabled' : 'disabled'}`);
-    } catch (error) { toast.error('Failed to toggle command'); }
-  };
-
-  // --- Built-in Command Override Handlers ---
-  const handleOpenBuiltInModal = (cmd) => {
-    setEditingBuiltIn(cmd);
-    const current = cmd.current || {};
-    const overrides = cmd.overrides || {};
-    setOverrideData({
-      image: overrides.image || current.image || '',
-      thumbnail: overrides.thumbnail || current.thumbnail || '',
-      color: overrides.color || current.color || '',
-      title: overrides.title || current.title || '',
-      description: overrides.description || current.embedDescription || '',
-      footerText: overrides.footerText || current.footerText || '',
-      footerIcon: overrides.footerIcon || current.footerIcon || '',
-      authorName: overrides.authorName || '', authorIcon: overrides.authorIcon || '',
-      authorUrl: overrides.authorUrl || '', url: overrides.url || '',
-      timestamp: overrides.timestamp || '',
-      fields: Array.isArray(overrides.fields) ? overrides.fields : []
-    });
-    setIsBuiltInModalOpen(true);
-  };
-
-  const handleCloseBuiltInModal = () => { setIsBuiltInModalOpen(false); setEditingBuiltIn(null); };
-
-  const handleSaveOverride = async (e) => {
-    e.preventDefault();
-    if (!editingBuiltIn) return;
-    setSaving(true);
-    try {
-      const cleanData = {};
-      Object.entries(overrideData).forEach(([key, value]) => {
-        if (key === 'fields') {
-          if (Array.isArray(value) && value.length > 0) cleanData.fields = value;
-        } else if (value && typeof value === 'string' && value.trim()) {
-          cleanData[key] = value.trim();
-        }
-      });
-      await customCommands.updateBuiltIn(editingBuiltIn.name, cleanData);
-      toast.success(`/${editingBuiltIn.name} updated! Changes apply instantly.`);
-      handleCloseBuiltInModal();
-      fetchAll();
+      await customCommands.delete(selectedCustom.id);
+      toast.success(`/${selectedCustom.name} deleted`);
+      await fetchAll();
+      handleNewCommand();
     } catch (error) {
-      toast.error('Failed to save overrides');
-    } finally { setSaving(false); }
-  };
-
-  const handleResetOverride = async (commandName) => {
-    if (window.confirm(`Reset /${commandName} to original defaults? All custom images/text will be removed.`)) {
-      try {
-        await customCommands.resetBuiltIn(commandName);
-        toast.success(`/${commandName} reset to defaults!`);
-        fetchAll();
-      } catch (error) { toast.error('Failed to reset command'); }
+      toast.error('Failed to delete command');
     }
   };
 
-  // Filter
-  const getFiltered = () => {
-    if (activeTab === 'custom') return { custom: commands, builtIn: [] };
-    if (activeTab === 'builtin') return { custom: [], builtIn: builtInCommands };
-    return { custom: commands, builtIn: builtInCommands };
-  };
-  const { custom: filteredCustom, builtIn: filteredBuiltIn } = getFiltered();
-  const totalCount = commands.length + builtInCommands.length;
+  const handleResetSelected = async () => {
+    if (!selectedBuiltIn) return;
+    if (!window.confirm(`Reset /${selectedBuiltIn.name} to original defaults? All custom content will be removed.`)) return;
 
-  const hasOverrides = (cmd) => cmd.overrides && Object.keys(cmd.overrides).length > 0;
-  const hasEditableContent = (cmd) => cmd.defaults && Object.keys(cmd.defaults).length > 0;
+    try {
+      await customCommands.resetBuiltIn(selectedBuiltIn.name);
+      toast.success(`/${selectedBuiltIn.name} reset to defaults`);
+      const next = await fetchAll();
+      const updated = next.builtIn.find(cmd => cmd.name === selectedBuiltIn.name);
+      if (updated) loadBuiltInCommand(updated);
+    } catch (error) {
+      toast.error('Failed to reset command');
+    }
+  };
+
+  const updateForm = (updates) => {
+    setFormData(prev => ({ ...prev, ...updates }));
+  };
+
+  const isBuiltIn = builderType === 'built-in';
+  const isExistingCustom = builderType === 'custom';
+  const count = embedCharCount(formData);
 
   if (loading) return <div className="loading"><div className="spinner"></div></div>;
 
   return (
     <div className="page-container">
-      <div className="page-title">
-        <h1><FaTerminal /> Commands Manager</h1>
-        <button className="btn btn-primary" onClick={() => handleOpenModal()}>
-          <FaPlus /> New Command
-        </button>
+      <div className="page-title command-builder-title">
+        <div className="command-builder-title-left">
+          <button className="btn btn-primary" onClick={handleNewCommand}>
+            <FaPlus /> Create New Command
+          </button>
+          <h1><FaTerminal /> Commands Builder</h1>
+        </div>
+        <div className="command-builder-title-stats">
+          <span>{builtInCommands.length} built-in</span>
+          <span>{commands.length} custom</span>
+          <span>{builtInCommands.filter(hasOverrides).length} customized</span>
+        </div>
       </div>
 
-      <div className="card">
-        <p style={{ color: '#dcddde', marginBottom: '20px' }}>
-          Manage all your bot's slash commands. Edit images, banners, and text for built-in commands, or create new custom commands — all changes sync to the bot instantly.
-        </p>
-
-        {/* Stats */}
-        <div style={{ display: 'flex', gap: '15px', marginBottom: '20px', flexWrap: 'wrap' }}>
-          {[
-            { label: 'Total Commands', value: totalCount, color: '#FFD700' },
-            { label: 'Built-in', value: builtInCommands.length, color: '#43b581' },
-            { label: 'Custom', value: commands.length, color: '#7289da' },
-            { label: 'Customized', value: builtInCommands.filter(hasOverrides).length, color: '#faa61a' }
-          ].map(s => (
-            <div key={s.label} style={{
-              background: '#202225', padding: '12px 20px', borderRadius: '8px',
-              border: '1px solid #40444b', flex: '1', minWidth: '100px', textAlign: 'center'
-            }}>
-              <div style={{ fontSize: '24px', fontWeight: 'bold', color: s.color }}>{s.value}</div>
-              <div style={{ fontSize: '12px', color: '#72767d' }}>{s.label}</div>
-            </div>
-          ))}
+      <div className="card command-builder-picker">
+        <div>
+          <label style={commandLabelStyle}>Select Command To Edit</label>
+          <select
+            className="command-builder-select"
+            value={selectedKey}
+            onChange={(event) => handleSelectCommand(event.target.value)}
+          >
+            <option value="new">New custom command</option>
+            <optgroup label="Built-in commands">
+              {builtInCommands.map(command => (
+                <option key={command.id} value={`built-in:${command.name}`}>
+                  /{command.name} - {command.description}
+                </option>
+              ))}
+            </optgroup>
+            <optgroup label="Custom commands">
+              {commands.map(command => (
+                <option key={command.id} value={`custom:${command.id}`}>
+                  /{command.name} - {command.description}
+                </option>
+              ))}
+            </optgroup>
+          </select>
         </div>
+        <CommandBuilderPreview data={formData} type={builderType} />
+      </div>
 
-        {/* Tabs */}
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
-          {['all', 'builtin', 'custom'].map(tab => (
-            <button key={tab} onClick={() => setActiveTab(tab)} style={{
-              padding: '8px 16px', borderRadius: '6px',
-              border: activeTab === tab ? '1px solid #FFD700' : '1px solid #40444b',
-              background: activeTab === tab ? 'rgba(255, 215, 0, 0.15)' : '#2C2F33',
-              color: activeTab === tab ? '#FFD700' : '#dcddde',
-              cursor: 'pointer', fontSize: '13px', fontWeight: activeTab === tab ? '600' : '400'
-            }}>
-              {tab === 'all' ? `All (${totalCount})` : tab === 'builtin' ? `Built-in (${builtInCommands.length})` : `Custom (${commands.length})`}
-            </button>
-          ))}
-        </div>
+      <div className="grid grid-2 command-builder-grid">
+        <div className="card command-builder-editor-card">
+          <div className="command-builder-card-header">
+            <h2><FaEdit /> Command Editor</h2>
+            <span className={`command-builder-type ${builderType}`}>
+              {isBuiltIn ? 'Built-in override' : isExistingCustom ? 'Editing custom' : 'New custom'}
+            </span>
+          </div>
 
-        {/* Built-in Commands */}
-        {filteredBuiltIn.length > 0 && (
-          <>
-            <h3 style={{ color: '#43b581', marginBottom: '12px', fontSize: '15px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <FaCog /> Built-in Commands
-              <span style={{ fontSize: '11px', color: '#72767d', fontWeight: 'normal' }}>— Click edit to update images, banners, and text</span>
-            </h3>
-            <div className="table-responsive" style={{ marginBottom: '25px' }}>
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th>Command</th>
-                    <th>Description</th>
-                    <th>Preview</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredBuiltIn.map((cmd) => (
-                    <tr key={cmd.id}>
-                      <td>
-                        <span style={{
-                          background: '#202225', padding: '4px 8px', borderRadius: '4px',
-                          fontFamily: 'monospace', color: '#43b581', border: '1px solid #2d6e4e', fontSize: '13px'
-                        }}>/{cmd.name}</span>
-                      </td>
-                      <td><span style={{ color: '#dcddde', fontSize: '13px' }}>{cmd.description}</span></td>
-                      <td>
-                        {(cmd.current?.image || cmd.current?.thumbnail) ? (
-                          <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                            {cmd.current.image && (
-                              <div style={{
-                                width: '50px', height: '35px',
-                                background: `url(${cmd.current.image}) center/cover`,
-                                borderRadius: '4px', border: '1px solid #40444b'
-                              }} title={cmd.current.image} />
-                            )}
-                            {cmd.current.thumbnail && (
-                              <div style={{
-                                width: '24px', height: '24px',
-                                background: `url(${cmd.current.thumbnail}) center/cover`,
-                                borderRadius: '50%', border: '1px solid #40444b'
-                              }} title="Thumbnail" />
-                            )}
-                          </div>
-                        ) : (
-                          <span style={{ color: '#72767d', fontSize: '12px' }}>No media</span>
-                        )}
-                      </td>
-                      <td>
-                        {hasOverrides(cmd) ? (
-                          <span style={{ color: '#faa61a', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            <FaEdit style={{ fontSize: '10px' }} /> Customized
-                          </span>
-                        ) : (
-                          <span style={{ color: '#43b581', fontSize: '12px' }}>Default</span>
-                        )}
-                      </td>
-                      <td>
-                        <div className="action-buttons">
-                          {hasEditableContent(cmd) && (
-                            <button className="btn-icon" onClick={() => handleOpenBuiltInModal(cmd)} title="Edit images & content">
-                              <FaEdit />
-                            </button>
-                          )}
-                          {hasOverrides(cmd) && (
-                            <button className="btn-icon danger" onClick={() => handleResetOverride(cmd.name)} title="Reset to defaults">
-                              <FaUndo />
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </>
-        )}
-
-        {/* Custom Commands */}
-        {activeTab !== 'builtin' && (
-          <>
-            <h3 style={{ color: '#7289da', marginBottom: '12px', fontSize: '15px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <FaTerminal /> Custom Commands
-              <span style={{ fontSize: '11px', color: '#72767d', fontWeight: 'normal' }}>— Created from the dashboard</span>
-            </h3>
-            {filteredCustom.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '40px', background: '#2C2F33', borderRadius: '8px' }}>
-                <FaTerminal style={{ fontSize: '48px', color: '#72767d', marginBottom: '15px' }} />
-                <h3 style={{ color: '#dcddde', marginBottom: '10px' }}>No custom commands yet</h3>
-                <p style={{ color: '#72767d', marginBottom: '20px' }}>Create your first custom slash command to get started.</p>
-                <button className="btn btn-primary" onClick={() => handleOpenModal()}>Create Command</button>
+          <div style={commandPanelStyle}>
+            <div className="custom-command-section-heading"><FaCog /> Command Settings</div>
+            <div className="command-settings-grid">
+              <div>
+                <label style={commandLabelStyle}>Command Name *</label>
+                <div style={{ position: 'relative' }}>
+                  <span className="command-input-prefix">/</span>
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(event) => updateForm({ name: event.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, '') })}
+                    disabled={isBuiltIn || isExistingCustom}
+                    placeholder="rules"
+                    style={{ ...commandInputStyle, paddingLeft: '30px', fontFamily: 'monospace' }}
+                  />
+                </div>
+                <small style={{ color: '#72767d' }}>
+                  {isBuiltIn ? 'Built-in command names come from the bot code.' : isExistingCustom ? 'Existing command names cannot be renamed.' : 'Use lowercase letters, numbers, dashes, and underscores.'}
+                </small>
               </div>
-            ) : (
-              <div className="table-responsive">
-                <table className="table">
-                  <thead><tr><th>Command</th><th>Description</th><th>Status</th><th>Preview</th><th>Actions</th></tr></thead>
-                  <tbody>
-                    {filteredCustom.map((cmd) => (
-                      <tr key={cmd.id}>
-                        <td>
-                          <span style={{
-                            background: '#202225', padding: '4px 8px', borderRadius: '4px',
-                            fontFamily: 'monospace', color: '#FFD700', border: '1px solid #40444b'
-                          }}>/{cmd.name}</span>
-                        </td>
-                        <td><span style={{ color: '#dcddde' }}>{cmd.description}</span></td>
-                        <td>
-                          <div onClick={() => handleToggle(cmd)} style={{
-                            width: '40px', height: '20px',
-                            background: cmd.enabled !== false ? '#43b581' : '#f04747',
-                            borderRadius: '10px', position: 'relative', cursor: 'pointer'
-                          }}>
-                            <div style={{
-                              width: '16px', height: '16px', background: '#fff', borderRadius: '50%',
-                              position: 'absolute', top: '2px',
-                              left: cmd.enabled !== false ? '22px' : '2px', transition: 'left 0.3s ease'
-                            }} />
-                          </div>
-                        </td>
-                        <td>
-                          {cmd.image ? (
-                            <div style={{ width: '40px', height: '30px', background: `url(${cmd.image}) center/cover`, borderRadius: '4px' }} />
-                          ) : <span style={{ color: '#72767d', fontSize: '12px' }}>Text Only</span>}
-                        </td>
-                        <td>
-                          <div className="action-buttons">
-                            <button className="btn-icon" onClick={() => handleOpenModal(cmd)} title="Edit"><FaEdit /></button>
-                            <button className="btn-icon danger" onClick={() => handleDelete(cmd.id, cmd.name)} title="Delete"><FaTrash /></button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+
+              <div>
+                <label style={commandLabelStyle}>Slash Command Description *</label>
+                <input
+                  type="text"
+                  value={formData.description}
+                  onChange={(event) => updateForm({ description: event.target.value })}
+                  disabled={isBuiltIn}
+                  maxLength={100}
+                  placeholder="Displays the server rules..."
+                  style={commandInputStyle}
+                />
+                <small style={{ color: '#72767d' }}>{(formData.description || '').length}/100 characters</small>
+              </div>
+            </div>
+
+            {isBuiltIn && (
+              <div className="command-builder-alert">
+                Built-in slash command details are read from <strong>{formData.sourceFile || selectedBuiltIn?.file}</strong>. This builder edits the response content override only.
               </div>
             )}
-          </>
-        )}
+
+            {!isBuiltIn && (
+              <label className="custom-command-enabled-toggle">
+                <input
+                  type="checkbox"
+                  checked={formData.enabled !== false}
+                  onChange={(event) => updateForm({ enabled: event.target.checked })}
+                />
+                <span>
+                  <strong>{formData.enabled !== false ? 'Enabled' : 'Disabled'}</strong>
+                  <small>{formData.enabled !== false ? 'Users can run this command.' : 'Saved but hidden from use.'}</small>
+                </span>
+              </label>
+            )}
+          </div>
+
+          {!isBuiltIn && (
+            <OptionsEditor
+              options={formData.options || []}
+              onChange={(options) => updateForm({ options })}
+            />
+          )}
+
+          <div className="custom-command-section-heading response-heading">
+            <FaImage /> Response Embed Builder
+          </div>
+          <EmbedEditor data={formData} onChange={(data) => setFormData(data)} showPreview={false} />
+
+          <div className="command-builder-actions">
+            <button className="btn btn-primary" type="button" onClick={handleSave} disabled={saving}>
+              <FaSave /> {saving ? 'Saving...' : isBuiltIn ? 'Save Overrides' : isExistingCustom ? 'Save Command' : 'Create Command'}
+            </button>
+            {isBuiltIn && hasOverrides(selectedBuiltIn || {}) && (
+              <button className="btn btn-secondary" type="button" onClick={handleResetSelected}>
+                <FaUndo /> Reset Overrides
+              </button>
+            )}
+            {isExistingCustom && (
+              <button className="btn btn-danger" type="button" onClick={handleDeleteSelected}>
+                <FaTrash /> Delete Command
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div>
+          <div className="card command-builder-preview-card">
+            <h2>Live Preview</h2>
+            <CommandBuilderPreview data={formData} type={builderType} />
+            <CommandResponsePreview data={formData} />
+            <div className="command-builder-count">
+              Character Count: <strong className={count > 6000 ? 'danger' : ''}>{count} / 6000</strong>
+            </div>
+          </div>
+
+          <div className="card command-library-card">
+            <h3>Command Library</h3>
+            <div className="command-library-section">
+              <h4>Built-in Commands</h4>
+              {builtInCommands.map(command => (
+                <button
+                  key={command.id}
+                  type="button"
+                  className={`command-library-item ${selectedKey === `built-in:${command.name}` ? 'active' : ''}`}
+                  onClick={() => loadBuiltInCommand(command)}
+                >
+                  <span>/{command.name}</span>
+                  <small>{hasOverrides(command) ? 'Customized' : 'Default'}</small>
+                </button>
+              ))}
+            </div>
+            <div className="command-library-section">
+              <h4>Custom Commands</h4>
+              {commands.length === 0 && <p className="command-library-empty">No custom commands yet.</p>}
+              {commands.map(command => (
+                <button
+                  key={command.id}
+                  type="button"
+                  className={`command-library-item ${selectedKey === `custom:${command.id}` ? 'active' : ''}`}
+                  onClick={() => loadCustomCommand(command)}
+                >
+                  <span>/{command.name}</span>
+                  <small>{command.enabled !== false ? 'Enabled' : 'Disabled'}</small>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
-
-      {/* ===== BUILT-IN COMMAND EDIT MODAL ===== */}
-      {isBuiltInModalOpen && editingBuiltIn && (
-        <div className="modal-overlay">
-          <div className="modal" style={{ maxWidth: '750px', width: '100%', maxHeight: '90vh', overflow: 'auto' }}>
-            <div className="modal-header">
-              <h2><FaImage style={{ marginRight: '8px' }} /> Edit /{editingBuiltIn.name}</h2>
-              <button className="btn-icon" onClick={handleCloseBuiltInModal}><FaTimes /></button>
-            </div>
-            <form onSubmit={handleSaveOverride}>
-              <div className="modal-body">
-                <p style={{ color: '#faa61a', fontSize: '13px', marginBottom: '15px', background: 'rgba(250,166,26,0.1)', padding: '10px', borderRadius: '6px', border: '1px solid rgba(250,166,26,0.3)' }}>
-                  ⚡ Changes are applied instantly — the bot picks up new values in real-time without restart.
-                </p>
-                <div className="form-group" style={{ marginBottom: '15px' }}>
-                  <label>Source File</label>
-                  <input type="text" value={editingBuiltIn.file} disabled style={{ color: '#72767d', fontFamily: 'monospace' }} />
-                </div>
-                <EmbedEditor
-                  data={{
-                    title: overrideData.title, text: overrideData.description,
-                    color: overrideData.color, url: overrideData.url,
-                    image: overrideData.image, thumbnail: overrideData.thumbnail,
-                    authorName: overrideData.authorName, authorIcon: overrideData.authorIcon,
-                    authorUrl: overrideData.authorUrl,
-                    footerText: overrideData.footerText, footerIcon: overrideData.footerIcon,
-                    timestamp: overrideData.timestamp,
-                    fields: overrideData.fields || []
-                  }}
-                  onChange={(d) => setOverrideData({
-                    ...overrideData, title: d.title, description: d.text,
-                    color: d.color, url: d.url, image: d.image, thumbnail: d.thumbnail,
-                    authorName: d.authorName, authorIcon: d.authorIcon, authorUrl: d.authorUrl,
-                    footerText: d.footerText, footerIcon: d.footerIcon,
-                    timestamp: d.timestamp, fields: d.fields
-                  })}
-                />
-              </div>
-              <div className="modal-footer">
-                <button type="button" className="btn" onClick={handleCloseBuiltInModal}>Cancel</button>
-                <button type="submit" className="btn btn-primary" disabled={saving}>
-                  <FaSave style={{ marginRight: '6px' }} />
-                  {saving ? 'Saving...' : 'Save Changes'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* ===== CUSTOM COMMAND CREATE/EDIT MODAL ===== */}
-      {isModalOpen && (
-        <div className="modal-overlay">
-          <div className="modal" style={{ maxWidth: '750px', width: '100%', maxHeight: '90vh', overflow: 'auto' }}>
-            <div className="modal-header">
-              <h2>{editingCommand ? 'Edit Command' : 'Create Command'}</h2>
-              <button className="btn-icon" onClick={handleCloseModal}><FaTimes /></button>
-            </div>
-            <form onSubmit={handleSave}>
-              <div className="modal-body">
-                {/* Command meta */}
-                <div style={{ background: '#202225', borderRadius: '8px', padding: '15px', marginBottom: '15px', border: '1px solid #2d2f34' }}>
-                  <div style={{ color: '#FFD700', fontSize: '14px', fontWeight: '600', marginBottom: '12px' }}>⚙️ Command Settings</div>
-                  <div style={{ marginBottom: '10px' }}>
-                    <label style={{ color: '#b9bbbe', fontSize: '13px', marginBottom: '4px', display: 'block' }}>Command Name *</label>
-                    <div style={{ position: 'relative' }}>
-                      <span style={{ position: 'absolute', left: '10px', top: '10px', color: '#ffeb3b', fontWeight: 'bold' }}>/</span>
-                      <input type="text" value={formData.name}
-                        onChange={(e) => setFormData({...formData, name: e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, '')})}
-                        placeholder="rules" style={{ paddingLeft: '25px', fontFamily: 'monospace', width: '100%', padding: '8px 12px 8px 25px', background: '#2C2F33', border: '1px solid #40444b', borderRadius: '6px', color: '#dcddde', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
-                        required disabled={!!editingCommand}
-                      />
-                    </div>
-                    <small style={{ color: '#72767d' }}>Only lowercase letters, numbers, dashes, and underscores.</small>
-                  </div>
-                  <div>
-                    <label style={{ color: '#b9bbbe', fontSize: '13px', marginBottom: '4px', display: 'block' }}>Description *</label>
-                    <input type="text" value={formData.description}
-                      onChange={(e) => setFormData({...formData, description: e.target.value})}
-                      placeholder="Displays the server rules..." maxLength={100} required
-                      style={{ width: '100%', padding: '8px 12px', background: '#2C2F33', border: '1px solid #40444b', borderRadius: '6px', color: '#dcddde', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
-                    />
-                  </div>
-                </div>
-
-                {/* Command Options (user/role/channel inputs) */}
-                <OptionsEditor
-                  options={formData.options || []}
-                  onChange={(opts) => setFormData({ ...formData, options: opts })}
-                />
-
-                {/* Full Embed Editor */}
-                <EmbedEditor data={formData} onChange={(d) => setFormData({ ...formData, ...d })} />
-              </div>
-              <div className="modal-footer">
-                <button type="button" className="btn" onClick={handleCloseModal}>Cancel</button>
-                <button type="submit" className="btn btn-primary" disabled={saving}>
-                  {saving ? 'Saving...' : (editingCommand ? 'Save Changes' : 'Create Command')}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

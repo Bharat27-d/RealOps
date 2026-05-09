@@ -2,11 +2,22 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const session = require('express-session');
-const { passport, isAuthenticated } = require('./auth');
+const rateLimit = require('express-rate-limit');
+const bcrypt = require('bcrypt');
+const { passport, isAuthenticated, verifyAdminPassword } = require('./auth');
 const botManager = require('./discordManager');
 const reminderScheduler = require('./reminderScheduler');
 const fs = require('fs');
 const path = require('path');
+
+// Rate limiter for auth endpoints — prevents brute-force attacks
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // 5 attempts per window per IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many login attempts. Please try again after 15 minutes.' }
+});
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -22,7 +33,7 @@ app.use(cors({
       'http://159.69.219.151:3000'
     ];
     if (allowedOrigins.indexOf(origin) === -1) {
-      return callback(null, true); // Allow all for now
+      return callback(new Error('Not allowed by CORS'), false);
     }
     return callback(null, true);
   },
@@ -47,16 +58,31 @@ app.use('/uploads', (req, res, next) => {
 // Trust proxy (required for nginx reverse proxy)
 app.set('trust proxy', 1);
 
-// Session configuration - using MemoryStore (sessions lost on restart)
-console.log('ℹ️ Using MemoryStore for sessions');
+// Session configuration — persistent file-based store (survives restarts)
+const FileStore = require('session-file-store')(session);
+const sessionsDir = path.join(__dirname, 'sessions');
+
+// Ensure sessions directory exists
+if (!fs.existsSync(sessionsDir)) {
+  fs.mkdirSync(sessionsDir, { recursive: true });
+}
+
+console.log('ℹ️ Using FileStore for persistent sessions');
 
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'RealOps_Secure_Session_Key_2024_a9f8e7d6c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1f0e9d8c7b6a5f4e3d2c1b0a9f8',
+  store: new FileStore({
+    path: sessionsDir,
+    ttl: 86400,              // 24 hours (matches cookie maxAge)
+    retries: 2,              // Retry failed reads twice
+    reapInterval: 3600,      // Clean up expired sessions every hour
+    logFn: () => {}          // Suppress verbose session-file-store logs
+  }),
+  secret: process.env.SESSION_SECRET || (() => { console.warn('⚠️ SESSION_SECRET not set in .env — using random secret (sessions will not persist across restarts)'); return require('crypto').randomBytes(64).toString('hex'); })(),
   resave: false,
   saveUninitialized: false,
   cookie: {
     maxAge: 24 * 60 * 60 * 1000,
-    httpOnly: false,
+    httpOnly: true,
     secure: false,
     sameSite: 'lax'
   }
@@ -69,8 +95,8 @@ app.use(passport.session());
 // Initialize Discord Bot
 botManager.initialize(process.env.DISCORD_BOT_TOKEN);
 
-// Auth routes
-app.post('/auth/login', (req, res, next) => {
+// Auth routes (rate-limited to prevent brute-force)
+app.post('/auth/login', authLimiter, (req, res, next) => {
   passport.authenticate('local', (err, user, info) => {
     if (err) {
       return res.status(500).json({ error: err.message });
@@ -98,8 +124,8 @@ app.get('/auth/user', isAuthenticated, (req, res) => {
   res.json(req.user);
 });
 
-// Change password route
-app.post('/auth/change-password', isAuthenticated, async (req, res) => {
+// Change password route (also rate-limited)
+app.post('/auth/change-password', authLimiter, isAuthenticated, async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
 
@@ -108,8 +134,9 @@ app.post('/auth/change-password', isAuthenticated, async (req, res) => {
       return res.status(403).json({ error: 'Only admin can change password' });
     }
 
-    // Verify current password
-    if (currentPassword !== process.env.ADMIN_PASSWORD) {
+    // Verify current password using bcrypt-aware verifier
+    const isValid = await verifyAdminPassword(currentPassword);
+    if (!isValid) {
       return res.status(401).json({ error: 'Current password is incorrect' });
     }
 
@@ -118,22 +145,24 @@ app.post('/auth/change-password', isAuthenticated, async (req, res) => {
       return res.status(400).json({ error: 'New password must be at least 8 characters long' });
     }
 
-    // Update .env file
+    // Hash the new password before storing
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
+
+    // Update .env file with the hashed password
     const envPath = path.join(__dirname, '.env');
     let envContent = fs.readFileSync(envPath, 'utf8');
     const updatedContent = envContent.replace(
       /ADMIN_PASSWORD=.*/,
-      `ADMIN_PASSWORD=${newPassword}`
+      `ADMIN_PASSWORD=${hashedPassword}`
     );
     fs.writeFileSync(envPath, updatedContent, 'utf8');
     
     // Update the environment variable in memory
-    process.env.ADMIN_PASSWORD = newPassword;
+    process.env.ADMIN_PASSWORD = hashedPassword;
 
     res.json({ 
       success: true, 
-      message: 'Password updated successfully! You can now login with your new password.',
-      newPassword: newPassword
+      message: 'Password updated successfully! You can now login with your new password.'
     });
   } catch (error) {
     console.error('Change password error:', error);

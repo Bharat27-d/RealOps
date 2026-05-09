@@ -57,8 +57,7 @@ module.exports = {
             if (nowTs - ts > 60000) staffChangeCache.delete(key);
         }
 
-        const now = new Date();
-        const dateStr = `${now.getDate().toString().padStart(2, '0')}-${(now.getMonth()+1).toString().padStart(2, '0')}-${now.getFullYear()} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+        const dateStr = `<t:${Math.floor(Date.now() / 1000)}:f>`;
 
         // Build friendly names for changed roles
         const addedNames = addedRoles.map(role => ROLE_DISPLAY_NAMES[role.id] || role.name);

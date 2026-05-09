@@ -34,3 +34,6 @@ backups/
 # Temporary files
 *.tmp
 *.temp
+
+# Session store
+sessions/

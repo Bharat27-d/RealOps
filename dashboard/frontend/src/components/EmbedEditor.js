@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { FaPlus, FaTrash, FaArrowUp, FaArrowDown, FaEye, FaChevronDown, FaChevronRight } from 'react-icons/fa';
+import { FaPlus, FaTrash, FaArrowUp, FaArrowDown, FaChevronDown, FaChevronRight } from 'react-icons/fa';
+
+const PLACEHOLDER_HINT = ['$', '{placeholders}'].join('');
 
 /* ─── Collapsible Section Container ─── */
 function Section({ title, icon, color = '#FFD700', defaultOpen = false, badge, rightAction, children }) {
@@ -42,7 +44,7 @@ function Section({ title, icon, color = '#FFD700', defaultOpen = false, badge, r
 /* ─── Styles ─── */
 const labelStyle = { color: '#b9bbbe', fontSize: '12px', marginBottom: '4px', display: 'block' };
 const inputStyle = {
-  width: '100%', padding: '8px 12px', background: '#2C2F33', border: '1px solid #40444b',
+  width: '100%', padding: '10px 12px', background: '#2C2F33', border: '1px solid #40444b',
   borderRadius: '6px', color: '#dcddde', fontSize: '13px', outline: 'none', boxSizing: 'border-box'
 };
 const rowStyle = { display: 'flex', gap: '10px', marginBottom: '10px' };
@@ -53,7 +55,7 @@ const smallBtnStyle = (color = '#7289da') => ({
 });
 
 /* ─── Main Editor ─── */
-function EmbedEditor({ data, onChange }) {
+function EmbedEditor({ data, onChange, showPreview = true }) {
   const set = (key, val) => onChange({ ...data, [key]: val });
   const fields = data.fields || [];
 
@@ -100,9 +102,9 @@ function EmbedEditor({ data, onChange }) {
 
       {/* Description */}
       <Section title="Description" icon="📄" color="#43b581" defaultOpen={!!data.text}>
-        <textarea style={{ ...inputStyle, minHeight: '100px', resize: 'vertical', fontFamily: 'monospace', lineHeight: '1.5' }}
+        <textarea style={{ ...inputStyle, minHeight: '140px', resize: 'vertical', fontFamily: 'monospace', lineHeight: '1.5' }}
           value={data.text || ''} onChange={e => set('text', e.target.value)}
-          placeholder="Embed description text... Supports Discord markdown and ${placeholders}." rows={5} />
+          placeholder={`Embed description text... Supports Discord markdown and ${PLACEHOLDER_HINT}.`} rows={7} />
       </Section>
 
       {/* Author */}
@@ -177,7 +179,7 @@ function EmbedEditor({ data, onChange }) {
                 <input type="checkbox" checked={!!field.inline} onChange={e => setField(i, 'inline', e.target.checked)} /> Inline
               </label>
             </div>
-            <textarea style={{ ...inputStyle, minHeight: '50px', resize: 'vertical', fontSize: '12px' }}
+            <textarea style={{ ...inputStyle, minHeight: '70px', resize: 'vertical', fontSize: '12px' }}
               value={field.value || ''} onChange={e => setField(i, 'value', e.target.value)} placeholder="Field value" rows={2} />
           </div>
         ))}
@@ -206,12 +208,13 @@ function EmbedEditor({ data, onChange }) {
         </div>
       </Section>
 
-      {/* Live Preview */}
-      <Section title="Live Preview" icon="👁️" color="#dcddde" defaultOpen={hasContent}>
-        <div style={{ borderLeft: `4px solid ${colorVal}`, borderRadius: '0 4px 4px 0' }}>
-          <EmbedPreview data={data} color={colorVal} />
-        </div>
-      </Section>
+      {showPreview && (
+        <Section title="Live Preview" icon="👁️" color="#dcddde" defaultOpen={hasContent}>
+          <div style={{ borderLeft: `4px solid ${colorVal}`, borderRadius: '0 4px 4px 0' }}>
+            <EmbedPreview data={data} color={colorVal} />
+          </div>
+        </Section>
+      )}
     </div>
   );
 }
@@ -223,7 +226,7 @@ function EmbedPreview({ data, color }) {
   const previewFields = (data.fields || []).filter(f => f.name?.trim() && f.value?.trim());
 
   return (
-    <div style={{ background: '#2f3136', borderRadius: '4px', padding: '12px 16px', borderLeft: `4px solid ${color}`, maxWidth: '520px' }}>
+    <div style={{ background: '#2f3136', borderRadius: '4px', padding: '12px 16px', borderLeft: `4px solid ${color}`, maxWidth: '640px' }}>
       {hasAuthor && (
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
           {data.authorIcon && <img src={data.authorIcon} alt="" style={{ width: '20px', height: '20px', borderRadius: '50%' }} onError={e => e.target.style.display = 'none'} />}
