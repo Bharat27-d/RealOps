@@ -186,7 +186,7 @@ function logTicketAction(guild, user, ticketType, action, ticketId, formData = n
                 summary = `Discord Name: ${formData.discordName || 'N/A'}, VTC Role: ${formData.vtcRole || 'N/A'}`;
                 break;
             case 'bookSlot':
-                summary = `Event Name: ${formData.eventName || 'N/A'}`;
+                summary = `Name: ${formData.name || 'N/A'}, Slot No: ${formData.slotNo || 'N/A'}`;
                 break;
             case 'founders':
                 summary = `Discord Name: ${formData.discordName || 'N/A'}`;

@@ -63,39 +63,31 @@ function createModal() {
         .setCustomId('bookslot_modal')
         .setTitle('Book Your Slot');
 
-    const discordNameInput = new TextInputBuilder()
-        .setCustomId('discord_name')
-        .setLabel('Your Discord name')
+    const nameInput = new TextInputBuilder()
+        .setCustomId('name_input')
+        .setLabel('Name')
         .setStyle(TextInputStyle.Short)
         .setRequired(true);
 
-    const truckersmpIdInput = new TextInputBuilder()
-        .setCustomId('truckersmp_id')
-        .setLabel('TruckersMP ID')
+    const vtcInfoInput = new TextInputBuilder()
+        .setCustomId('vtc_info')
+        .setLabel('VTC Name, Position')
         .setStyle(TextInputStyle.Short)
         .setRequired(true)
-        .setPlaceholder('Enter your TruckersMP ID');
+        .setPlaceholder('e.g., RealOps VTC, Driver');
 
-    const eventNameInput = new TextInputBuilder()
-        .setCustomId('event_name')
-        .setLabel('Which event are you booking for?')
+    const slotNoInput = new TextInputBuilder()
+        .setCustomId('slot_no')
+        .setLabel('Slot No.')
         .setStyle(TextInputStyle.Short)
         .setRequired(true)
-        .setPlaceholder('e.g., Anniversary Convoy');
-
-    const additionalNotesInput = new TextInputBuilder()
-        .setCustomId('additional_notes')
-        .setLabel('Additional notes (optional)')
-        .setStyle(TextInputStyle.Paragraph)
-        .setRequired(false)
-        .setPlaceholder('Any special requirements or questions?');
+        .setPlaceholder('e.g., Slot 4');
 
     // Add inputs to rows
     modal.addComponents(
-        new ActionRowBuilder().addComponents(discordNameInput),
-        new ActionRowBuilder().addComponents(truckersmpIdInput),
-        new ActionRowBuilder().addComponents(eventNameInput),
-        new ActionRowBuilder().addComponents(additionalNotesInput)
+        new ActionRowBuilder().addComponents(nameInput),
+        new ActionRowBuilder().addComponents(vtcInfoInput),
+        new ActionRowBuilder().addComponents(slotNoInput)
     );
 
     return modal;
@@ -106,23 +98,18 @@ function createResponseEmbed(user, data, ticketId) {
     return new EmbedBuilder()
         .setTitle('🎉 Slot Booking Request')
         .setDescription(
-            `**Discord Name**
-\`${data.discordName}\`
+            `**Name**
+\`${data.name}\`
 
-**TruckersMP ID**
-\`${data.truckersmpId}\`
+**VTC Name, Position**
+\`${data.vtcInfo}\`
 
-**Event Name**
-\`${data.eventName}\`
+**Slot No.**
+\`${data.slotNo}\`
 
-${data.additionalNotes ? `**Additional Notes**
-\`\`\`
-${data.additionalNotes}
-\`\`\`` : ''}
-
-**Submitted At**
-<t:${Math.floor(Date.now() / 1000)}:F>
-`
+**Discord Username:** ${user.tag}
+**Discord ID:** ${user.id}
+**Submitted At:** <t:${Math.floor(Date.now() / 1000)}:F>`
         )
         .setColor('#FFD700')
         .setFooter({
@@ -136,10 +123,9 @@ ${data.additionalNotes}
 // Process the submitted data
 function processSubmittedData(interaction) {
     return {
-        discordName: interaction.fields.getTextInputValue('discord_name'),
-        truckersmpId: interaction.fields.getTextInputValue('truckersmp_id'),
-        eventName: interaction.fields.getTextInputValue('event_name'),
-        additionalNotes: interaction.fields.getTextInputValue('additional_notes') || 'None',
+        name: interaction.fields.getTextInputValue('name_input'),
+        vtcInfo: interaction.fields.getTextInputValue('vtc_info'),
+        slotNo: interaction.fields.getTextInputValue('slot_no'),
         submittedAt: new Date().toISOString()
     };
 }
