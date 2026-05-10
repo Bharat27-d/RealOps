@@ -24,7 +24,7 @@ async function sendPanel(channel) {
         .addSectionComponents(
             new SectionBuilder()
                 .addTextDisplayComponents(
-                    new TextDisplayBuilder().setContent('## 🎉 Book Your Slot\n-# The Real Ops Group')
+                    new TextDisplayBuilder().setContent('##  Book Your Slot\n-# The Real Ops Group')
                 )
                 .setThumbnailAccessory(
                     new ThumbnailBuilder({ media: { url: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png' } })
@@ -50,7 +50,7 @@ async function sendPanel(channel) {
                         .setCustomId('bookslot_button')
                         .setLabel('Book Slot')
                         .setStyle(ButtonStyle.Success)
-                        .setEmoji('🎉')
+                        .setEmoji('🧾')
                 )
         );
 
@@ -96,7 +96,7 @@ function createModal() {
 // Format submitted data into an embed
 function createResponseEmbed(user, data, ticketId) {
     return new EmbedBuilder()
-        .setTitle('🎉 Slot Booking Request')
+        .setTitle('Slot Booking Request')
         .setDescription(
             `**Name**
 \`${data.name}\`
