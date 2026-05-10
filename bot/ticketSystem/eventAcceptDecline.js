@@ -11,6 +11,13 @@ async function handleEventAccept(interaction) {
     let ticketCreatorId = null;
     const ticketData = activeTickets.get(interaction.channel.id);
     if (ticketData?.userId) ticketCreatorId = ticketData.userId;
+    
+    // Fallback: Read ID from channel topic (e.g., "... | ID: 123456789")
+    if (!ticketCreatorId && interaction.channel.topic) {
+        const match = interaction.channel.topic.match(/ID:\s*(\d+)/);
+        if (match) ticketCreatorId = match[1];
+    }
+    
     if (!ticketCreatorId) ticketCreatorId = interaction.user.id;
 
     const acceptedEmbed = new EmbedBuilder()
@@ -54,6 +61,13 @@ async function handleDeclineReasonSelect(interaction) {
     let ticketCreatorId = null;
     const ticketData = activeTickets.get(interaction.channel.id);
     if (ticketData?.userId) ticketCreatorId = ticketData.userId;
+
+    // Fallback: Read ID from channel topic (e.g., "... | ID: 123456789")
+    if (!ticketCreatorId && interaction.channel.topic) {
+        const match = interaction.channel.topic.match(/ID:\s*(\d+)/);
+        if (match) ticketCreatorId = match[1];
+    }
+
     if (!ticketCreatorId) ticketCreatorId = interaction.user.id;
 
     const selected = interaction.values[0];
