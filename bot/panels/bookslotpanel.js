@@ -74,7 +74,7 @@ function createModal() {
         .setLabel('VTC Name, Position')
         .setStyle(TextInputStyle.Short)
         .setRequired(true)
-        .setPlaceholder('e.g., RealOps VTC, Driver');
+        .setPlaceholder('e.g., RealOps VTC - Driver');
 
     const slotNoInput = new TextInputBuilder()
         .setCustomId('slot_no')
