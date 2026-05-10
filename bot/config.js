@@ -15,7 +15,7 @@ module.exports = {
         founders: ['1291116832308068448', '1291139504786378823'],
         hr: ['1292896422949163120'],
         bookings: ['1292218198028058674', '1300518058749853716'],
-        slotBooking: []
+        slotBooking: ['1291121579207692430']
     },
 
     // Ticket panel category IDs
