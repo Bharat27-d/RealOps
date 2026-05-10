@@ -34,7 +34,8 @@ const panelModules = {
     hr: require('../panels/hrpanel'),
     partnership: require('../panels/partnershippanel'),
     bookUs: require('../panels/bookuspanel'),
-    founders: require('../panels/founderpanel')
+    founders: require('../panels/founderpanel'),
+    bookSlot: require('../panels/bookslotpanel')
 };
 const buttonToPanel = {};
 
@@ -84,13 +85,13 @@ function setupTicketSystem(client) {
             // ─── SLASH COMMANDS ───
             if (interaction.isCommand() || interaction.isChatInputCommand()) {
                 const cmd = interaction.commandName;
-                const setupCmds = ['setup-jointeam', 'setup-bookus', 'setup-support', 'setup-partnership', 'setup-founders', 'setup-hr', 'register-ticket', 'debug-tickets'];
+                const setupCmds = ['setup-jointeam', 'setup-bookus', 'setup-support', 'setup-partnership', 'setup-founders', 'setup-hr', 'setup-bookslot', 'register-ticket', 'debug-tickets'];
                 if (setupCmds.includes(cmd) && !interaction.replied && !interaction.deferred) {
                     await interaction.deferReply({ flags: MessageFlags.Ephemeral }).catch(() => {});
                 }
 
                 // Panel setup commands
-                const panelMap = { 'setup-jointeam': 'joinTeam', 'setup-bookus': 'bookUs', 'setup-support': 'support', 'setup-partnership': 'partnership', 'setup-founders': 'founders', 'setup-hr': 'hr' };
+                const panelMap = { 'setup-jointeam': 'joinTeam', 'setup-bookus': 'bookUs', 'setup-support': 'support', 'setup-partnership': 'partnership', 'setup-founders': 'founders', 'setup-hr': 'hr', 'setup-bookslot': 'bookSlot' };
                 if (panelMap[cmd]) {
                     const panel = panelModules[panelMap[cmd]];
                     if (!panel) return await safeReply(interaction, { content: 'Panel module not found!' }, true);

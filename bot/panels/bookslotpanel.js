@@ -148,5 +148,8 @@ module.exports = {
     sendPanel,
     createModal,
     createResponseEmbed,
-    processSubmittedData
+    processSubmittedData,
+    ticketType: 'bookSlot',
+    buttonId: 'bookslot_button',
+    modalId: 'bookslot_modal'
 };

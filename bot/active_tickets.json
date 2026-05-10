@@ -721,5 +721,26 @@
       "timestamp": 1766954289
     },
     "transcript": []
+  },
+  "1502979607706734662": {
+    "channelId": "1502979607706734662",
+    "userId": "792729365825454124",
+    "username": "bharat_27",
+    "type": "bookUs",
+    "createdAt": "2026-05-10T10:24:22.410Z",
+    "formData": {
+      "discordName": "adsasda",
+      "vtcRole": "asdasda",
+      "eventLink": "https://truckersmp.com/events/33973-nva-group%7C-monthly-convoy#8",
+      "eventId": "33973",
+      "submittedAt": "2026-05-10T10:24:20.229Z",
+      "timestamp": 1778408660,
+      "eventStartAt": "2026-08-19 18:00:00",
+      "eventMeetupAt": "2026-08-19 17:00:00",
+      "eventStartTs": 1787142600,
+      "eventMeetupTs": 1787139000,
+      "daysUntilEvent": 102
+    },
+    "transcript": []
   }
 }

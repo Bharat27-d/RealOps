@@ -77,6 +77,7 @@ function getTicketRoles(ticketType) {
                 roles.push(config.staffRoles.hr);
             }
             break;
+        case 'bookSlot':
         case 'bookUs':
             if (Array.isArray(config.staffRoles.bookings)) {
                 roles.push(...config.staffRoles.bookings);
@@ -119,6 +120,7 @@ function getTicketRoles(ticketType) {
 function getTicketColor(ticketType) {
     switch (ticketType) {
         case 'joinTeam': return '#3498db';
+        case 'bookSlot': return '#FFD700';
         case 'bookUs': return '#e74c3c';
         case 'support': return '#2ecc71';
         case 'partnership': return '#9b59b6';
@@ -132,6 +134,7 @@ function getTicketColor(ticketType) {
 function formatTicketType(ticketType) {
     switch (ticketType) {
         case 'joinTeam': return 'Join the Team';
+        case 'bookSlot': return 'Book Slot';
         case 'bookUs': return 'Book Us';
         case 'support': return 'Support';
         case 'partnership': return 'Partnership';
@@ -181,6 +184,9 @@ function logTicketAction(guild, user, ticketType, action, ticketId, formData = n
                 break;
             case 'bookUs':
                 summary = `Discord Name: ${formData.discordName || 'N/A'}, VTC Role: ${formData.vtcRole || 'N/A'}`;
+                break;
+            case 'bookSlot':
+                summary = `Event Name: ${formData.eventName || 'N/A'}`;
                 break;
             case 'founders':
                 summary = `Discord Name: ${formData.discordName || 'N/A'}`;
