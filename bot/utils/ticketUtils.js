@@ -78,6 +78,12 @@ function getTicketRoles(ticketType) {
             }
             break;
         case 'bookSlot':
+            if (Array.isArray(config.staffRoles.slotBooking)) {
+                roles.push(...config.staffRoles.slotBooking);
+            } else if (config.staffRoles.slotBooking) {
+                roles.push(config.staffRoles.slotBooking);
+            }
+            break;
         case 'bookUs':
             if (Array.isArray(config.staffRoles.bookings)) {
                 roles.push(...config.staffRoles.bookings);
