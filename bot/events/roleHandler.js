@@ -79,7 +79,7 @@ module.exports = {
             .setColor(color)
             .setTitle('Staff Team Update')
             .setDescription(descriptionParts.join('\n\n'))
-            .setFooter({ text: `The Real Ops Group • ${dateStr}`, iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png' })
+            .setFooter({ text: `The Real Ops Group`, iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png' })
             .setThumbnail('https://i.ibb.co/FMYFdhk/real-ops-group-logo.png')
             // Use the direct image URL if you want reliable embed rendering; this was kept from original code
             .setImage('https://imgur.com/VGlcbY3.png');

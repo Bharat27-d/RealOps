@@ -358,7 +358,7 @@ module.exports = {
     createResponseEmbed,
     processSubmittedData,
     sendEventDetails,
-    getEventTimeInfo, // <-- export new helper
+    getEventTimeInfo, 
     ticketType: 'bookUs',
     buttonId: 'bookus_button',
     modalId: 'bookus_modal'
