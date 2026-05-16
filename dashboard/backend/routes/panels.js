@@ -204,56 +204,75 @@ router.post('/', isStaff, async (req, res) => {
     // Read the existing file
     let fileContent = await fs.readFile(panelFilePath, 'utf8');
 
-    // Update the sendPanel function with new values
-    // Update title
-    fileContent = fileContent.replace(
-      /\.setTitle\(['"`].*?['"`]\)/s,
-      `.setTitle('${panelData.title.replace(/'/g, "\\'")}')`
-    );
+    // Split file at createResponseEmbed to protect it from regex corruption.
+    // Components V2 panels (ContainerBuilder) don't use .setTitle()/.setDescription()
+    // in sendPanel, so the regex would accidentally target createResponseEmbed instead.
+    const protectBoundary = fileContent.indexOf('function createResponseEmbed');
+    let editableSection = protectBoundary > -1 ? fileContent.substring(0, protectBoundary) : fileContent;
+    const protectedSection = protectBoundary > -1 ? fileContent.substring(protectBoundary) : '';
 
-    // Update description
-    fileContent = fileContent.replace(
-      /\.setDescription\(\s*['"`]([\s\S]*?)['"`]\s*\)/,
-      `.setDescription(\n        '${panelData.description.replace(/'/g, "\\'").replace(/\n/g, "\\n' +\n        '")}'\n    )`
-    );
+    const isComponentsV2 = editableSection.includes('ContainerBuilder');
 
-    // Update color
-    fileContent = fileContent.replace(
+    if (isComponentsV2) {
+      // Components V2 panels use TextDisplayBuilder.setContent() for description
+      // Find and update the description text display (the longer content block)
+      const descEscaped = panelData.description.replace(/'/g, "\\'").replace(/\n/g, '\\n');
+      editableSection = editableSection.replace(
+        /(addTextDisplayComponents\(\s*new TextDisplayBuilder\(\)\.setContent\(\s*)\n\s*['"`]([\s\S]*?)['"`]\s*\)/,
+        `$1\n                '${descEscaped}'\n            )`
+      );
+    } else {
+      // Traditional embed-based panels
+      editableSection = editableSection.replace(
+        /\.setTitle\(['"`].*?['"`]\)/s,
+        `.setTitle('${panelData.title.replace(/'/g, "\\'")}')`
+      );
+      editableSection = editableSection.replace(
+        /\.setDescription\(\s*['"`]([\s\S]*?)['"`]\s*\)/,
+        `.setDescription(\n        '${panelData.description.replace(/'/g, "\\'").replace(/\n/g, "\\n' +\n        '")}'\n    )`
+      );
+    }
+
+    // Update color (only in sendPanel section)
+    editableSection = editableSection.replace(
       /\.setColor\(['"`].*?['"`]\)/,
       `.setColor('${panelData.color}')`
     );
 
-    // Update image if present
+    // Update image if present (only in sendPanel section)
     if (panelData.image) {
-      fileContent = fileContent.replace(
+      editableSection = editableSection.replace(
         /\.setImage\(['"`].*?['"`]\)/,
         `.setImage('${panelData.image}')`
       );
     }
 
-    // Update thumbnail if present
+    // Update thumbnail if present (only in sendPanel section)
     if (panelData.thumbnail) {
-      fileContent = fileContent.replace(
+      editableSection = editableSection.replace(
         /\.setThumbnail\(['"`].*?['"`]\)/,
         `.setThumbnail('${panelData.thumbnail}')`
       );
     }
 
-    // Update footer text
+    // Update footer text (only in sendPanel section)
     if (panelData.footer?.text) {
-      fileContent = fileContent.replace(
+      editableSection = editableSection.replace(
         /text:\s*['"`].*?['"`]/,
         `text: '${panelData.footer.text.replace(/'/g, "\\'")}'`
       );
     }
 
-    // Update footer iconURL
+    // Update footer iconURL (only in sendPanel section)
     if (panelData.footer?.iconURL) {
-      fileContent = fileContent.replace(
+      editableSection = editableSection.replace(
         /iconURL:\s*['"`].*?['"`]/g,
         `iconURL: '${panelData.footer.iconURL}'`
       );
     }
+
+    // Reconstruct the file with protected section intact
+    fileContent = editableSection + protectedSection;
 
     // Write the updated content back to the file
     await fs.writeFile(panelFilePath, fileContent, 'utf8');
