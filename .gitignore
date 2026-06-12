@@ -1,10 +1,10 @@
 # Add to .gitignore
 
-# Environment files (all directories)
-**/.env
-**/.env.local
-**/.env.production
-**/.env.development
+# Environment files
+.env
+.env.local
+.env.production
+.env.development
 
 # PM2 logs
 logs/

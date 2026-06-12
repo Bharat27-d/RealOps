@@ -68,19 +68,58 @@ function isValidSnowflake(id) {
 
 // Get roles that should see a specific ticket type
 function getTicketRoles(ticketType) {
-    const roleMap = {
-        joinTeam: 'hr',
-        bookSlot: 'slotBooking',
-        bookUs: 'bookings',
-        support: 'support',
-        partnership: 'partnership',
-        founders: 'founders',
-        hr: 'hr'
-    };
-    const staffKey = roleMap[ticketType];
-    if (!staffKey || !config.staffRoles[staffKey]) return [];
-    const roleValue = config.staffRoles[staffKey];
-    const roles = Array.isArray(roleValue) ? roleValue : [roleValue];
+    const roles = [];
+    switch (ticketType) {
+        case 'joinTeam':
+            if (Array.isArray(config.staffRoles.hr)) {
+                roles.push(...config.staffRoles.hr);
+            } else if (config.staffRoles.hr) {
+                roles.push(config.staffRoles.hr);
+            }
+            break;
+        case 'bookSlot':
+            if (Array.isArray(config.staffRoles.slotBooking)) {
+                roles.push(...config.staffRoles.slotBooking);
+            } else if (config.staffRoles.slotBooking) {
+                roles.push(config.staffRoles.slotBooking);
+            }
+            break;
+        case 'bookUs':
+            if (Array.isArray(config.staffRoles.bookings)) {
+                roles.push(...config.staffRoles.bookings);
+            } else if (config.staffRoles.bookings) {
+                roles.push(config.staffRoles.bookings);
+            }
+            break;
+        case 'support':
+            if (Array.isArray(config.staffRoles.support)) {
+                roles.push(...config.staffRoles.support);
+            } else if (config.staffRoles.support) {
+                roles.push(config.staffRoles.support);
+            }
+            break;
+        case 'partnership':
+            if (Array.isArray(config.staffRoles.partnership)) {
+                roles.push(...config.staffRoles.partnership);
+            } else if (config.staffRoles.partnership) {
+                roles.push(config.staffRoles.partnership);
+            }
+            break;
+        case 'founders':
+            if (Array.isArray(config.staffRoles.founders)) {
+                roles.push(...config.staffRoles.founders);
+            } else if (config.staffRoles.founders) {
+                roles.push(config.staffRoles.founders);
+            }
+            break;
+        case 'hr':
+            if (Array.isArray(config.staffRoles.hr)) {
+                roles.push(...config.staffRoles.hr);
+            } else if (config.staffRoles.hr) {
+                roles.push(config.staffRoles.hr);
+            }
+            break;
+    }
     return [...new Set(roles.filter(Boolean))];
 }
 

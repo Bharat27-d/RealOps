@@ -152,10 +152,9 @@ client.once('ready', async () => {
 // Allows PM2, monitoring tools, or load balancers to check if the bot is alive
 const http = require('http');
 const HEALTH_PORT = process.env.BOT_HEALTH_PORT || 3002;
-let healthServer = null;
 
 function startHealthServer() {
-    healthServer = http.createServer((req, res) => {
+    const server = http.createServer((req, res) => {
         if (req.url === '/health' && req.method === 'GET') {
             const wsStatus = client.ws?.status;
             const wsStatusName = ['READY', 'CONNECTING', 'RECONNECTING', 'IDLE', 'NEARLY', 'DISCONNECTED', 'WAITING_FOR_GUILDS', 'IDENTIFYING', 'RESUMING'][wsStatus] || 'UNKNOWN';
@@ -180,11 +179,11 @@ function startHealthServer() {
         }
     });
 
-    healthServer.listen(HEALTH_PORT, () => {
+    server.listen(HEALTH_PORT, () => {
         console.log(`🏥 Bot health check server running on port ${HEALTH_PORT}`);
     });
 
-    healthServer.on('error', (err) => {
+    server.on('error', (err) => {
         if (err.code === 'EADDRINUSE') {
             console.warn(`⚠️ Health check port ${HEALTH_PORT} already in use, skipping health server`);
         } else {
@@ -193,14 +192,18 @@ function startHealthServer() {
     });
 }
 
+// Global error handler
+process.on('uncaughtException', (error) => {
+    console.error('Uncaught Exception:', error);
+});
+
+process.on('unhandledRejection', (error) => {
+    console.error('Unhandled Rejection:', error);
+});
+
 // Graceful shutdown handlers
 function shutdown(signal) {
     console.log(`\n${signal} received. Shutting down gracefully...`);
-    
-    // Close health check server
-    if (healthServer) {
-        healthServer.close(() => console.log('Health server closed'));
-    }
     
     client.destroy();
     console.log('Discord client destroyed');
@@ -219,26 +222,11 @@ process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('SIGINT', () => shutdown('SIGINT'));
 process.on('SIGHUP', () => shutdown('SIGHUP'));
 
-// Login to Discord with retry logic
-const LOGIN_RETRIES = 3;
-const RETRY_DELAYS = [5000, 15000, 30000]; // 5s, 15s, 30s
-
-async function loginWithRetry(attempt = 0) {
-    try {
-        console.log(`Attempting to login to Discord... (attempt ${attempt + 1}/${LOGIN_RETRIES})`);
-        await client.login(TOKEN);
-        console.log('Login successful!');
-    } catch (error) {
-        console.error(`Login attempt ${attempt + 1} failed:`, error.message);
-        if (attempt < LOGIN_RETRIES - 1) {
-            const delay = RETRY_DELAYS[attempt] || 30000;
-            console.log(`Retrying in ${delay / 1000} seconds...`);
-            await new Promise(r => setTimeout(r, delay));
-            return loginWithRetry(attempt + 1);
-        }
-        console.error('All login attempts failed. Exiting.');
-        process.exit(1);
-    }
-}
-
-loginWithRetry();
+// Login to Discord
+console.log('Attempting to login to Discord...');
+client.login(TOKEN).then(() => {
+    console.log('Login successful!');
+}).catch((error) => {
+    console.error('Login failed:', error);
+    process.exit(1);
+});

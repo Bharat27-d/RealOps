@@ -27,7 +27,11 @@ app.use(cors({
   origin: function(origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
-    const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:3000').split(',').map(s => s.trim());
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'http://159.69.219.151',
+      'http://159.69.219.151:3000'
+    ];
     if (allowedOrigins.indexOf(origin) === -1) {
       return callback(new Error('Not allowed by CORS'), false);
     }
@@ -79,7 +83,7 @@ app.use(session({
   cookie: {
     maxAge: 24 * 60 * 60 * 1000,
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: false,
     sameSite: 'lax'
   }
 }));
@@ -90,16 +94,6 @@ app.use(passport.session());
 
 // Initialize Discord Bot
 botManager.initialize(process.env.DISCORD_BOT_TOKEN);
-
-// Global API rate limiter — prevents abuse of Firestore-backed endpoints
-const apiLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 100, // 100 requests per minute per IP
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { error: 'Too many requests. Please slow down.' }
-});
-app.use('/api', apiLimiter);
 
 // Auth routes (rate-limited to prevent brute-force)
 app.post('/auth/login', authLimiter, (req, res, next) => {

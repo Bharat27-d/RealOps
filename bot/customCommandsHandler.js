@@ -9,8 +9,7 @@ const {
     SeparatorBuilder,
     ThumbnailBuilder
 } = require('discord.js');
-const firebase = require('./firebase');
-const collections = firebase?.collections;
+const { collections } = require('./firebase');
 const { parseEmbedPlaceholders } = require('./placeholderParser');
 
 let unsubscribe = null;
