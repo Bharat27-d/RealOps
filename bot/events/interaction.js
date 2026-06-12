@@ -1,22 +1,17 @@
 /**
  * Interaction Event Handler
  * 
- * All interaction routing is handled centrally by ticketSystem.js to prevent
- * duplicate handler execution. This file is kept as a no-op to maintain the
- * event file loading pattern without causing double-fire issues.
+ * All interaction routing is handled centrally by ticketSystem/index.js to prevent
+ * duplicate handler execution. This file is intentionally NOT registered as an
+ * event handler — it exists only as documentation.
  * 
  * Previously, this file duplicated event_accept/event_decline/decline_reason_select
  * handling that already existed in ticketSystem.js, causing race conditions and
  * "interaction already acknowledged" errors.
+ * 
+ * NOTE: This file exports NO name or execute, so the event loader in bot/index.js
+ * will skip it entirely (zero CPU overhead).
  */
 
-const { Events } = require('discord.js');
-
-module.exports = {
-    name: Events.InteractionCreate,
-    async execute(interaction) {
-        // All interaction routing is handled by ticketSystem.js
-        // This handler intentionally does nothing to prevent duplicate execution.
-        return;
-    }
-};
+// No-op — kept for documentation only
+module.exports = {};

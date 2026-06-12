@@ -124,7 +124,7 @@ function setupTicketSystem(client) {
                 }
 
                 // Ticket management buttons
-                if (['ticket_close', 'ticket_reopen', 'ticket_transcript'].includes(customId)) {
+                if (['ticket_close', 'ticket_reopen', 'ticket_transcript', 'ticket_delete'].includes(customId)) {
                     try { await interaction.deferReply({ flags: MessageFlags.Ephemeral }); } catch (e) { return; }
                     ensureTicketsLoaded();
 

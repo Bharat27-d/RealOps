@@ -14,8 +14,8 @@ const { createTranscriptForDeletion } = require('./transcripts');
 async function createTicketWithFormData(interaction, ticketType, formData, panelModule) {
     ensureTicketsLoaded();
     const { guild, user } = interaction;
-    const maxTotal = config.ticketOptions?.maxTicketsPerUser ?? 999999;
-    const maxPerType = config.ticketOptions?.maxTicketsPerUserPerType ?? 999999;
+    const maxTotal = config.ticketOptions?.maxTicketsPerUser ?? 10;
+    const maxPerType = config.ticketOptions?.maxTicketsPerUserPerType ?? 3;
     const userTickets = Array.from(activeTickets.values()).filter(t => t.userId === user.id && !t.closed);
     const userTicketsOfType = userTickets.filter(t => t.type === ticketType);
 
