@@ -579,39 +579,6 @@ function CustomCommands() {
               Character Count: <strong className={count > 6000 ? 'danger' : ''}>{count} / 6000</strong>
             </div>
           </div>
-
-          <div className="card command-library-card">
-            <h3>Command Library</h3>
-            <div className="command-library-section">
-              <h4>Built-in Commands</h4>
-              {builtInCommands.map(command => (
-                <button
-                  key={command.id}
-                  type="button"
-                  className={`command-library-item ${selectedKey === `built-in:${command.name}` ? 'active' : ''}`}
-                  onClick={() => loadBuiltInCommand(command)}
-                >
-                  <span>/{command.name}</span>
-                  <small>{hasOverrides(command) ? 'Customized' : 'Default'}</small>
-                </button>
-              ))}
-            </div>
-            <div className="command-library-section">
-              <h4>Custom Commands</h4>
-              {commands.length === 0 && <p className="command-library-empty">No custom commands yet.</p>}
-              {commands.map(command => (
-                <button
-                  key={command.id}
-                  type="button"
-                  className={`command-library-item ${selectedKey === `custom:${command.id}` ? 'active' : ''}`}
-                  onClick={() => loadCustomCommand(command)}
-                >
-                  <span>/{command.name}</span>
-                  <small>{command.enabled !== false ? 'Enabled' : 'Disabled'}</small>
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
       </div>
     </div>
