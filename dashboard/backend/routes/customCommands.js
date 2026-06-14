@@ -106,69 +106,85 @@ function extractConstString(content, constName) {
   return decodeSourceString(match[2], match[1]);
 }
 
+function extractOverride(content, field) {
+  const regex = new RegExp(`getOverride\\s*\\([^,]+,\\s*['"\`]${field}['"\`]\\s*,\\s*(.*?)\\s*\\)`);
+  const match = content.match(regex);
+  if (!match) return null;
+  
+  let defaultVal = match[1].trim();
+  // Check if it's a string literal
+  const strMatch = defaultVal.match(/^(['"\`])([\s\S]*)\1$/);
+  if (strMatch) {
+    return decodeSourceString(strMatch[2], strMatch[1]);
+  }
+  // If it's a variable name, look for its definition
+  return extractConstString(content, defaultVal);
+}
+
 // Helper: extract editable fields from a command source file
 function parseCommandFile(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
   const fields = {};
 
-  // Extract image: .setImage('url') - more flexible
-  const imageMatches = content.match(/\.setImage\s*\(\s*['"`](https?:\/\/[^'"`]+)['"`]\s*\)/g);
-  if (imageMatches && imageMatches.length > 0) {
-    fields.image = imageMatches[0].match(/https?:\/\/[^'"`]+/)[0];
+  // First priority: getOverride() calls
+  fields.image = extractOverride(content, 'image');
+  fields.thumbnail = extractOverride(content, 'thumbnail');
+  fields.color = extractOverride(content, 'color');
+  fields.title = extractOverride(content, 'title');
+  fields.embedDescription = extractOverride(content, 'description');
+  fields.footerText = extractOverride(content, 'footerText');
+  fields.footerIcon = extractOverride(content, 'footerIcon');
+
+  // Second priority: Fallbacks for commands not using getOverride
+  if (!fields.image) {
+    const imageMatches = content.match(/\.setImage\s*\(\s*['"`](https?:\/\/[^'"`]+)['"`]\s*\)/g);
+    if (imageMatches && imageMatches.length > 0) fields.image = imageMatches[0].match(/https?:\/\/[^'"`]+/)[0];
   }
 
-  // Extract thumbnail: .setThumbnail('url') - more flexible
-  const thumbMatches = content.match(/\.setThumbnail\s*\(\s*['"`](https?:\/\/[^'"`]+)['"`]\s*\)/g);
-  if (thumbMatches && thumbMatches.length > 0) {
-    fields.thumbnail = thumbMatches[0].match(/https?:\/\/[^'"`]+/)[0];
+  if (!fields.thumbnail) {
+    const thumbMatches = content.match(/\.setThumbnail\s*\(\s*['"`](https?:\/\/[^'"`]+)['"`]\s*\)/g);
+    if (thumbMatches && thumbMatches.length > 0) fields.thumbnail = thumbMatches[0].match(/https?:\/\/[^'"`]+/)[0];
   }
 
-  // Extract color: .setColor('color') - more flexible
-  const colorMatch = content.match(/\.setColor\s*\(\s*['"`]([^'"`]+)['"`]\s*\)/);
-  if (colorMatch) {
-    fields.color = colorMatch[1];
+  if (!fields.color) {
+    const colorMatch = content.match(/\.setColor\s*\(\s*['"`]([^'"`]+)['"`]\s*\)/);
+    if (colorMatch) fields.color = colorMatch[1];
   }
 
-  // Extract title: .setTitle('title') - more flexible pattern
-  const titleMatch = content.match(/\.setTitle\s*\(\s*['"`]([^'"`]+)['"`]\s*\)/);
-  if (titleMatch) {
-    fields.title = titleMatch[1];
+  if (!fields.title) {
+    const titleMatch = content.match(/\.setTitle\s*\(\s*['"`]([^'"`]+)['"`]\s*\)/);
+    if (titleMatch) fields.title = titleMatch[1];
   }
 
-  // Extract description (first static one) - full content
-  // Check for DEFAULT_DESCRIPTION constant (for dynamic descriptions) - support multi-line - highest priority
-  const defaultDescription = extractConstString(content, 'DEFAULT_DESCRIPTION');
-  // Check for defaultDescription variable assignment - second priority
-  const defaultDescriptionVar = extractConstString(content, 'defaultDescription');
-  // Look for setDescription in EmbedBuilder context - third priority
-  const descMatch = content.match(/const embed = new EmbedBuilder\(\)[\s\S]*?\.setDescription\s*\(\s*['"`]([^'"`]+)['"`]\s*\)/);
-  // Also check for template literal descriptions - fourth priority
-  const descTemplateMatch = content.match(/const embed = new EmbedBuilder\(\)[\s\S]*?\.setDescription\s*\(\s*`([^`]+)`\s*\)/);
-  // Check for any setDescription call (more flexible) - fifth priority
-  const descAnyMatch = content.match(/\.setDescription\s*\(\s*['"`]([^'"`]+)['"`]\s*\)/);
-  
-  if (defaultDescription) {
-    fields.embedDescription = defaultDescription;
-  } else if (defaultDescriptionVar) {
-    fields.embedDescription = defaultDescriptionVar;
-  } else if (descTemplateMatch) {
-    fields.embedDescription = descTemplateMatch[1];
-  } else if (descMatch) {
-    fields.embedDescription = descMatch[1];
-  } else if (descAnyMatch) {
-    fields.embedDescription = descAnyMatch[1];
+  if (!fields.embedDescription) {
+    const defaultDescription = extractConstString(content, 'DEFAULT_DESCRIPTION');
+    const defaultDescriptionVar = extractConstString(content, 'defaultDescription');
+    const descMatch = content.match(/const embed = new EmbedBuilder\(\)[\s\S]*?\.setDescription\s*\(\s*['"`]([^'"`]+)['"`]\s*\)/);
+    const descTemplateMatch = content.match(/const embed = new EmbedBuilder\(\)[\s\S]*?\.setDescription\s*\(\s*`([^`]+)`\s*\)/);
+    const descAnyMatch = content.match(/\.setDescription\s*\(\s*['"`]([^'"`]+)['"`]\s*\)/);
+    
+    if (defaultDescription) fields.embedDescription = defaultDescription;
+    else if (defaultDescriptionVar) fields.embedDescription = defaultDescriptionVar;
+    else if (descTemplateMatch) fields.embedDescription = descTemplateMatch[1];
+    else if (descMatch) fields.embedDescription = descMatch[1];
+    else if (descAnyMatch) fields.embedDescription = descAnyMatch[1];
   }
 
-  // Extract footer text - more flexible
-  const footerMatch = content.match(/text:\s*['"`]([^'"`]+)['"`]/);
-  if (footerMatch) {
-    fields.footerText = footerMatch[1];
+  if (!fields.footerText) {
+    const footerMatch = content.match(/text:\s*['"`]([^'"`]+)['"`]/);
+    if (footerMatch) fields.footerText = footerMatch[1];
   }
 
-  // Extract footer icon - more flexible
-  const footerIconMatch = content.match(/iconURL:\s*['"`](https?:\/\/[^'"`]+)['"`]/);
-  if (footerIconMatch) {
-    fields.footerIcon = footerIconMatch[1];
+  if (!fields.footerIcon) {
+    const footerIconMatch = content.match(/iconURL:\s*['"`](https?:\/\/[^'"`]+)['"`]/);
+    if (footerIconMatch) fields.footerIcon = footerIconMatch[1];
+  }
+
+  // Cleanup undefined/null fields
+  for (const key in fields) {
+    if (fields[key] === null || fields[key] === undefined) {
+      delete fields[key];
+    }
   }
 
   // If no fields were extracted but the file contains EmbedBuilder, return placeholder to enable customization
