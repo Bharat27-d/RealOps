@@ -30,7 +30,7 @@ If you have any terms/conditions to this partnership then please post them below
 
       const embed = new EmbedBuilder()
         .setTitle(getOverride('partnership1', 'title', defaultTitle))
-        .setDescription(DEFAULT_DESCRIPTION)
+        .setDescription(getOverride('partnership1', 'description', DEFAULT_DESCRIPTION))
         .setImage(getOverride('partnership1', 'image', 'https://i.imgur.com/58wgkaF.png'))
         .setColor(getOverride('partnership1', 'color', '#00b894'))
         .setThumbnail(getOverride('partnership1', 'thumbnail', 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'))

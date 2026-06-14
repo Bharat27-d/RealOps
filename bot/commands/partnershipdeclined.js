@@ -45,7 +45,7 @@ You can request a new partnership after 30 days from the date of this ticket.`;
 
       const embed = new EmbedBuilder()
         .setTitle(getOverride('partnershipdeclined', 'title', defaultTitle))
-        .setDescription(dynamicDescription)
+        .setDescription(getOverride('partnershipdeclined', 'description', dynamicDescription))
         .setImage(getOverride('partnershipdeclined', 'image', 'https://i.imgur.com/58wgkaF.png'))
         .setColor(getOverride('partnershipdeclined', 'color', '#e74c3c'))
         .setThumbnail(getOverride('partnershipdeclined', 'thumbnail', 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'))

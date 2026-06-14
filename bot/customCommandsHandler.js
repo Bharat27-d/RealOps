@@ -148,9 +148,15 @@ function buildContainer(data) {
     return container;
 }
 
+let reconnectTimer = null;
+let reconnectAttempts = 0;
+const MAX_RECONNECT_DELAY = 30000;
+let _client = null;
+let _triggerRegisterCallback = null;
+
 /**
  * Mounts a Firebase real-time listener to automatically load and execute newly created Custom Commands
- * from the Dashboard. Does not require bot restart.
+ * from the Dashboard. Does not require bot restart. Auto-reconnects on failure.
  */
 function setupCustomCommandsListener(client, triggerRegisterCallback) {
     if (!collections || !collections.customCommands) {
@@ -158,125 +164,156 @@ function setupCustomCommandsListener(client, triggerRegisterCallback) {
         return;
     }
 
+    // Store references for reconnection
+    _client = client;
+    _triggerRegisterCallback = triggerRegisterCallback;
+
+    startCustomCommandsListener();
+}
+
+function startCustomCommandsListener() {
+    if (!_client) return;
+
     if (unsubscribe) {
-        unsubscribe();
+        try { unsubscribe(); } catch (_) {}
+        unsubscribe = null;
     }
 
     console.log('[Custom Commands] Setting up real-time listener...');
 
-    unsubscribe = collections.customCommands.onSnapshot((snapshot) => {
-        const commands = [];
-        snapshot.forEach(doc => {
-            const data = doc.data();
-            if (data.enabled !== false) {
-                commands.push({ id: doc.id, ...data });
-            }
-        });
+    try {
+        unsubscribe = collections.customCommands.onSnapshot((snapshot) => {
+            reconnectAttempts = 0; // Reset backoff on success
 
-        // 1. Clean up old custom commands from client.commands
-        for (const [name, cmd] of client.commands.entries()) {
-            if (cmd.isCustomCommand) {
-                client.commands.delete(name);
-            }
-        }
+            const commands = [];
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                if (data.enabled !== false) {
+                    commands.push({ id: doc.id, ...data });
+                }
+            });
 
-        // 2. Load the new custom commands into client.commands
-        for (const cmdData of commands) {
-            // Safety check: Discord slash command names must be lowercase, alphanumeric/dash/underscore, 1-32 chars
-            const cleanName = (cmdData.name || '').toLowerCase().replace(/[^a-z0-9_-]/g, '').substring(0, 32);
-            const cleanDescription = (cmdData.description || 'Custom command').substring(0, 100);
-
-            if (!cleanName) continue;
-
-            const builder = new SlashCommandBuilder()
-                .setName(cleanName)
-                .setDescription(cleanDescription);
-
-            // Dynamically register command options from dashboard config
-            if (Array.isArray(cmdData.options)) {
-                for (const opt of cmdData.options) {
-                    const optName = (opt.name || '').toLowerCase().replace(/[^a-z0-9_-]/g, '').substring(0, 32);
-                    const optDesc = (opt.description || 'No description').substring(0, 100);
-                    if (!optName) continue;
-
-                    switch (opt.type) {
-                        case 'user':
-                            builder.addUserOption(o => o.setName(optName).setDescription(optDesc).setRequired(!!opt.required));
-                            break;
-                        case 'role':
-                            builder.addRoleOption(o => o.setName(optName).setDescription(optDesc).setRequired(!!opt.required));
-                            break;
-                        case 'channel':
-                            builder.addChannelOption(o => o.setName(optName).setDescription(optDesc).setRequired(!!opt.required));
-                            break;
-                        case 'number':
-                            builder.addNumberOption(o => o.setName(optName).setDescription(optDesc).setRequired(!!opt.required));
-                            break;
-                        case 'boolean':
-                            builder.addBooleanOption(o => o.setName(optName).setDescription(optDesc).setRequired(!!opt.required));
-                            break;
-                        default: // string
-                            builder.addStringOption(o => o.setName(optName).setDescription(optDesc).setRequired(!!opt.required));
-                            break;
-                    }
+            // 1. Clean up old custom commands from client.commands
+            for (const [name, cmd] of _client.commands.entries()) {
+                if (cmd.isCustomCommand) {
+                    _client.commands.delete(name);
                 }
             }
 
-            const commandObj = {
-                isCustomCommand: true,
-                data: builder,
-                
-                async execute(interaction) {
-                    try {
-                        // Resolve all ${...} placeholders using interaction options
-                        const resolvedData = parseEmbedPlaceholders(cmdData, interaction);
-                        const container = buildContainer(resolvedData);
-                        
-                        // Defer ephemerally so no public "User used /command" message appears
-                        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+            // 2. Load the new custom commands into client.commands
+            for (const cmdData of commands) {
+                // Safety check: Discord slash command names must be lowercase, alphanumeric/dash/underscore, 1-32 chars
+                const cleanName = (cmdData.name || '').toLowerCase().replace(/[^a-z0-9_-]/g, '').substring(0, 32);
+                const cleanDescription = (cmdData.description || 'Custom command').substring(0, 100);
 
-                        // Send the container as a regular channel message (no user attribution)
-                        await interaction.channel.send({
-                            components: [container],
-                            flags: MessageFlags.IsComponentsV2
-                        });
+                if (!cleanName) continue;
 
-                        // Delete the ephemeral acknowledgment so nothing remains
-                        await interaction.deleteReply();
-                    } catch (error) {
-                        // Silently ignore "already acknowledged" and "unknown interaction" errors
-                        if (error.code === 40060 || error.code === 10062) return;
+                const builder = new SlashCommandBuilder()
+                    .setName(cleanName)
+                    .setDescription(cleanDescription);
 
-                        console.error(`Error executing custom command ${cmdData.name}:`, error);
-                        try {
-                            if (!interaction.replied && !interaction.deferred) {
-                                await interaction.reply({ content: 'An error occurred while executing this command.', flags: MessageFlags.Ephemeral });
-                            } else {
-                                await interaction.followUp({ content: 'An error occurred while executing this command.', flags: MessageFlags.Ephemeral });
-                            }
-                        } catch (_) {
-                            // Nothing more we can do
+                // Dynamically register command options from dashboard config
+                if (Array.isArray(cmdData.options)) {
+                    for (const opt of cmdData.options) {
+                        const optName = (opt.name || '').toLowerCase().replace(/[^a-z0-9_-]/g, '').substring(0, 32);
+                        const optDesc = (opt.description || 'No description').substring(0, 100);
+                        if (!optName) continue;
+
+                        switch (opt.type) {
+                            case 'user':
+                                builder.addUserOption(o => o.setName(optName).setDescription(optDesc).setRequired(!!opt.required));
+                                break;
+                            case 'role':
+                                builder.addRoleOption(o => o.setName(optName).setDescription(optDesc).setRequired(!!opt.required));
+                                break;
+                            case 'channel':
+                                builder.addChannelOption(o => o.setName(optName).setDescription(optDesc).setRequired(!!opt.required));
+                                break;
+                            case 'number':
+                                builder.addNumberOption(o => o.setName(optName).setDescription(optDesc).setRequired(!!opt.required));
+                                break;
+                            case 'boolean':
+                                builder.addBooleanOption(o => o.setName(optName).setDescription(optDesc).setRequired(!!opt.required));
+                                break;
+                            default: // string
+                                builder.addStringOption(o => o.setName(optName).setDescription(optDesc).setRequired(!!opt.required));
+                                break;
                         }
                     }
                 }
-            };
+
+                const commandObj = {
+                    isCustomCommand: true,
+                    data: builder,
+                    
+                    async execute(interaction) {
+                        try {
+                            // Resolve all ${...} placeholders using interaction options
+                            const resolvedData = parseEmbedPlaceholders(cmdData, interaction);
+                            const container = buildContainer(resolvedData);
+                            
+                            // Defer ephemerally so no public "User used /command" message appears
+                            await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
+                            // Send the container as a regular channel message (no user attribution)
+                            await interaction.channel.send({
+                                components: [container],
+                                flags: MessageFlags.IsComponentsV2
+                            });
+
+                            // Delete the ephemeral acknowledgment so nothing remains
+                            await interaction.deleteReply();
+                        } catch (error) {
+                            // Silently ignore "already acknowledged" and "unknown interaction" errors
+                            if (error.code === 40060 || error.code === 10062) return;
+
+                            console.error(`Error executing custom command ${cmdData.name}:`, error);
+                            try {
+                                if (!interaction.replied && !interaction.deferred) {
+                                    await interaction.reply({ content: 'An error occurred while executing this command.', flags: MessageFlags.Ephemeral });
+                                } else {
+                                    await interaction.followUp({ content: 'An error occurred while executing this command.', flags: MessageFlags.Ephemeral });
+                                }
+                            } catch (_) {
+                                // Nothing more we can do
+                            }
+                        }
+                    }
+                };
+                
+                _client.commands.set(cleanName, commandObj);
+            }
             
-            client.commands.set(cleanName, commandObj);
-        }
-        
-        console.log(`[Custom Commands] Actively loaded ${commands.length} dynamic commands.`);
-        
-        // 3. Debounced Discord slash command registration — prevents rapid-fire API calls
-        //    when multiple Firebase docs change in quick succession
-        if (triggerRegisterCallback && typeof triggerRegisterCallback === 'function') {
-            if (registerDebounceTimer) clearTimeout(registerDebounceTimer);
-            registerDebounceTimer = setTimeout(() => {
-                triggerRegisterCallback();
-            }, 2000); // Wait 2 seconds of inactivity before re-registering with Discord
-        }
-    }, (error) => {
-        console.error('[Custom Commands] Real-time listener error:', error);
-    });
+            console.log(`[Custom Commands] ✅ Loaded ${commands.length} dynamic commands.`);
+            
+            // 3. Debounced Discord slash command registration — prevents rapid-fire API calls
+            //    when multiple Firebase docs change in quick succession
+            if (_triggerRegisterCallback && typeof _triggerRegisterCallback === 'function') {
+                if (registerDebounceTimer) clearTimeout(registerDebounceTimer);
+                registerDebounceTimer = setTimeout(() => {
+                    _triggerRegisterCallback();
+                }, 2000); // Wait 2 seconds of inactivity before re-registering with Discord
+            }
+        }, (error) => {
+            console.error('[Custom Commands] Listener error:', error.message);
+            scheduleCustomCommandsReconnect();
+        });
+    } catch (error) {
+        console.error('[Custom Commands] Failed to start listener:', error.message);
+        scheduleCustomCommandsReconnect();
+    }
+}
+
+function scheduleCustomCommandsReconnect() {
+    if (reconnectTimer) clearTimeout(reconnectTimer);
+
+    const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), MAX_RECONNECT_DELAY);
+    reconnectAttempts++;
+
+    console.log(`[Custom Commands] Reconnecting in ${delay / 1000}s (attempt ${reconnectAttempts})...`);
+    reconnectTimer = setTimeout(() => {
+        startCustomCommandsListener();
+    }, delay);
 }
 
 module.exports = { setupCustomCommandsListener, buildContainer };

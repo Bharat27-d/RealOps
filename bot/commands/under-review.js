@@ -35,7 +35,7 @@ module.exports = {
 
       const embed = new EmbedBuilder()
         .setTitle(getOverride('under-review', 'title', defaultTitle))
-        .setDescription(dynamicDescription)
+        .setDescription(getOverride('under-review', 'description', dynamicDescription))
         .setColor(getOverride('under-review', 'color', '#e67e22'))
         .setThumbnail(getOverride('under-review', 'thumbnail', 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'))
         .setFooter({

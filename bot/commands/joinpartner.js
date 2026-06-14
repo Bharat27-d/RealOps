@@ -28,7 +28,7 @@ module.exports = {
 
       const embed = new EmbedBuilder()
         .setTitle(getOverride('joinpartner', 'title', 'Application Accepted'))
-        .setDescription(dynamicDescription)
+        .setDescription(getOverride('joinpartner', 'description', dynamicDescription))
         .setColor(getOverride('joinpartner', 'color', '#00b894'))
         .setImage(getOverride('joinpartner', 'image', 'https://i.postimg.cc/5t3m40Nn/simple.png'))
         .setThumbnail(getOverride('joinpartner', 'thumbnail', 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'))

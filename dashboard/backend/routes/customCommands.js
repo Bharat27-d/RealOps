@@ -227,6 +227,10 @@ router.get('/built-in', isAuthenticated, async (req, res) => {
             defaults = { hasEmbed: true }; // Fallback to allow customization
           }
           const overrides = savedOverrides[cmdName] || {};
+          // Filter out internal metadata fields (e.g. _updatedAt) from overrides
+          const cleanOverrides = Object.fromEntries(
+            Object.entries(overrides).filter(([k, v]) => !k.startsWith('_') && v !== undefined && v !== '')
+          );
 
           builtInCommands.push({
             id: `builtin_${cmdName}`,
@@ -237,12 +241,10 @@ router.get('/built-in', isAuthenticated, async (req, res) => {
             enabled: true,
             // Default values from source code
             defaults: defaults,
-            // Current overrides from Firebase
-            overrides: overrides,
+            // Current overrides from Firebase (clean)
+            overrides: cleanOverrides,
             // Merged values (overrides take priority)
-            current: { ...defaults, ...Object.fromEntries(
-              Object.entries(overrides).filter(([_, v]) => v !== undefined && v !== '')
-            )}
+            current: { ...defaults, ...cleanOverrides }
           });
         }
       } catch (fileError) {
@@ -289,18 +291,64 @@ router.get('/built-in', isAuthenticated, async (req, res) => {
 router.put('/built-in/:commandName', isAuthenticated, async (req, res) => {
   try {
     const { commandName } = req.params;
-    const overrides = req.body;
+    const rawOverrides = req.body;
 
-    // Save to Firebase using command name as doc ID
-    await collections.commandOverrides.doc(commandName).set(overrides, { merge: true });
+    if (!commandName || typeof commandName !== 'string') {
+      return res.status(400).json({ error: 'Invalid command name' });
+    }
+
+    // Clean the override data — strip empty/null/undefined values
+    // so only actual overrides are stored in Firebase
+    const ALLOWED_FIELDS = [
+      'title', 'description', 'image', 'thumbnail', 'color',
+      'url', 'timestamp', 'authorName', 'authorIcon', 'authorUrl',
+      'footerText', 'footerIcon', 'fields'
+    ];
+
+    const cleanOverrides = {};
+    for (const field of ALLOWED_FIELDS) {
+      const value = rawOverrides[field];
+      if (field === 'fields') {
+        // Handle fields array — only include non-empty fields
+        if (Array.isArray(value) && value.length > 0) {
+          const validFields = value
+            .filter(f => f && f.name && f.name.trim() && f.value && f.value.trim())
+            .map(f => ({
+              name: f.name.trim().substring(0, 256),
+              value: f.value.trim().substring(0, 1024),
+              inline: !!f.inline
+            }));
+          if (validFields.length > 0) {
+            cleanOverrides.fields = validFields;
+          }
+        }
+      } else if (value !== undefined && value !== null && String(value).trim() !== '') {
+        cleanOverrides[field] = String(value).trim();
+      }
+    }
+
+    // If all fields are empty, delete the override document entirely
+    if (Object.keys(cleanOverrides).length === 0) {
+      await collections.commandOverrides.doc(commandName).delete().catch(() => {});
+      invalidateBuiltInCache();
+      return res.json({ success: true, message: `All overrides cleared for /${commandName}` });
+    }
+
+    // Add metadata
+    cleanOverrides._updatedAt = new Date().toISOString();
+
+    // Use set() WITHOUT merge to replace the entire document
+    // This prevents stale fields from previous saves from lingering
+    await collections.commandOverrides.doc(commandName).set(cleanOverrides);
 
     // Invalidate cache so next GET fetches fresh data
     invalidateBuiltInCache();
 
-    res.json({ success: true, message: `Overrides saved for /${commandName}` });
+    console.log(`[Commands] Overrides saved for /${commandName}:`, Object.keys(cleanOverrides).filter(k => k !== '_updatedAt').join(', '));
+    res.json({ success: true, message: `Overrides saved for /${commandName}`, fields: Object.keys(cleanOverrides).filter(k => k !== '_updatedAt') });
   } catch (error) {
     console.error('Error saving command overrides:', error);
-    res.status(500).json({ error: 'Failed to save overrides' });
+    res.status(500).json({ error: 'Failed to save overrides: ' + error.message });
   }
 });
 

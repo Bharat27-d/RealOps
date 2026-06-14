@@ -36,7 +36,8 @@ if (!process.env.FIREBASE_PROJECT_ID || !process.env.FIREBASE_PRIVATE_KEY || !pr
     tickets: db.collection('tickets'),
     events: db.collection('events'),
     suggestions: db.collection('suggestions'),
-    customCommands: db.collection('customCommands')
+    customCommands: db.collection('customCommands'),
+    commandOverrides: db.collection('commandOverrides')
   };
 
   module.exports = { admin, db, collections };

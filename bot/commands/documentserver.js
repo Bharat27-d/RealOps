@@ -111,7 +111,7 @@ Could you also please add our banner to your event page:
 
       const embed = new EmbedBuilder()
         .setTitle(getOverride('documentserver', 'title', defaultTitle))
-        .setDescription(dynamicDescription)
+        .setDescription(getOverride('documentserver', 'description', dynamicDescription))
         .setColor(getOverride('documentserver', 'color', '#00b894'))
         .setThumbnail(getOverride('documentserver', 'thumbnail', 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'))
         .setFooter({

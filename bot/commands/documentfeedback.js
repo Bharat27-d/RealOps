@@ -69,7 +69,7 @@ we wish to request real ops for our event TMP link ${eventLink} [HERE](${documen
 
       const embed = new EmbedBuilder()
         .setTitle(getOverride('documentfeedback', 'title', defaultTitle))
-        .setDescription(dynamicDescription)
+        .setDescription(getOverride('documentfeedback', 'description', dynamicDescription))
         .setColor(getOverride('documentfeedback', 'color', '#00b894'))
         .setThumbnail(getOverride('documentfeedback', 'thumbnail', 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'))
         .setFooter({

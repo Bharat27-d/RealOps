@@ -121,21 +121,34 @@ const cleanFields = (fields = []) => fields
     inline: !!field.inline
   }));
 
-const buildBuiltInPayload = (data) => ({
-  image: (data.image || '').trim(),
-  thumbnail: (data.thumbnail || '').trim(),
-  color: (data.color || '').trim(),
-  title: (data.title || '').trim(),
-  description: (data.text || '').trim(),
-  footerText: (data.footerText || '').trim(),
-  footerIcon: (data.footerIcon || '').trim(),
-  authorName: (data.authorName || '').trim(),
-  authorIcon: (data.authorIcon || '').trim(),
-  authorUrl: (data.authorUrl || '').trim(),
-  url: (data.url || '').trim(),
-  timestamp: (data.timestamp || '').trim(),
-  fields: cleanFields(data.fields)
-});
+const buildBuiltInPayload = (data) => {
+  const payload = {};
+  const fieldMap = {
+    image: (data.image || '').trim(),
+    thumbnail: (data.thumbnail || '').trim(),
+    color: (data.color || '').trim(),
+    title: (data.title || '').trim(),
+    description: (data.text || '').trim(),
+    footerText: (data.footerText || '').trim(),
+    footerIcon: (data.footerIcon || '').trim(),
+    authorName: (data.authorName || '').trim(),
+    authorIcon: (data.authorIcon || '').trim(),
+    authorUrl: (data.authorUrl || '').trim(),
+    url: (data.url || '').trim(),
+    timestamp: (data.timestamp || '').trim()
+  };
+
+  // Only include fields that have actual content
+  for (const [key, value] of Object.entries(fieldMap)) {
+    if (value) payload[key] = value;
+  }
+
+  // Only include fields array if there are valid entries
+  const validFields = cleanFields(data.fields);
+  if (validFields.length > 0) payload.fields = validFields;
+
+  return payload;
+};
 
 const embedCharCount = (data) => {
   const fieldCount = (data.fields || []).reduce((total, field) => (

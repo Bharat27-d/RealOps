@@ -35,7 +35,7 @@ module.exports = {
 
       const embed = new EmbedBuilder()
         .setTitle(getOverride('partnerannouncement', 'title', defaultTitle))
-        .setDescription(dynamicDescription)
+        .setDescription(getOverride('partnerannouncement', 'description', dynamicDescription))
         .setColor(getOverride('partnerannouncement', 'color', '#ff0000'))
         .setThumbnail(getOverride('partnerannouncement', 'thumbnail', 'https://cdn.discordapp.com/attachments/1291127061434716282/1321518479803801651/image.png?ex=677094d8&is=676f4358&hm=8cd9c1e4f5e5e91d0c6b23b5e9f4d9e8e8f8e8f8e8f8e8f8e8f8e8f8e8f8&'))
         .setImage(getOverride('partnerannouncement', 'image', 'https://i.postimg.cc/rwWZ5RZh/new-partnership.png'))

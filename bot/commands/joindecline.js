@@ -51,7 +51,7 @@ module.exports = {
 
       const embed = new EmbedBuilder()
         .setTitle(getOverride('joindecline', 'title', 'Team Application Declined'))
-        .setDescription(dynamicDescription)
+        .setDescription(getOverride('joindecline', 'description', dynamicDescription))
         .setColor(getOverride('joindecline', 'color', '#e74c3c'))
         .setImage(getOverride('joindecline', 'image', 'https://i.postimg.cc/5t3m40Nn/simple.png'))
         .setThumbnail(getOverride('joindecline', 'thumbnail', 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'))
