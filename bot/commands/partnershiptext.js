@@ -1,28 +1,8 @@
 const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
+const { getOverride } = require('../commandConfig');
 
-module.exports = {
-  data: new SlashCommandBuilder()
-    .setName('partnershiptext')
-    .setDescription('Send the partnership text to a user.')
-    .addUserOption(option =>
-      option.setName('user')
-        .setDescription('The user to send the partnership text to')
-        .setRequired(true)
-    )
-    .setDefaultMemberPermissions(PermissionFlagsBits.ManageRoles), // Adjust as needed
-
-  async execute(interaction) {
-    try {
-      await interaction.deferReply({ flags: 64 });
-
-      const user = interaction.options.getUser('user');
-      if (!user) {
-        return await interaction.editReply({ content: 'User not found.' });
-      }
-
-      // Partnership text as in image 1, in a code block
-      const partnershipText = 
-`Hello and welcome to The Real-Ops Group
+// Static default text for dashboard editing
+const DEFAULT_DESCRIPTION = `Hello and welcome to The Real-Ops Group
 
 We are a group dedicated to providing Real-Ops for events on TruckersMP.
 We where built from experienced staff within the TruckersMP community with years of experience in producing great events enjoyed by our great community time after time.
@@ -46,6 +26,29 @@ If you would like to join our team you can find all available staff positions in
 https://discord.gg/realops
 https://imgur.com/x3rgpvg
 https://imgur.com/kmrKx8y.png`;
+
+module.exports = {
+  data: new SlashCommandBuilder()
+    .setName('partnershiptext')
+    .setDescription('Send the partnership text to a user.')
+    .addUserOption(option =>
+      option.setName('user')
+        .setDescription('The user to send the partnership text to')
+        .setRequired(true)
+    )
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageRoles), // Adjust as needed
+
+  async execute(interaction) {
+    try {
+      await interaction.deferReply({ flags: 64 });
+
+      const user = interaction.options.getUser('user');
+      if (!user) {
+        return await interaction.editReply({ content: 'User not found.' });
+      }
+
+      // Get the partnership text — editable from the dashboard via overrides
+      const partnershipText = getOverride('partnershiptext', 'description', DEFAULT_DESCRIPTION);
 
       await interaction.editReply({ content: `📄 Partnership text sent for <@${user.id}>.` });
       await interaction.channel.send({ 
