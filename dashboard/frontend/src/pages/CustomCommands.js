@@ -8,6 +8,7 @@ import OptionsEditor from '../components/OptionsEditor';
 const EMPTY_FORM = {
   name: '',
   description: '',
+  content: '',
   title: '',
   text: '',
   image: '',
@@ -65,6 +66,7 @@ const commandToForm = (command) => ({
   ...makeEmptyForm(),
   name: command.name || '',
   description: command.description || '',
+  content: command.content || '',
   title: command.title || '',
   text: command.text || '',
   image: command.image || '',
@@ -90,6 +92,7 @@ const builtInToForm = (command) => {
     ...makeEmptyForm(),
     name: command.name || '',
     description: command.description || '',
+    content: overrides.content ?? current.content ?? '',
     title: overrides.title ?? current.title ?? '',
     text: overrides.description ?? current.description ?? current.embedDescription ?? '',
     image: overrides.image ?? current.image ?? '',
@@ -124,6 +127,7 @@ const cleanFields = (fields = []) => fields
 const buildBuiltInPayload = (data) => {
   const payload = {};
   const fieldMap = {
+    content: (data.content || '').trim(),
     image: (data.image || '').trim(),
     thumbnail: (data.thumbnail || '').trim(),
     color: (data.color || '').trim(),
@@ -156,6 +160,7 @@ const embedCharCount = (data) => {
   ), 0);
 
   return [
+    data.content,
     data.title,
     data.text,
     data.footerText,
@@ -168,7 +173,7 @@ function CommandBuilderPreview({ data, type }) {
   const optionText = options.length
     ? options.map(opt => `${opt.required ? '<' : '['}${opt.name}${opt.required ? '>' : ']'}`).join(' ')
     : '';
-  const hasResponse = !!(data.title || data.text || data.image || data.thumbnail || data.authorName || data.footerText || (data.fields || []).length);
+  const hasResponse = !!(data.content || data.title || data.text || data.image || data.thumbnail || data.authorName || data.footerText || (data.fields || []).length);
 
   return (
     <div className="custom-command-preview">
@@ -198,7 +203,7 @@ function CommandResponsePreview({ data }) {
   const fields = (data.fields || []).filter(field => field.name?.trim() && field.value?.trim());
   const hasAuthor = data.authorName && data.authorName.trim();
   const hasFooter = data.footerText && data.footerText.trim();
-  const hasContent = !!(data.title || data.text || data.image || data.thumbnail || hasAuthor || hasFooter || fields.length);
+  const hasContent = !!(data.content || data.title || data.text || data.image || data.thumbnail || hasAuthor || hasFooter || fields.length);
 
   if (!hasContent) {
     return (
@@ -211,9 +216,11 @@ function CommandResponsePreview({ data }) {
   }
 
   return (
-    <div className="command-discord-preview" style={{ borderLeftColor: color }}>
-      <div className="command-discord-preview-main">
-        {hasAuthor && (
+    <div style={{ maxWidth: '640px' }}>
+      {data.content && <div className="command-preview-content" style={{ color: '#dcddde', fontSize: '15px', marginBottom: '8px', whiteSpace: 'pre-wrap' }}>{data.content}</div>}
+      <div className="command-discord-preview" style={{ borderLeftColor: color, marginTop: data.content ? 0 : undefined }}>
+        <div className="command-discord-preview-main">
+          {hasAuthor && (
           <div className="command-preview-author">
             {data.authorIcon && <img src={data.authorIcon} alt="" onError={e => { e.currentTarget.style.display = 'none'; }} />}
             <strong>{data.authorName}</strong>
@@ -248,6 +255,7 @@ function CommandResponsePreview({ data }) {
       {data.thumbnail && (
         <img className="command-preview-thumbnail" src={data.thumbnail} alt="" onError={e => { e.currentTarget.style.display = 'none'; }} />
       )}
+      </div>
     </div>
   );
 }

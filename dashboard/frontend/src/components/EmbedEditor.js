@@ -74,10 +74,17 @@ function EmbedEditor({ data, onChange, showPreview = true }) {
   };
 
   const colorVal = data.color || '#00b894';
-  const hasContent = !!(data.title || data.text || data.image || data.authorName || data.footerText || fields.length);
+  const hasContent = !!(data.content || data.title || data.text || data.image || data.authorName || data.footerText || fields.length);
 
   return (
     <div>
+      {/* Message Content */}
+      <Section title="Message Content (Ping Users)" icon="💬" color="#5865F2" defaultOpen={!!data.content}>
+        <textarea style={{ ...inputStyle, minHeight: '60px', resize: 'vertical', fontFamily: 'monospace', lineHeight: '1.5' }}
+          value={data.content || ''} onChange={e => set('content', e.target.value)}
+          placeholder={`Outside text for mentions and pings (e.g. \${user.mention})...`} rows={2} />
+      </Section>
+
       {/* Basic — Title + URL + Color */}
       <Section title="Basic" icon="📝" color="#7289da" defaultOpen={true}>
         <div style={{ marginBottom: '10px' }}>
@@ -226,7 +233,9 @@ function EmbedPreview({ data, color }) {
   const previewFields = (data.fields || []).filter(f => f.name?.trim() && f.value?.trim());
 
   return (
-    <div style={{ background: '#2f3136', borderRadius: '4px', padding: '12px 16px', borderLeft: `4px solid ${color}`, maxWidth: '640px' }}>
+    <div style={{ maxWidth: '640px' }}>
+      {data.content && <div style={{ color: '#dcddde', fontSize: '14px', marginBottom: '8px', whiteSpace: 'pre-wrap' }}>{data.content}</div>}
+      <div style={{ background: '#2f3136', borderRadius: '4px', padding: '12px 16px', borderLeft: `4px solid ${color}` }}>
       {hasAuthor && (
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
           {data.authorIcon && <img src={data.authorIcon} alt="" style={{ width: '20px', height: '20px', borderRadius: '50%' }} onError={e => e.target.style.display = 'none'} />}
@@ -259,9 +268,10 @@ function EmbedPreview({ data, color }) {
           {data.timestamp && <span style={{ color: '#72767d', fontSize: '11px' }}>{data.timestamp === 'auto' ? 'Today at 12:00 PM' : new Date(data.timestamp).toLocaleString()}</span>}
         </div>
       )}
-      {!data.title && !data.text && previewFields.length === 0 && !data.image && !hasAuthor && (
+      {!data.content && !data.title && !data.text && previewFields.length === 0 && !data.image && !hasAuthor && (
         <p style={{ color: '#72767d', fontSize: '12px', fontStyle: 'italic', margin: 0 }}>Empty embed — add content above</p>
       )}
+      </div>
     </div>
   );
 }

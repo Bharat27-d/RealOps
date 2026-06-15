@@ -91,9 +91,9 @@ function OptionsEditor({ options = [], onChange }) {
           {/* Usage hint */}
           {opt.name && (
             <div style={{ marginTop: '4px', fontSize: '11px', color: '#72767d' }}>
-              Use: <code style={{ color: '#e67e22' }}>${`\${${opt.name}}`}</code>
+              Use: <code style={{ color: '#e67e22' }}>{`\${${opt.name}}`}</code>
               {['user', 'role', 'channel'].includes(opt.type) && (
-                <> or <code style={{ color: '#e67e22' }}>${`\${${opt.name}.mention}`}</code> to tag</>
+                <> or <code style={{ color: '#e67e22' }}>{`\${${opt.name}.mention}`}</code> to tag</>
               )}
             </div>
           )}

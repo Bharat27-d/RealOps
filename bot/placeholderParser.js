@@ -236,6 +236,7 @@ function parseEmbedPlaceholders(embedData, interaction) {
     const result = { ...embedData };
 
     // All top-level string fields
+    if (result.content) result.content = p(result.content);
     if (result.title) result.title = p(result.title);
     if (result.text) result.text = p(result.text);
     if (result.description) result.description = p(result.description);
