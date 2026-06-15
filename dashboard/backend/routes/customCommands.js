@@ -29,7 +29,7 @@ function invalidateBuiltInCache() {
 // ─── Sanitize embed data — strip empty strings, validate fields array ───
 function sanitizeEmbedData(body) {
   const {
-    name, description, title, text, image, thumbnail, enabled,
+    name, description, content, title, text, image, thumbnail, enabled,
     color, url, timestamp,
     authorName, authorIcon, authorUrl,
     footerText, footerIcon,
@@ -42,6 +42,7 @@ function sanitizeEmbedData(body) {
   const data = {
     name: name !== undefined ? name : undefined,
     description: description || '',
+    content: content || '',
     title: title || '',
     text: text || '',
     image: image || '',
@@ -316,7 +317,7 @@ router.put('/built-in/:commandName', isAuthenticated, async (req, res) => {
     // Clean the override data — strip empty/null/undefined values
     // so only actual overrides are stored in Firebase
     const ALLOWED_FIELDS = [
-      'title', 'description', 'image', 'thumbnail', 'color',
+      'content', 'title', 'description', 'image', 'thumbnail', 'color',
       'url', 'timestamp', 'authorName', 'authorIcon', 'authorUrl',
       'footerText', 'footerIcon', 'fields'
     ];
