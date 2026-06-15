@@ -256,14 +256,14 @@ function startCustomCommandsListener() {
                             await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
                             // Send the container as a regular channel message (no user attribution)
-                            const sendPayload = {
+                            if (resolvedData.content && resolvedData.content.trim()) {
+                                await interaction.channel.send({ content: resolvedData.content.trim() });
+                            }
+                            
+                            await interaction.channel.send({
                                 components: [container],
                                 flags: MessageFlags.IsComponentsV2
-                            };
-                            if (resolvedData.content && resolvedData.content.trim()) {
-                                sendPayload.content = resolvedData.content.trim();
-                            }
-                            await interaction.channel.send(sendPayload);
+                            });
 
                             // Delete the ephemeral acknowledgment so nothing remains
                             await interaction.deleteReply();
