@@ -66,60 +66,6 @@ router.post('/reaction-roles', isStaff, async (req, res) => {
   }
 });
 
-// Get auto-role rules
-router.get('/auto-roles', isStaff, async (req, res) => {
-  try {
-    const cacheKey = 'roles:auto';
-    const cachedData = cache.get(cacheKey);
-    if (cachedData) return res.json(cachedData);
-
-    const snapshot = await collections.roles.where('type', '==', 'auto').get();
-    const autoRoles = [];
-    snapshot.forEach(doc => {
-      autoRoles.push({ id: doc.id, ...doc.data() });
-    });
-    cache.set(cacheKey, autoRoles, CACHE_TTL.MEDIUM);
-    res.json(autoRoles);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Create auto-role rule
-router.post('/auto-roles', isStaff, async (req, res) => {
-  try {
-    const ruleData = {
-      type: 'auto',
-      ...req.body,
-      createdBy: req.user.id,
-      createdAt: new Date().toISOString(),
-      enabled: true
-    };
-
-    const docRef = await collections.roles.add(ruleData);
-    res.json({ id: docRef.id, ...ruleData });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Toggle auto-role rule
-router.put('/auto-roles/:id/toggle', isStaff, async (req, res) => {
-  try {
-    const doc = await collections.roles.doc(req.params.id).get();
-    const current = doc.data().enabled;
-
-    await collections.roles.doc(req.params.id).update({
-      enabled: !current,
-      updatedAt: new Date().toISOString()
-    });
-
-    res.json({ success: true, enabled: !current });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
 // Get join requests
 router.get('/join-requests', isStaff, async (req, res) => {
   try {

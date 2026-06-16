@@ -5,21 +5,14 @@ import { FaUserShield, FaTag, FaChartBar, FaUsers, FaCrown } from 'react-icons/f
 import ConfirmDialog from '../components/ConfirmDialog';
 
 function Roles() {
-  const [autoRoles, setAutoRoles] = useState([]);
   const [nicknameRules, setNicknameRules] = useState([]);
   const [channels, setChannels] = useState([]);
   const [discordRoles, setDiscordRoles] = useState([]);
   const [members, setMembers] = useState([]);
   // eslint-disable-next-line no-unused-vars
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('analytics'); // 'analytics', 'auto', 'nickname'
+  const [activeTab, setActiveTab] = useState('analytics'); // 'analytics', 'nickname'
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, ruleId: null });
-
-  const [newAutoRole, setNewAutoRole] = useState({
-    roleId: '',
-    condition: 'on-join',
-    delay: 0
-  });
 
   const [newNicknameRule, setNewNicknameRule] = useState({
     pattern: '',
@@ -53,10 +46,7 @@ function Roles() {
         }
       }
 
-      if (activeTab === 'auto') {
-        const arRes = await roles.getAutoRoles();
-        setAutoRoles(arRes.data);
-      } else if (activeTab === 'nickname') {
+      if (activeTab === 'nickname') {
         const nrRes = await roles.getNicknameRules();
         setNicknameRules(nrRes.data);
       }
@@ -65,27 +55,6 @@ function Roles() {
     } catch (error) {
       toast.error('Failed to load data');
       setLoading(false);
-    }
-  };
-
-  const handleCreateAutoRole = async () => {
-    try {
-      await roles.createAutoRole(newAutoRole);
-      toast.success('Auto-role created successfully!');
-      setNewAutoRole({ roleId: '', condition: 'on-join', delay: 0 });
-      fetchAllData();
-    } catch (error) {
-      toast.error('Failed to create auto-role');
-    }
-  };
-
-  const handleToggleAutoRole = async (id) => {
-    try {
-      await roles.toggleAutoRole(id);
-      toast.success('Auto-role toggled');
-      fetchAllData();
-    } catch (error) {
-      toast.error('Failed to toggle auto-role');
     }
   };
 
@@ -145,13 +114,6 @@ function Roles() {
           style={{ padding: '12px 24px' }}
         >
           <FaChartBar /> Role Analytics
-        </button>
-        <button 
-          className={activeTab === 'auto' ? 'btn' : 'btn-secondary'}
-          onClick={() => setActiveTab('auto')}
-          style={{ padding: '12px 24px' }}
-        >
-          <FaUserShield /> Auto Roles
         </button>
         <button 
           className={activeTab === 'nickname' ? 'btn' : 'btn-secondary'}
@@ -388,73 +350,6 @@ function Roles() {
           </div>
           </>
           )}
-        </div>
-      )}
-
-      {/* AUTO ROLES TAB */}
-      {activeTab === 'auto' && (
-        <div className="auto-roles-section">
-          <div className="create-form card">
-            <h3>Create Auto Role</h3>
-            <div className="form-grid">
-              <div className="form-group">
-                <label>Role *</label>
-                <select
-                  value={newAutoRole.roleId}
-                  onChange={(e) => setNewAutoRole({ ...newAutoRole, roleId: e.target.value })}
-                >
-                  <option value="">Select Role</option>
-                  {discordRoles.map(role => (
-                    <option key={role.id} value={role.id}>{role.name}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="form-group">
-                <label>Condition</label>
-                <select
-                  value={newAutoRole.condition}
-                  onChange={(e) => setNewAutoRole({ ...newAutoRole, condition: e.target.value })}
-                >
-                  <option value="on-join">On Join</option>
-                  <option value="verified">After Verification</option>
-                  <option value="first-message">First Message</option>
-                </select>
-              </div>
-              <div className="form-group">
-                <label>Delay (seconds)</label>
-                <input
-                  type="number"
-                  value={newAutoRole.delay}
-                  onChange={(e) => setNewAutoRole({ ...newAutoRole, delay: parseInt(e.target.value) })}
-                  min="0"
-                />
-              </div>
-            </div>
-            <button className="btn btn-success" onClick={handleCreateAutoRole}>Create Auto Role</button>
-          </div>
-
-          <div className="rules-list">
-            {autoRoles.map((ar) => (
-              <div key={ar.id} className="rule-card card">
-                <div className="rule-header">
-                  <h4>{getRoleName(ar.roleId)}</h4>
-                  <div>
-                    <button 
-                      className={`btn btn-sm ${ar.enabled ? 'btn-success' : 'btn-secondary'}`}
-                      onClick={() => handleToggleAutoRole(ar.id)}
-                    >
-                      {ar.enabled ? 'Enabled' : 'Disabled'}
-                    </button>
-                    <button className="btn btn-sm btn-danger" onClick={() => handleDeleteRule(ar.id)}>
-                      Delete
-                    </button>
-                  </div>
-                </div>
-                <p>Condition: {ar.condition}</p>
-                <p>Delay: {ar.delay}s</p>
-              </div>
-            ))}
-          </div>
         </div>
       )}
 
