@@ -805,7 +805,14 @@ function Events() {
                   >
                     <h4>
                       <FaGripVertical /> 
-                      {scenario.title}
+                      <input
+                        type="text"
+                        className="scenario-title-input"
+                        value={scenario.title}
+                        onChange={(e) => updateScenario(scenario.id, 'title', e.target.value)}
+                        onClick={(e) => e.stopPropagation()}
+                        placeholder="Enter scenario title..."
+                      />
                     </h4>
                     <div className="scenario-actions" onClick={(e) => e.stopPropagation()}>
                       <button 

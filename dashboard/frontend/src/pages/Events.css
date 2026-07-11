@@ -176,6 +176,38 @@
   cursor: grabbing;
 }
 
+.scenario-title-input {
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  border-radius: 6px !important;
+  color: #fff !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  font-family: inherit !important;
+  padding: 4px 8px !important;
+  flex: 1;
+  min-width: 0;
+  outline: none !important;
+  transition: border-color 0.2s ease, background 0.2s ease !important;
+  cursor: text;
+  box-shadow: none !important;
+}
+
+.scenario-title-input:hover {
+  border-color: rgba(255, 215, 0, 0.3) !important;
+}
+
+.scenario-title-input:focus {
+  border-color: #FFD700 !important;
+  background: #1a1a1a !important;
+  box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.1) !important;
+}
+
+.scenario-title-input::placeholder {
+  color: #72767d;
+  font-weight: 400;
+}
+
 .scenario-item-header h4 span {
   display: inline-block;
   padding: 4px 10px;
