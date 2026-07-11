@@ -80,7 +80,7 @@ function FormattingToolbar({ onInsert, targetRef }) {
       display: 'flex',
       gap: '4px',
       padding: '8px',
-      backgroundColor: '#23272A',
+      backgroundColor: 'var(--bg-tertiary)',
       borderRadius: '6px',
       border: '1px solid #40444b',
       marginBottom: '8px',
@@ -94,7 +94,7 @@ function FormattingToolbar({ onInsert, targetRef }) {
           title={label}
           style={{
             padding: '6px 10px',
-            backgroundColor: '#2a2a2a',
+            backgroundColor: 'var(--bg-tertiary)',
             border: 'none',
             borderRadius: '4px',
             color: '#ccc',
@@ -105,8 +105,8 @@ function FormattingToolbar({ onInsert, targetRef }) {
             fontSize: '13px',
             transition: 'background 0.2s'
           }}
-          onMouseEnter={(e) => e.target.style.backgroundColor = '#FFD700'}
-          onMouseLeave={(e) => { e.target.style.backgroundColor = '#2a2a2a'; e.target.style.color = '#ccc'; }}
+          onMouseEnter={(e) => e.target.style.backgroundColor = 'var(--primary)'}
+          onMouseLeave={(e) => { e.target.style.backgroundColor = 'var(--bg-tertiary)'; e.target.style.color = '#ccc'; }}
         >
           <Icon size={12} />
         </button>
@@ -117,7 +117,7 @@ function FormattingToolbar({ onInsert, targetRef }) {
         title="Code Block"
         style={{
           padding: '6px 10px',
-          backgroundColor: '#2a2a2a',
+          backgroundColor: 'var(--bg-tertiary)',
           border: 'none',
           borderRadius: '4px',
           color: '#ccc',
@@ -126,8 +126,8 @@ function FormattingToolbar({ onInsert, targetRef }) {
           fontFamily: 'monospace',
           transition: 'background 0.2s'
         }}
-        onMouseEnter={(e) => e.target.style.backgroundColor = '#FFD700'}
-        onMouseLeave={(e) => e.target.style.backgroundColor = '#40444b'}
+        onMouseEnter={(e) => e.target.style.backgroundColor = 'var(--primary)'}
+        onMouseLeave={(e) => e.target.style.backgroundColor = 'var(--border-secondary)'}
       >
         {'{}'}
       </button>
@@ -140,7 +140,7 @@ function FormattingToolbar({ onInsert, targetRef }) {
         title="Link"
         style={{
           padding: '6px 10px',
-          backgroundColor: '#2a2a2a',
+          backgroundColor: 'var(--bg-tertiary)',
           border: 'none',
           borderRadius: '4px',
           color: '#ccc',
@@ -151,8 +151,8 @@ function FormattingToolbar({ onInsert, targetRef }) {
           fontSize: '13px',
           transition: 'background 0.2s'
         }}
-        onMouseEnter={(e) => e.target.style.backgroundColor = '#FFD700'}
-        onMouseLeave={(e) => e.target.style.backgroundColor = '#40444b'}
+        onMouseEnter={(e) => e.target.style.backgroundColor = 'var(--primary)'}
+        onMouseLeave={(e) => e.target.style.backgroundColor = 'var(--border-secondary)'}
       >
         <FaLink size={12} />
       </button>
@@ -202,7 +202,7 @@ function ChannelMultiSelect({ selectedChannelIds, channels, onChange }) {
         flexWrap: 'wrap',
         gap: '8px',
         padding: '12px',
-        background: '#23272A',
+        background: 'var(--bg-tertiary)',
         border: '1px solid #40444b',
         borderRadius: '4px',
         minHeight: '50px',
@@ -214,7 +214,7 @@ function ChannelMultiSelect({ selectedChannelIds, channels, onChange }) {
             alignItems: 'center',
             gap: '6px',
             padding: '6px 10px',
-            background: '#FFD700',
+            background: 'var(--primary)',
             borderRadius: '16px',
             color: '#000',
             fontSize: '13px',
@@ -228,7 +228,7 @@ function ChannelMultiSelect({ selectedChannelIds, channels, onChange }) {
           </div>
         ))}
         {selectedChannels.length === 0 && (
-          <span style={{ color: '#72767d', fontSize: '14px', alignSelf: 'center' }}>
+          <span style={{ color: 'var(--text-tertiary)', fontSize: '14px', alignSelf: 'center' }}>
             No channels selected
           </span>
         )}
@@ -248,7 +248,7 @@ function ChannelMultiSelect({ selectedChannelIds, channels, onChange }) {
           style={{
             width: '100%',
             padding: '12px',
-            background: '#2C2F33',
+            background: 'var(--bg-secondary)',
             border: '1px solid #40444b',
             borderRadius: '4px',
             color: '#ccc',
@@ -264,7 +264,7 @@ function ChannelMultiSelect({ selectedChannelIds, channels, onChange }) {
             left: 0,
             right: 0,
             marginTop: '5px',
-            background: '#2C2F33',
+            background: 'var(--bg-secondary)',
             border: '1px solid #40444b',
             borderRadius: '4px',
             maxHeight: '200px',
@@ -282,7 +282,7 @@ function ChannelMultiSelect({ selectedChannelIds, channels, onChange }) {
                   color: '#ccc',
                   transition: 'background 0.2s'
                 }}
-                onMouseEnter={(e) => e.target.style.background = '#40444b'}
+                onMouseEnter={(e) => e.target.style.background = 'var(--border-secondary)'}
                 onMouseLeave={(e) => e.target.style.background = 'transparent'}
               >
                 #{channel.name}
@@ -292,7 +292,7 @@ function ChannelMultiSelect({ selectedChannelIds, channels, onChange }) {
         )}
       </div>
 
-      <p style={{ marginTop: '8px', fontSize: '13px', color: '#72767d' }}>
+      <p style={{ marginTop: '8px', fontSize: '13px', color: 'var(--text-tertiary)' }}>
         Selected: {selectedChannelIds.length} channel(s)
       </p>
     </div>
@@ -348,7 +348,7 @@ function MentionSelector({ selectedMentions, roles, onChange, label = 'Mention R
         flexWrap: 'wrap',
         gap: '8px',
         padding: '12px',
-        background: '#23272A',
+        background: 'var(--bg-tertiary)',
         border: '1px solid #40444b',
         borderRadius: '4px',
         minHeight: '50px',
@@ -379,7 +379,7 @@ function MentionSelector({ selectedMentions, roles, onChange, label = 'Mention R
           </div>
         ))}
         {selectedMentions.length === 0 && (
-          <span style={{ color: '#72767d', fontSize: '14px', alignSelf: 'center' }}>
+          <span style={{ color: 'var(--text-tertiary)', fontSize: '14px', alignSelf: 'center' }}>
             No mentions selected
           </span>
         )}
@@ -399,7 +399,7 @@ function MentionSelector({ selectedMentions, roles, onChange, label = 'Mention R
           style={{
             width: '100%',
             padding: '12px',
-            background: '#2C2F33',
+            background: 'var(--bg-secondary)',
             border: '1px solid #40444b',
             borderRadius: '4px',
             color: '#ccc',
@@ -415,7 +415,7 @@ function MentionSelector({ selectedMentions, roles, onChange, label = 'Mention R
             left: 0,
             right: 0,
             marginTop: '5px',
-            background: '#2C2F33',
+            background: 'var(--bg-secondary)',
             border: '1px solid #40444b',
             borderRadius: '4px',
             maxHeight: '200px',
@@ -437,7 +437,7 @@ function MentionSelector({ selectedMentions, roles, onChange, label = 'Mention R
                   gap: '8px',
                   justifyContent: 'space-between'
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.background = '#40444b'}
+                onMouseEnter={(e) => e.currentTarget.style.background = 'var(--border-secondary)'}
                 onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
@@ -447,12 +447,12 @@ function MentionSelector({ selectedMentions, roles, onChange, label = 'Mention R
                     borderRadius: '4px',
                     background: role.color || '#99AAB5'
                   }} />
-                  <span style={{ fontSize: '11px', color: '#72767d' }}>
+                  <span style={{ fontSize: '11px', color: 'var(--text-tertiary)' }}>
                     👥
                   </span>
                   <span>@{role.name}</span>
                 </div>
-                <span style={{ fontSize: '11px', color: '#72767d', fontFamily: 'monospace' }}>
+                <span style={{ fontSize: '11px', color: 'var(--text-tertiary)', fontFamily: 'monospace' }}>
                   {role.id}
                 </span>
               </div>
@@ -461,7 +461,7 @@ function MentionSelector({ selectedMentions, roles, onChange, label = 'Mention R
         )}
       </div>
 
-      <p style={{ marginTop: '8px', fontSize: '13px', color: '#72767d' }}>
+      <p style={{ marginTop: '8px', fontSize: '13px', color: 'var(--text-tertiary)' }}>
         Selected: {selectedMentions.length} mention(s)
       </p>
     </div>
@@ -498,14 +498,14 @@ function ChannelSelect({ value, onChange, channels }) {
         onClick={() => setIsOpen(!isOpen)}
         style={{
           padding: '10px',
-          background: '#2C2F33',
+          background: 'var(--bg-secondary)',
           border: '1px solid #40444b',
           borderRadius: '4px',
           cursor: 'pointer',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          color: selectedChannel ? '#dcddde' : '#72767d'
+          color: selectedChannel ? 'var(--text-primary)' : 'var(--text-tertiary)'
         }}
       >
         <span>{selectedChannel ? `#${selectedChannel.name}` : "Select Channel"}</span>
@@ -519,7 +519,7 @@ function ChannelSelect({ value, onChange, channels }) {
           left: 0,
           right: 0,
           marginTop: '5px',
-          background: '#2C2F33',
+          background: 'var(--bg-secondary)',
           border: '1px solid #40444b',
           borderRadius: '4px',
           maxHeight: '300px',
@@ -537,7 +537,7 @@ function ChannelSelect({ value, onChange, channels }) {
               width: 'calc(100% - 20px)',
               padding: '10px',
               margin: '10px',
-              background: '#23272A',
+              background: 'var(--bg-tertiary)',
               border: '1px solid #40444b',
               borderRadius: '4px',
               color: '#ccc',
@@ -556,17 +556,17 @@ function ChannelSelect({ value, onChange, channels }) {
                 padding: '10px 15px',
                 cursor: 'pointer',
                 color: '#ccc',
-                background: value === channel.id ? '#40444b' : 'transparent',
+                background: value === channel.id ? 'var(--border-secondary)' : 'transparent',
                 transition: 'background 0.2s'
               }}
-              onMouseEnter={(e) => e.target.style.background = '#40444b'}
-              onMouseLeave={(e) => e.target.style.background = value === channel.id ? '#40444b' : 'transparent'}
+              onMouseEnter={(e) => e.target.style.background = 'var(--border-secondary)'}
+              onMouseLeave={(e) => e.target.style.background = value === channel.id ? 'var(--border-secondary)' : 'transparent'}
             >
               #{channel.name}
             </div>
           ))}
           {filteredChannels.length === 0 && (
-            <div style={{ padding: '15px', color: '#72767d', textAlign: 'center' }}>
+            <div style={{ padding: '15px', color: 'var(--text-tertiary)', textAlign: 'center' }}>
               No channels found
             </div>
           )}
@@ -591,7 +591,7 @@ function Announcements() {
     embedData: {
       title: '',
       description: '',
-      color: '#FFD700',
+      color: 'var(--primary)',
       url: '',
       thumbnail: '',
       image: '',
@@ -615,7 +615,7 @@ function Announcements() {
     embedData: {
       title: '',
       description: '',
-      color: '#FFD700',
+      color: 'var(--primary)',
       url: '',
       thumbnail: '',
       image: '',
@@ -700,7 +700,7 @@ function Announcements() {
         embedData: {
           title: '',
           description: '',
-          color: '#FFD700',
+          color: 'var(--primary)',
           url: '',
           thumbnail: '',
           image: '',
@@ -749,7 +749,7 @@ function Announcements() {
         embedData: {
           title: '',
           description: '',
-          color: '#FFD700',
+          color: 'var(--primary)',
           url: '',
           thumbnail: '',
           image: '',
@@ -847,7 +847,7 @@ function Announcements() {
 
   const getStatusColor = (status) => {
     const colors = {
-      scheduled: '#FFD700',
+      scheduled: 'var(--primary)',
       pending: '#ffc107',
       sent: '#28a745',
       failed: '#dc3545',
@@ -895,7 +895,7 @@ function Announcements() {
         <div className="broadcast-section" style={{ display: 'grid', gridTemplateColumns: '1fr 400px', gap: '20px' }}>
           <div className="card">
             <div className="card-header">
-              <h3 style={{ color: '#FFD700', margin: 0 }}>Send Announcement to Multiple Channels</h3>
+              <h3 style={{ color: 'var(--primary)', margin: 0 }}>Send Announcement to Multiple Channels</h3>
             </div>
             <div style={{ padding: '20px' }}>
             
@@ -910,7 +910,7 @@ function Announcements() {
                   style={{
                     width: '100%',
                     padding: '12px',
-                    backgroundColor: '#2a2a2a',
+                    backgroundColor: 'var(--bg-tertiary)',
                     border: '1px solid #3a3a3a',
                     borderRadius: '6px',
                     color: '#ccc',
@@ -941,14 +941,14 @@ function Announcements() {
 
               <div className="embed-builder" style={{ 
                   padding: '20px', 
-                  backgroundColor: '#1a1a1a', 
+                  backgroundColor: 'var(--bg-secondary)', 
                   borderRadius: '10px',
                   border: '2px solid #FFD700',
                   boxShadow: '0 0 20px rgba(255, 215, 0, 0.1)'
                 }}>
                   <h4 style={{ 
                     marginBottom: '20px', 
-                    color: '#FFD700', 
+                    color: 'var(--primary)', 
                     fontSize: '16px',
                     fontWeight: '600',
                     display: 'flex',
@@ -986,7 +986,7 @@ function Announcements() {
                         style={{
                           width: '100%',
                           padding: '12px',
-                          backgroundColor: '#2a2a2a',
+                          backgroundColor: 'var(--bg-tertiary)',
                           border: '1px solid #3a3a3a',
                           borderRadius: '6px',
                           color: '#ccc',
@@ -1023,7 +1023,7 @@ function Announcements() {
                         style={{
                           width: '100%',
                           padding: '12px',
-                          backgroundColor: '#2a2a2a',
+                          backgroundColor: 'var(--bg-tertiary)',
                           border: '1px solid #3a3a3a',
                           borderRadius: '6px',
                           color: '#ccc',
@@ -1043,7 +1043,7 @@ function Announcements() {
                       <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                         <input
                           type="color"
-                          value={broadcastData.embedData.color?.length === 7 ? broadcastData.embedData.color : '#FFD700'}
+                          value={broadcastData.embedData.color?.length === 7 ? broadcastData.embedData.color : 'var(--primary)'}
                           onChange={(e) => setBroadcastData({
                             ...broadcastData,
                             embedData: { ...broadcastData.embedData, color: e.target.value }
@@ -1065,12 +1065,12 @@ function Announcements() {
                             ...broadcastData,
                             embedData: { ...broadcastData.embedData, color: e.target.value }
                           })}
-                          placeholder="#FFD700"
+                          placeholder="var(--primary)"
                           maxLength={7}
                           style={{
                             flex: 1,
                             padding: '12px',
-                            backgroundColor: '#2a2a2a',
+                            backgroundColor: 'var(--bg-tertiary)',
                             border: '1px solid #3a3a3a',
                             borderRadius: '6px',
                             color: '#ccc',
@@ -1096,7 +1096,7 @@ function Announcements() {
                         style={{
                           width: '100%',
                           padding: '12px',
-                          backgroundColor: '#2a2a2a',
+                          backgroundColor: 'var(--bg-tertiary)',
                           border: '1px solid #3a3a3a',
                           borderRadius: '6px',
                           color: '#ccc',
@@ -1122,7 +1122,7 @@ function Announcements() {
                           style={{
                             width: '100%',
                             padding: '12px',
-                            backgroundColor: '#2a2a2a',
+                            backgroundColor: 'var(--bg-tertiary)',
                             border: '1px solid #3a3a3a',
                             borderRadius: '6px',
                             color: '#ccc',
@@ -1147,7 +1147,7 @@ function Announcements() {
                           style={{
                             width: '100%',
                             padding: '12px',
-                            backgroundColor: '#2a2a2a',
+                            backgroundColor: 'var(--bg-tertiary)',
                             border: '1px solid #3a3a3a',
                             borderRadius: '6px',
                             color: '#ccc',
@@ -1186,7 +1186,7 @@ function Announcements() {
                           style={{
                             width: '100%',
                             padding: '12px',
-                            backgroundColor: '#2a2a2a',
+                            backgroundColor: 'var(--bg-tertiary)',
                             border: '1px solid #3a3a3a',
                             borderRadius: '6px',
                             color: '#ccc',
@@ -1211,7 +1211,7 @@ function Announcements() {
                           style={{
                             width: '100%',
                             padding: '12px',
-                            backgroundColor: '#2a2a2a',
+                            backgroundColor: 'var(--bg-tertiary)',
                             border: '1px solid #3a3a3a',
                             borderRadius: '6px',
                             color: '#ccc',
@@ -1250,7 +1250,7 @@ function Announcements() {
                           style={{
                             width: '100%',
                             padding: '12px',
-                            backgroundColor: '#2a2a2a',
+                            backgroundColor: 'var(--bg-tertiary)',
                             border: '1px solid #3a3a3a',
                             borderRadius: '6px',
                             color: '#ccc',
@@ -1275,7 +1275,7 @@ function Announcements() {
                           style={{
                             width: '100%',
                             padding: '12px',
-                            backgroundColor: '#2a2a2a',
+                            backgroundColor: 'var(--bg-tertiary)',
                             border: '1px solid #3a3a3a',
                             borderRadius: '6px',
                             color: '#ccc',
@@ -1319,7 +1319,7 @@ function Announcements() {
                           }}
                           style={{
                             padding: '6px 12px',
-                            backgroundColor: '#FFD700',
+                            backgroundColor: 'var(--primary)',
                             color: '#000',
                             border: 'none',
                             borderRadius: '4px',
@@ -1334,7 +1334,7 @@ function Announcements() {
                       {broadcastData.embedData.fields.map((field, index) => (
                         <div key={index} style={{
                           padding: '12px',
-                          backgroundColor: '#2C2F33',
+                          backgroundColor: 'var(--bg-secondary)',
                           borderRadius: '6px',
                           marginBottom: '8px',
                           border: '1px solid #40444b'
@@ -1379,7 +1379,7 @@ function Announcements() {
                               width: '100%',
                               padding: '8px',
                               marginBottom: '6px',
-                              backgroundColor: '#2a2a2a',
+                              backgroundColor: 'var(--bg-tertiary)',
                               border: '1px solid #3a3a3a',
                               borderRadius: '4px',
                               color: '#ccc',
@@ -1403,7 +1403,7 @@ function Announcements() {
                               width: '100%',
                               padding: '8px',
                               marginBottom: '6px',
-                              backgroundColor: '#2a2a2a',
+                              backgroundColor: 'var(--bg-tertiary)',
                               border: '1px solid #3a3a3a',
                               borderRadius: '4px',
                               color: '#ccc',
@@ -1427,7 +1427,7 @@ function Announcements() {
                               }}
                               style={{ width: '14px', height: '14px', cursor: 'pointer' }}
                             />
-                            <span style={{ color: '#b9bbbe', fontSize: '12px' }}>Inline</span>
+                            <span style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>Inline</span>
                           </label>
                         </div>
                       ))}
@@ -1461,7 +1461,7 @@ function Announcements() {
                   onClick={handleBroadcast}
                   style={{
                     padding: '14px 32px',
-                    backgroundColor: '#FFD700',
+                    backgroundColor: 'var(--primary)',
                     color: '#000',
                     border: 'none',
                     borderRadius: '8px',
@@ -1474,8 +1474,8 @@ function Announcements() {
                     alignItems: 'center',
                     gap: '8px'
                   }}
-                  onMouseEnter={(e) => e.target.style.backgroundColor = '#FFA500'}
-                  onMouseLeave={(e) => e.target.style.backgroundColor = '#FFD700'}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = '#F59E0B'}
+                  onMouseLeave={(e) => e.target.style.backgroundColor = 'var(--primary)'}
                 >
                   <FaPaperPlane /> Send Announcement Now
                 </button>
@@ -1487,7 +1487,7 @@ function Announcements() {
           {/* Preview Section */}
           <div>
             <div className="card" style={{ 
-              backgroundColor: '#2C2F33', 
+              backgroundColor: 'var(--bg-secondary)', 
               padding: '20px', 
               borderRadius: '12px',
               boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
@@ -1508,8 +1508,8 @@ function Announcements() {
               
               {(broadcastData.embedData.title || broadcastData.embedData.description) && (
                 <div style={{ 
-                  borderLeft: `4px solid ${broadcastData.embedData.color || '#FFD700'}`, 
-                  background: '#23272A', 
+                  borderLeft: `4px solid ${broadcastData.embedData.color || 'var(--primary)'}`, 
+                  background: 'var(--bg-tertiary)', 
                   padding: '15px', 
                   borderRadius: '4px'
                 }}>
@@ -1537,7 +1537,7 @@ function Announcements() {
                   )}
                   
                   {broadcastData.embedData.description && (
-                    <div style={{ color: '#b9bbbe', marginBottom: '10px', fontSize: '14px', lineHeight: '1.5' }}>
+                    <div style={{ color: 'var(--text-secondary)', marginBottom: '10px', fontSize: '14px', lineHeight: '1.5' }}>
                       {renderDiscordMarkdown(broadcastData.embedData.description)}
                     </div>
                   )}
@@ -1555,7 +1555,7 @@ function Announcements() {
                             <strong style={{ fontSize: '14px', display: 'block', marginBottom: '5px', color: '#ffffff' }}>
                               {renderDiscordMarkdown(field.name)}
                             </strong>
-                            <div style={{ fontSize: '13px', color: '#b9bbbe', lineHeight: '1.4' }}>
+                            <div style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
                               {renderDiscordMarkdown(field.value)}
                             </div>
                           </div>
@@ -1569,7 +1569,7 @@ function Announcements() {
                   )}
 
                   {(broadcastData.embedData.footer.text || broadcastData.embedData.timestamp) && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '15px', fontSize: '12px', color: '#b9bbbe' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '15px', fontSize: '12px', color: 'var(--text-secondary)' }}>
                       {broadcastData.embedData.footer.iconURL && (
                         <img src={broadcastData.embedData.footer.iconURL} alt="" style={{ width: '20px', height: '20px', borderRadius: '50%' }} />
                       )}
@@ -1582,7 +1582,7 @@ function Announcements() {
               )}
 
               {!broadcastData.embedData.title && !broadcastData.embedData.description && (
-                <p style={{ color: '#72767d', textAlign: 'center', padding: '40px 20px', fontSize: '14px' }}>
+                <p style={{ color: 'var(--text-tertiary)', textAlign: 'center', padding: '40px 20px', fontSize: '14px' }}>
                   Your embed preview will appear here
                 </p>
               )}
@@ -1604,7 +1604,7 @@ function Announcements() {
                 {savedTemplates.filter(t => t.type === 'broadcast').length > 0 ? (
                   savedTemplates.filter(t => t.type === 'broadcast').map((template, index) => (
                     <div key={index} style={{
-                      backgroundColor: '#23272A',
+                      backgroundColor: 'var(--bg-tertiary)',
                       borderRadius: '8px',
                       padding: '12px',
                       border: '1px solid #40444b'
@@ -1624,7 +1624,7 @@ function Announcements() {
                           </div>
                           {template.data.embedData?.title && (
                             <div style={{ 
-                              color: '#72767d', 
+                              color: 'var(--text-tertiary)', 
                               fontSize: '12px',
                               overflow: 'hidden',
                               textOverflow: 'ellipsis',
@@ -1670,7 +1670,7 @@ function Announcements() {
                     </div>
                   ))
                 ) : (
-                  <p style={{ color: '#72767d', textAlign: 'center', padding: '20px', fontSize: '13px' }}>
+                  <p style={{ color: 'var(--text-tertiary)', textAlign: 'center', padding: '20px', fontSize: '13px' }}>
                     No broadcast templates saved
                   </p>
                 )}
@@ -1683,7 +1683,7 @@ function Announcements() {
       {activeTab === 'scheduled' && (
         <div className="scheduled-section">
           <div className="schedule-form card" style={{ 
-            backgroundColor: '#2C2F33', 
+            backgroundColor: 'var(--bg-secondary)', 
             padding: '30px', 
             borderRadius: '12px',
             boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
@@ -1716,7 +1716,7 @@ function Announcements() {
                     style={{
                       width: '100%',
                       padding: '12px',
-                      backgroundColor: '#2a2a2a',
+                      backgroundColor: 'var(--bg-tertiary)',
                       border: '1px solid #444',
                       borderRadius: '8px',
                       color: '#fff',
@@ -1758,7 +1758,7 @@ function Announcements() {
                   style={{
                     width: '100%',
                     padding: '12px',
-                    backgroundColor: '#2a2a2a',
+                    backgroundColor: 'var(--bg-tertiary)',
                     border: '1px solid #3a3a3a',
                     borderRadius: '8px',
                     color: '#ccc',
@@ -1766,7 +1766,7 @@ function Announcements() {
                     boxSizing: 'border-box'
                   }}
                 />
-                <small style={{ color: '#72767d', fontSize: '12px', marginTop: '6px', display: 'block' }}>
+                <small style={{ color: 'var(--text-tertiary)', fontSize: '12px', marginTop: '6px', display: 'block' }}>
                   Enter time in UTC timezone. The message will be sent at exactly this time.
                 </small>
               </div>
@@ -1781,7 +1781,7 @@ function Announcements() {
                   style={{
                     width: '100%',
                     padding: '12px',
-                    backgroundColor: '#2a2a2a',
+                    backgroundColor: 'var(--bg-tertiary)',
                     border: '1px solid #3a3a3a',
                     borderRadius: '8px',
                     color: '#ccc',
@@ -1799,7 +1799,7 @@ function Announcements() {
 
               <div className="embed-builder" style={{ 
                 padding: '20px', 
-                backgroundColor: '#23272A', 
+                backgroundColor: 'var(--bg-tertiary)', 
                 borderRadius: '8px',
                 border: '1px solid #40444b'
               }}>
@@ -1840,7 +1840,7 @@ function Announcements() {
                       style={{
                         width: '100%',
                         padding: '12px',
-                        backgroundColor: '#2a2a2a',
+                        backgroundColor: 'var(--bg-tertiary)',
                         border: '1px solid #3a3a3a',
                         borderRadius: '6px',
                         color: '#ccc',
@@ -1877,7 +1877,7 @@ function Announcements() {
                       style={{
                         width: '100%',
                         padding: '12px',
-                        backgroundColor: '#2a2a2a',
+                        backgroundColor: 'var(--bg-tertiary)',
                         border: '1px solid #3a3a3a',
                         borderRadius: '6px',
                         color: '#ccc',
@@ -1897,7 +1897,7 @@ function Announcements() {
                     <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                       <input
                         type="color"
-                        value={scheduleData.embedData.color?.length === 7 ? scheduleData.embedData.color : '#FFD700'}
+                        value={scheduleData.embedData.color?.length === 7 ? scheduleData.embedData.color : 'var(--primary)'}
                         onChange={(e) => setScheduleData({
                           ...scheduleData,
                           embedData: { ...scheduleData.embedData, color: e.target.value }
@@ -1919,12 +1919,12 @@ function Announcements() {
                           ...scheduleData,
                           embedData: { ...scheduleData.embedData, color: e.target.value }
                         })}
-                        placeholder="#FFD700"
+                        placeholder="var(--primary)"
                         maxLength={7}
                         style={{
                           flex: 1,
                           padding: '12px',
-                          backgroundColor: '#2a2a2a',
+                          backgroundColor: 'var(--bg-tertiary)',
                           border: '1px solid #3a3a3a',
                           borderRadius: '6px',
                           color: '#ccc',
@@ -1950,7 +1950,7 @@ function Announcements() {
                       style={{
                         width: '100%',
                         padding: '12px',
-                        backgroundColor: '#2a2a2a',
+                        backgroundColor: 'var(--bg-tertiary)',
                         border: '1px solid #3a3a3a',
                         borderRadius: '6px',
                         color: '#ccc',
@@ -1976,7 +1976,7 @@ function Announcements() {
                         style={{
                           width: '100%',
                           padding: '12px',
-                          backgroundColor: '#2a2a2a',
+                          backgroundColor: 'var(--bg-tertiary)',
                           border: '1px solid #3a3a3a',
                           borderRadius: '6px',
                           color: '#ccc',
@@ -2001,7 +2001,7 @@ function Announcements() {
                         style={{
                           width: '100%',
                           padding: '12px',
-                          backgroundColor: '#2a2a2a',
+                          backgroundColor: 'var(--bg-tertiary)',
                           border: '1px solid #3a3a3a',
                           borderRadius: '6px',
                           color: '#ccc',
@@ -2040,7 +2040,7 @@ function Announcements() {
                         style={{
                           width: '100%',
                           padding: '12px',
-                          backgroundColor: '#2a2a2a',
+                          backgroundColor: 'var(--bg-tertiary)',
                           border: '1px solid #3a3a3a',
                           borderRadius: '6px',
                           color: '#ccc',
@@ -2065,7 +2065,7 @@ function Announcements() {
                         style={{
                           width: '100%',
                           padding: '12px',
-                          backgroundColor: '#2a2a2a',
+                          backgroundColor: 'var(--bg-tertiary)',
                           border: '1px solid #3a3a3a',
                           borderRadius: '6px',
                           color: '#ccc',
@@ -2104,7 +2104,7 @@ function Announcements() {
                         style={{
                           width: '100%',
                           padding: '12px',
-                          backgroundColor: '#2a2a2a',
+                          backgroundColor: 'var(--bg-tertiary)',
                           border: '1px solid #3a3a3a',
                           borderRadius: '6px',
                           color: '#ccc',
@@ -2129,7 +2129,7 @@ function Announcements() {
                         style={{
                           width: '100%',
                           padding: '12px',
-                          backgroundColor: '#2a2a2a',
+                          backgroundColor: 'var(--bg-tertiary)',
                           border: '1px solid #3a3a3a',
                           borderRadius: '6px',
                           color: '#ccc',
@@ -2173,7 +2173,7 @@ function Announcements() {
                         }}
                         style={{
                           padding: '6px 12px',
-                          backgroundColor: '#FFD700',
+                          backgroundColor: 'var(--primary)',
                           color: '#000',
                           border: 'none',
                           borderRadius: '4px',
@@ -2188,7 +2188,7 @@ function Announcements() {
                     {scheduleData.embedData.fields.map((field, index) => (
                       <div key={index} style={{
                         padding: '12px',
-                        backgroundColor: '#2C2F33',
+                        backgroundColor: 'var(--bg-secondary)',
                         borderRadius: '6px',
                         marginBottom: '8px',
                         border: '1px solid #40444b'
@@ -2233,7 +2233,7 @@ function Announcements() {
                             width: '100%',
                             padding: '8px',
                             marginBottom: '6px',
-                            backgroundColor: '#2a2a2a',
+                            backgroundColor: 'var(--bg-tertiary)',
                             border: '1px solid #3a3a3a',
                             borderRadius: '4px',
                             color: '#ccc',
@@ -2257,7 +2257,7 @@ function Announcements() {
                             width: '100%',
                             padding: '8px',
                             marginBottom: '6px',
-                            backgroundColor: '#2a2a2a',
+                            backgroundColor: 'var(--bg-tertiary)',
                             border: '1px solid #3a3a3a',
                             borderRadius: '4px',
                             color: '#ccc',
@@ -2281,7 +2281,7 @@ function Announcements() {
                             }}
                             style={{ width: '14px', height: '14px', cursor: 'pointer' }}
                           />
-                          <span style={{ color: '#b9bbbe', fontSize: '12px' }}>Inline</span>
+                          <span style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>Inline</span>
                         </label>
                       </div>
                     ))}
@@ -2293,7 +2293,7 @@ function Announcements() {
               {/* Live Preview Section */}
               <div style={{ 
                 padding: '20px', 
-                backgroundColor: '#23272A', 
+                backgroundColor: 'var(--bg-tertiary)', 
                 borderRadius: '8px',
                 border: '1px solid #40444b',
                 position: 'sticky',
@@ -2337,7 +2337,7 @@ function Announcements() {
 
                 <div style={{ 
                   borderLeft: `4px solid ${scheduleData.embedData.color}`, 
-                  background: '#2C2F33', 
+                  background: 'var(--bg-secondary)', 
                   padding: '15px', 
                   borderRadius: '4px'
                 }}>
@@ -2367,7 +2367,7 @@ function Announcements() {
                   )}
                   
                   {scheduleData.embedData.description && (
-                    <div style={{ color: '#b9bbbe', marginBottom: '10px', fontSize: '14px', lineHeight: '1.5' }}>
+                    <div style={{ color: 'var(--text-secondary)', marginBottom: '10px', fontSize: '14px', lineHeight: '1.5' }}>
                       {renderDiscordMarkdown(scheduleData.embedData.description)}
                     </div>
                   )}
@@ -2385,7 +2385,7 @@ function Announcements() {
                             <strong style={{ fontSize: '14px', display: 'block', marginBottom: '5px', color: '#ffffff' }}>
                               {renderDiscordMarkdown(field.name)}
                             </strong>
-                            <div style={{ fontSize: '13px', color: '#b9bbbe', lineHeight: '1.4' }}>
+                            <div style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
                               {renderDiscordMarkdown(field.value)}
                             </div>
                           </div>
@@ -2419,7 +2419,7 @@ function Announcements() {
                       paddingTop: '10px',
                       borderTop: '1px solid #40444b',
                       fontSize: '12px', 
-                      color: '#b9bbbe' 
+                      color: 'var(--text-secondary)' 
                     }}>
                       {scheduleData.embedData.footer.iconURL && (
                         <img 
@@ -2437,7 +2437,7 @@ function Announcements() {
                 </div>
 
                 {!scheduleData.embedData.title && !scheduleData.embedData.description && (
-                  <p style={{ textAlign: 'center', color: '#72767d', fontSize: '14px', padding: '20px' }}>
+                  <p style={{ textAlign: 'center', color: 'var(--text-tertiary)', fontSize: '14px', padding: '20px' }}>
                     Start building your embed to see a preview...
                   </p>
                 )}
@@ -2458,7 +2458,7 @@ function Announcements() {
                     {savedTemplates.filter(t => t.type === 'schedule').length > 0 ? (
                       savedTemplates.filter(t => t.type === 'schedule').map((template, index) => (
                         <div key={index} style={{
-                          backgroundColor: '#23272A',
+                          backgroundColor: 'var(--bg-tertiary)',
                           borderRadius: '8px',
                           padding: '12px',
                           border: '1px solid #40444b'
@@ -2478,7 +2478,7 @@ function Announcements() {
                               </div>
                               {template.data.embedData?.title && (
                                 <div style={{ 
-                                  color: '#72767d', 
+                                  color: 'var(--text-tertiary)', 
                                   fontSize: '12px',
                                   overflow: 'hidden',
                                   textOverflow: 'ellipsis',
@@ -2524,7 +2524,7 @@ function Announcements() {
                         </div>
                       ))
                     ) : (
-                      <p style={{ color: '#72767d', textAlign: 'center', padding: '20px', fontSize: '13px' }}>
+                      <p style={{ color: 'var(--text-tertiary)', textAlign: 'center', padding: '20px', fontSize: '13px' }}>
                         No schedule templates saved
                       </p>
                     )}
@@ -2539,7 +2539,7 @@ function Announcements() {
                 onClick={handleSchedule}
                 style={{
                   padding: '14px 32px',
-                  backgroundColor: '#FFD700',
+                  backgroundColor: 'var(--primary)',
                   color: '#000',
                   border: 'none',
                   borderRadius: '8px',
@@ -2561,7 +2561,7 @@ function Announcements() {
                 disabled={!scheduleData.templateName}
                 style={{
                   padding: '14px 20px',
-                  backgroundColor: scheduleData.templateName ? '#4a4a4a' : '#2a2a2a',
+                  backgroundColor: scheduleData.templateName ? '#4a4a4a' : 'var(--bg-tertiary)',
                   color: scheduleData.templateName ? '#fff' : '#666',
                   border: '1px solid #555',
                   borderRadius: '8px',
@@ -2591,19 +2591,19 @@ function Announcements() {
               📋 Scheduled Messages
             </h3>
             {loading ? (
-              <div style={{ textAlign: 'center', padding: '40px', color: '#72767d' }}>
+              <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-tertiary)' }}>
                 Loading scheduled messages...
               </div>
             ) : scheduledMessages.length === 0 ? (
               <div style={{ 
                 textAlign: 'center', 
                 padding: '60px 20px',
-                backgroundColor: '#2C2F33',
+                backgroundColor: 'var(--bg-secondary)',
                 borderRadius: '12px',
                 border: '2px dashed #40444b'
               }}>
-                <FaClock size={48} style={{ color: '#72767d', marginBottom: '16px' }} />
-                <p style={{ color: '#72767d', fontSize: '16px', margin: 0 }}>No scheduled messages</p>
+                <FaClock size={48} style={{ color: 'var(--text-tertiary)', marginBottom: '16px' }} />
+                <p style={{ color: 'var(--text-tertiary)', fontSize: '16px', margin: 0 }}>No scheduled messages</p>
               </div>
             ) : (
               <div style={{ display: 'grid', gap: '16px' }}>
@@ -2611,12 +2611,12 @@ function Announcements() {
                   <div 
                     key={msg.id} 
                     style={{ 
-                      backgroundColor: '#2C2F33',
+                      backgroundColor: 'var(--bg-secondary)',
                       borderRadius: '12px',
                       padding: '20px',
                       border: '1px solid #40444b',
                       transition: 'all 0.2s',
-                      ':hover': { borderColor: '#FFD700' }
+                      ':hover': { borderColor: 'var(--primary)' }
                     }}
                   >
                     {/* Header with time and status */}
@@ -2630,7 +2630,7 @@ function Announcements() {
                     }}>
                       <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                          <FaClock style={{ color: '#FFD700' }} />
+                          <FaClock style={{ color: 'var(--primary)' }} />
                           <h4 style={{ 
                             fontSize: '16px', 
                             fontWeight: '600', 
@@ -2657,7 +2657,7 @@ function Announcements() {
                           </span>
                           {msg.repeat !== 'none' && (
                             <span style={{
-                              backgroundColor: '#2a2a2a',
+                              backgroundColor: 'var(--bg-tertiary)',
                               color: '#ccc',
                               padding: '4px 12px',
                               borderRadius: '12px',
@@ -2697,14 +2697,14 @@ function Announcements() {
                         gap: '6px',
                         marginBottom: '12px'
                       }}>
-                        <span style={{ color: '#b9bbbe', fontSize: '13px', fontWeight: '600' }}>📍 Channels:</span>
+                        <span style={{ color: 'var(--text-secondary)', fontSize: '13px', fontWeight: '600' }}>📍 Channels:</span>
                         {(msg.channelIds || [msg.channelId]).map(id => {
                           const channel = channels.find(c => c.id === id);
                           return (
                             <span
                               key={id}
                               style={{
-                                backgroundColor: '#2a2a2a',
+                                backgroundColor: 'var(--bg-tertiary)',
                                 color: '#ccc',
                                 padding: '4px 10px',
                                 borderRadius: '6px',
@@ -2724,10 +2724,10 @@ function Announcements() {
                           gap: '8px',
                           marginBottom: '12px'
                         }}>
-                          <span style={{ color: '#b9bbbe', fontSize: '13px', fontWeight: '600' }}>👥 Mentions:</span>
+                          <span style={{ color: 'var(--text-secondary)', fontSize: '13px', fontWeight: '600' }}>👥 Mentions:</span>
                           <span style={{
                             backgroundColor: '#FFD70020',
-                            color: '#FFD700',
+                            color: 'var(--primary)',
                             padding: '4px 10px',
                             borderRadius: '6px',
                             fontSize: '12px',
@@ -2744,8 +2744,8 @@ function Announcements() {
                       <div style={{ 
                         marginTop: '16px',
                         padding: '14px', 
-                        borderLeft: `4px solid ${msg.embedData.color || '#FFD700'}`,
-                        backgroundColor: '#23272A',
+                        borderLeft: `4px solid ${msg.embedData.color || 'var(--primary)'}`,
+                        backgroundColor: 'var(--bg-tertiary)',
                         borderRadius: '6px'
                       }}>
                         {msg.embedData.title && (
@@ -2760,7 +2760,7 @@ function Announcements() {
                         )}
                         {msg.embedData.description && (
                           <div style={{ 
-                            color: '#b9bbbe', 
+                            color: 'var(--text-secondary)', 
                             fontSize: '13px',
                             lineHeight: '1.5'
                           }}>
@@ -2776,7 +2776,7 @@ function Announcements() {
                       <div style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px solid #40444b' }}>
                         {msg.sentAt && (
                           <p style={{ 
-                            color: '#72767d', 
+                            color: 'var(--text-tertiary)', 
                             fontSize: '12px',
                             margin: 0,
                             marginBottom: msg.error ? '8px' : 0

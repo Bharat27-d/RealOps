@@ -3,23 +3,21 @@ import { toast } from 'react-toastify';
 import { FaSearch, FaUserShield, FaCalendarAlt, FaUsers } from 'react-icons/fa';
 import { discord } from '../services/api';
 
-// Specific staff roles to display (excluding general STAFF role)
-// Ordered by priority (highest to lowest)
 const STAFF_ROLE_IDS = [
-  '1291116832308068448', // FOUNDER
-  '1291144543630262292', // PM - Project Manager
-  '1386691716945543240', // DEVELOPER
-  '1292896422949163120', // HRD - HR Director
-  '1300834129780150272', // PMM - Partnership Manager
-  '1291121579207692430', // EM - Event Manager
-  '1296422181806542898', // MM - Media Manager
-  '1291123331591831632', // DM - Design Manager
-  '1344406747955200081', // SSM - Senior Support Manager
-  '1296423697711894528', // M - Manager
-  '1291818052744253612', // PL - Planner
-  '1345496957082406972', // JNR_PLANNER - Junior Planner
-  '1291394387888177193', // SS - Support Staff
-  '1291122540864864348'  // ES - Event Staff
+  '1291116832308068448',
+  '1291144543630262292',
+  '1386691716945543240',
+  '1292896422949163120',
+  '1300834129780150272',
+  '1291121579207692430',
+  '1296422181806542898',
+  '1291123331591831632',
+  '1344406747955200081',
+  '1296423697711894528',
+  '1291818052744253612',
+  '1345496957082406972',
+  '1291394387888177193',
+  '1291122540864864348'
 ];
 
 const ROLE_NAMES = {
@@ -39,24 +37,18 @@ const ROLE_NAMES = {
   '1291122540864864348': 'Event Staff'
 };
 
-// Custom colors for roles that are too light or hard to see
 const ROLE_CUSTOM_COLORS = {
-  '1292896422949163120': '#3498db', // HR Director - Blue
-  '1296422181806542898': '#e74c3c', // Media Manager - Red
+  '1292896422949163120': '#3498db',
+  '1296422181806542898': '#e74c3c'
 };
 
-// Get role color with fallback for white/light colors
 const getRoleColor = (role) => {
-  // Check if we have a custom color override
   if (ROLE_CUSTOM_COLORS[role.id]) {
     return ROLE_CUSTOM_COLORS[role.id];
   }
-  
-  // If role has no color or is white/very light, use default
   if (!role.color || role.color === '#000000' || role.color === '#ffffff') {
-    return '#b9bbbe';
+    return '#64748B';
   }
-  
   return role.color;
 };
 
@@ -79,21 +71,13 @@ function Staff() {
 
   const fetchStaff = async () => {
     try {
-      // Fetch members with specific staff role IDs
-      console.log('Fetching staff with role IDs:', STAFF_ROLE_IDS);
       const response = await discord.getMembers(STAFF_ROLE_IDS);
-      console.log('Staff response:', response.data);
-      console.log('Response data type:', typeof response.data, 'Is array:', Array.isArray(response.data));
-      
-      // Ensure we always set an array
       const staffData = Array.isArray(response.data) ? response.data : [];
-      console.log('Setting staff list with', staffData.length, 'members');
       setStaffList(staffData);
     } catch (error) {
       console.error('Error loading staff:', error);
-      console.error('Error details:', error.response?.data);
-      toast.error(`Failed to load staff: ${error.response?.data?.error || error.message}`);
-      setStaffList([]); // Set empty array on error
+      toast.error(`Failed to load staff roster: ${error.response?.data?.error || error.message}`);
+      setStaffList([]);
     } finally {
       setLoading(false);
     }
@@ -111,16 +95,10 @@ function Staff() {
   const handleAddRole = async (roleId) => {
     try {
       await discord.addRole(selectedMember.id, roleId);
-      
-      // Wait a moment for Discord to process the role change
       await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Refresh staff list to get updated data
       const response = await discord.getMembers(STAFF_ROLE_IDS);
       const newStaffList = response.data;
       setStaffList(newStaffList);
-      
-      // Update selected member with fresh data
       const updatedMember = newStaffList.find(m => m.id === selectedMember.id);
       if (updatedMember) {
         setSelectedMember(updatedMember);
@@ -134,16 +112,10 @@ function Staff() {
   const handleRemoveRole = async (roleId) => {
     try {
       await discord.removeRole(selectedMember.id, roleId);
-      
-      // Wait a moment for Discord to process the role change
       await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Refresh staff list to get updated data
       const response = await discord.getMembers(STAFF_ROLE_IDS);
       const newStaffList = response.data;
       setStaffList(newStaffList);
-      
-      // Update selected member with fresh data
       const updatedMember = newStaffList.find(m => m.id === selectedMember.id);
       if (updatedMember) {
         setSelectedMember(updatedMember);
@@ -159,7 +131,6 @@ function Staff() {
       toast.error('Please enter a message');
       return;
     }
-
     try {
       await discord.sendDM(selectedMember.id, messageContent, null);
       toast.success(`Message sent to ${selectedMember.username}`);
@@ -170,7 +141,6 @@ function Staff() {
     }
   };
 
-  // Get the top 2 highest priority staff roles for a member
   const getTopStaffRoles = (member) => {
     const topRoles = [];
     for (const roleId of STAFF_ROLE_IDS) {
@@ -186,17 +156,15 @@ function Staff() {
     return topRoles;
   };
 
-  // Get the highest role priority index for sorting
   const getHighestRolePriority = (member) => {
     for (let i = 0; i < STAFF_ROLE_IDS.length; i++) {
       if (member.roles.some(role => role.id === STAFF_ROLE_IDS[i])) {
         return i;
       }
     }
-    return STAFF_ROLE_IDS.length; // If no staff role found, put at end
+    return STAFF_ROLE_IDS.length;
   };
 
-  // Ensure staffList is always an array before filtering
   const safeStaffList = Array.isArray(staffList) ? staffList : [];
 
   let filteredStaff = safeStaffList.filter(member => {
@@ -205,7 +173,6 @@ function Staff() {
     return matchesSearch && matchesRole;
   });
 
-  // Sort by highest role priority when "All Roles" is selected
   if (selectedRole === 'all') {
     filteredStaff = filteredStaff.sort((a, b) => {
       return getHighestRolePriority(a) - getHighestRolePriority(b);
@@ -213,45 +180,60 @@ function Staff() {
   }
 
   if (loading) {
-    return <div className="loading"><div className="spinner"></div></div>;
+    return (
+      <div className="loading">
+        <div className="spinner"></div>
+        <p style={{ color: 'var(--text-secondary)', fontSize: '15px' }}>Loading staff roster and roles...</p>
+      </div>
+    );
   }
 
   return (
-    <div className="page-container">
+    <div className="page-container" style={{ maxWidth: '1400px', margin: '0 auto' }}>
       <div className="page-title">
         <div>
-          <h1><FaUsers /> Staff Directory</h1>
-          <p style={{ color: '#000', fontSize: '14px', margin: '8px 0 0 0', opacity: 0.8 }}>
-            {filteredStaff.length} staff members
-          </p>
+          <div className="page-subtitle" style={{ textTransform: 'uppercase', letterSpacing: '0.8px', fontSize: '11px', color: 'var(--primary)', fontWeight: '700', marginBottom: '4px' }}>
+            RealOps Portal / Management
+          </div>
+          <h1>
+            <FaUsers /> Staff Roster Directory
+          </h1>
+        </div>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <span className="badge badge-primary" style={{ padding: '8px 14px', fontSize: '13px' }}>
+            {filteredStaff.length} Active Members
+          </span>
+          <button className="btn btn-outline" onClick={() => setShowAvailability(true)}>
+            <FaCalendarAlt /> Availability Status
+          </button>
         </div>
       </div>
 
       <div className="card">
-        <div className="grid grid-2" style={{ marginBottom: '25px' }}>
-          <div className="form-group">
-            <label className="form-label">Search Staff</label>
+        <div className="grid grid-2" style={{ marginBottom: '24px' }}>
+          <div className="form-group" style={{ margin: 0 }}>
+            <label className="form-label">Search Directory</label>
             <div style={{ position: 'relative' }}>
-              <FaSearch style={{ position: 'absolute', left: '15px', top: '50%', transform: 'translateY(-50%)', color: '#888', zIndex: 1 }} />
+              <FaSearch style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-tertiary)' }} />
               <input 
                 className="form-input"
                 type="text" 
-                placeholder="Search by username..."
+                placeholder="Search by username or nickname..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                style={{ paddingLeft: '45px' }}
+                style={{ paddingLeft: '44px' }}
               />
             </div>
           </div>
 
-          <div className="form-group">
-            <label className="form-label">Filter by Role</label>
+          <div className="form-group" style={{ margin: 0 }}>
+            <label className="form-label">Filter by Position</label>
             <select 
               className="form-select"
               value={selectedRole}
               onChange={(e) => setSelectedRole(e.target.value)}
             >
-              <option value="all">All Roles</option>
+              <option value="all">All Positions</option>
               <option value="1291116832308068448">Founder</option>
               <option value="1291144543630262292">Project Manager</option>
               <option value="1386691716945543240">Developer</option>
@@ -270,110 +252,144 @@ function Staff() {
           </div>
         </div>
 
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Avatar</th>
-              <th>Username</th>
-              <th>Nickname</th>
-              <th>Roles</th>
-              <th>Joined</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredStaff.map(member => {
-              const topRoles = getTopStaffRoles(member);
-              return (
-                <tr key={member.id}>
-                  <td>
-                    <img 
-                      src={member.avatar} 
-                      alt={member.username}
-                      style={{ 
-                        width: '45px', 
-                        height: '45px', 
-                        borderRadius: '50%',
-                        border: '2px solid #FFD700',
-                        boxShadow: '0 2px 8px rgba(255, 215, 0, 0.2)'
-                      }}
-                    />
-                  </td>
-                  <td style={{ fontWeight: '600', color: '#FFD700' }}>{member.username}<span style={{ color: '#666' }}>#{member.discriminator}</span></td>
-                  <td style={{ color: '#888' }}>{member.nickname || '-'}</td>
-                  <td>
-                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                      {topRoles.length > 0 ? (
-                        topRoles.map(role => (
-                          <span 
-                            key={role.id}
-                            className="badge" 
-                            style={{ background: getRoleColor(role) }}
-                          >
-                            <FaUserShield /> {role.displayName}
-                          </span>
-                        ))
-                      ) : (
-                        <span style={{ color: '#b9bbbe' }}>-</span>
-                      )}
-                    </div>
-                  </td>
-                  <td style={{ color: '#888' }}>{new Date(member.joinedAt).toLocaleDateString()}</td>
-                  <td>
-                    <button 
-                      className="btn" 
-                      style={{ padding: '8px 16px', fontSize: '13px' }}
-                      onClick={() => setSelectedMember(member)}
-                    >
-                      View Details
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+        <div className="table-container" style={{ border: 'none', background: 'transparent' }}>
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Member Info</th>
+                <th>Nickname</th>
+                <th>Assigned Roles</th>
+                <th>Joined Server</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredStaff.map(member => {
+                const topRoles = getTopStaffRoles(member);
+                return (
+                  <tr key={member.id}>
+                    <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                        <img 
+                          src={member.avatar} 
+                          alt={member.username}
+                          style={{ 
+                            width: '42px', 
+                            height: '42px', 
+                            borderRadius: '12px',
+                            objectFit: 'cover',
+                            border: '1px solid var(--border-secondary)'
+                          }}
+                        />
+                        <div>
+                          <div style={{ fontWeight: '600', color: 'var(--text-primary)', fontSize: '14px' }}>
+                            {member.username}
+                          </div>
+                          <div style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>
+                            #{member.discriminator || '0000'}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
+                      {member.nickname || <span style={{ color: 'var(--text-tertiary)', fontStyle: 'italic' }}>None</span>}
+                    </td>
+                    <td>
+                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                        {topRoles.length > 0 ? (
+                          topRoles.map(role => (
+                            <span 
+                              key={role.id}
+                              className="badge" 
+                              style={{ 
+                                background: 'var(--primary-subtle)',
+                                color: '#FFFFFF',
+                                border: `1px solid ${getRoleColor(role)}`,
+                                fontSize: '11px'
+                              }}
+                            >
+                              <FaUserShield style={{ color: getRoleColor(role) }} /> {role.displayName}
+                            </span>
+                          ))
+                        ) : (
+                          <span style={{ color: 'var(--text-tertiary)' }}>No staff role</span>
+                        )}
+                      </div>
+                    </td>
+                    <td style={{ color: 'var(--text-tertiary)', fontSize: '13px' }}>
+                      {new Date(member.joinedAt).toLocaleDateString('en-US', {
+                        month: 'short', day: 'numeric', year: 'numeric'
+                      })}
+                    </td>
+                    <td>
+                      <button 
+                        className="btn btn-outline" 
+                        style={{ padding: '6px 14px', fontSize: '13px' }}
+                        onClick={() => setSelectedMember(member)}
+                      >
+                        Profile
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
 
         {filteredStaff.length === 0 && (
           <div style={{ 
             textAlign: 'center', 
             padding: '60px 20px',
-            color: '#888',
-            background: '#0a0a0a',
-            borderRadius: '12px',
-            marginTop: '20px'
+            color: 'var(--text-tertiary)',
+            background: 'var(--bg-tertiary)',
+            borderRadius: '14px',
+            marginTop: '20px',
+            border: '1px solid var(--border-secondary)'
           }}>
-            <FaUsers size={60} style={{ color: '#FFD700', opacity: 0.5, marginBottom: '15px' }} />
-            <p style={{ fontSize: '16px', margin: 0 }}>No staff members found</p>
+            <FaUsers size={48} style={{ opacity: 0.3, marginBottom: '14px' }} />
+            <p style={{ fontSize: '16px', color: 'var(--text-primary)', fontWeight: '600', margin: '0 0 4px 0' }}>No Staff Members Found</p>
+            <p style={{ fontSize: '14px', margin: 0 }}>Try modifying your directory search query or role filter.</p>
           </div>
         )}
       </div>
 
       {showAvailability && (
         <div className="modal-overlay" onClick={() => setShowAvailability(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '900px' }}>
+          <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '800px' }}>
             <div className="modal-header">
-              <h3><FaCalendarAlt /> Staff Availability Calendar</h3>
+              <h3><FaCalendarAlt /> Staff Roster Availability Status</h3>
               <button className="modal-close" onClick={() => setShowAvailability(false)}>×</button>
             </div>
             
             <div className="modal-body">
-              <p style={{ color: '#888', marginBottom: '25px', fontSize: '15px' }}>
-                Staff availability tracking system - integrate with calendar component for full functionality
+              <p style={{ color: 'var(--text-secondary)', marginBottom: '20px', fontSize: '14px' }}>
+                Active operational status of all registered staff members:
               </p>
 
-              <div className="grid grid-2">
+              <div className="grid grid-2" style={{ gap: '12px' }}>
                 {filteredStaff.map(member => (
-                  <div key={member.id} style={{ padding: '15px', background: '#1a1a1a', border: '1px solid #2a2a2a', borderRadius: '8px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                  <div key={member.id} style={{ 
+                    padding: '14px 16px', 
+                    background: 'var(--bg-tertiary)', 
+                    border: '1px solid var(--border-secondary)', 
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                       <img 
                         src={member.avatar} 
                         alt={member.username}
-                        style={{ width: '30px', height: '30px', borderRadius: '50%', border: '2px solid #FFD700' }}
+                        style={{ width: '36px', height: '36px', borderRadius: '10px', objectFit: 'cover' }}
                       />
-                      <strong style={{ color: '#FFD700' }}>{member.username}</strong>
+                      <div>
+                        <div style={{ fontWeight: '600', color: 'var(--text-primary)', fontSize: '14px' }}>{member.username}</div>
+                        <div style={{ fontSize: '11px', color: 'var(--text-tertiary)' }}>{member.nickname || 'Active Roster'}</div>
+                      </div>
                     </div>
-                    <span className="badge" style={{ background: '#28a745' }}>Available</span>
+                    <span className="badge badge-success">Available</span>
                   </div>
                 ))}
               </div>
@@ -384,161 +400,153 @@ function Staff() {
 
       {selectedMember && (
         <div className="modal-overlay" onClick={() => setSelectedMember(null)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '700px' }}>
+          <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '650px' }}>
             <div className="modal-header">
-              <h3><FaUserShield /> Staff Member Details</h3>
+              <h3><FaUserShield /> Staff Member Profile</h3>
               <button className="modal-close" onClick={() => setSelectedMember(null)}>×</button>
             </div>
             
             <div className="modal-body">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '30px', padding: '20px', background: '#0a0a0a', borderRadius: '12px', border: '1px solid #2a2a2a' }}>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '20px', 
+                marginBottom: '28px', 
+                padding: '20px', 
+                background: 'var(--bg-tertiary)', 
+                borderRadius: '14px', 
+                border: '1px solid var(--border-secondary)' 
+              }}>
                 <img 
                   src={selectedMember.avatar} 
                   alt={selectedMember.username}
                   style={{ 
-                    width: '90px', 
-                    height: '90px', 
-                    borderRadius: '50%',
-                    border: '3px solid #FFD700',
-                    boxShadow: '0 4px 12px rgba(255, 215, 0, 0.2)'
+                    width: '80px', 
+                    height: '80px', 
+                    borderRadius: '16px',
+                    objectFit: 'cover',
+                    border: '2px solid var(--primary)'
                   }}
                 />
                 <div>
-                  <h2 style={{ margin: '0 0 8px 0', color: '#FFD700', fontSize: '22px' }}>
-                    {selectedMember.username}<span style={{ color: '#666' }}>#{selectedMember.discriminator}</span>
+                  <h2 style={{ margin: '0 0 6px 0', color: 'var(--text-primary)', fontSize: '20px' }}>
+                    {selectedMember.username}<span style={{ color: 'var(--text-tertiary)' }}>#{selectedMember.discriminator}</span>
                   </h2>
                   {selectedMember.nickname && (
-                    <p style={{ color: '#888', margin: 0, fontSize: '14px' }}>Nickname: {selectedMember.nickname}</p>
+                    <p style={{ color: 'var(--text-secondary)', margin: 0, fontSize: '13px' }}>Server Nickname: {selectedMember.nickname}</p>
                   )}
                 </div>
               </div>
 
               <div className="form-group">
-                <label className="form-label">User ID</label>
-                <input className="form-input" type="text" value={selectedMember.id} readOnly style={{ background: '#0a0a0a', cursor: 'not-allowed' }} />
+                <label className="form-label">Discord User ID</label>
+                <input className="form-input" type="text" value={selectedMember.id} readOnly style={{ fontFamily: 'monospace' }} />
               </div>
 
               <div className="form-group">
-                <label className="form-label">Joined Server</label>
+                <label className="form-label">Joined Timestamp</label>
                 <input 
                   className="form-input"
                   type="text" 
                   value={new Date(selectedMember.joinedAt).toLocaleString()} 
                   readOnly 
-                  style={{ background: '#0a0a0a', cursor: 'not-allowed' }} 
                 />
               </div>
 
               <div className="form-group">
-                <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span>Current Roles ({selectedMember.roles.length})</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                  <label className="form-label" style={{ margin: 0 }}>Assigned Roles ({selectedMember.roles.length})</label>
                   <button 
-                    className="btn-secondary" 
-                    style={{ 
-                      padding: '8px 16px', 
-                      fontSize: '13px',
-                      background: '#FFD700',
-                      color: '#000',
-                      border: 'none',
-                      transition: 'all 0.3s ease'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = '#FFA500';
-                      e.currentTarget.style.transform = 'translateY(-2px)';
-                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(255, 215, 0, 0.4)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = '#FFD700';
-                      e.currentTarget.style.transform = 'translateY(0)';
-                      e.currentTarget.style.boxShadow = 'none';
-                    }}
+                    className="btn btn-secondary" 
+                    style={{ padding: '6px 14px', fontSize: '12px' }}
                     onClick={() => setShowRoleManager(!showRoleManager)}
                   >
-                    {showRoleManager ? 'Hide' : 'Manage Roles'}
+                    {showRoleManager ? 'Done' : 'Manage Roles'}
                   </button>
-                </label>
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '10px' }}>
-                {selectedMember.roles
-                  .sort((a, b) => {
-                    const aIndex = STAFF_ROLE_IDS.indexOf(a.id);
-                    const bIndex = STAFF_ROLE_IDS.indexOf(b.id);
-                    const aPriority = aIndex === -1 ? 999 : aIndex;
-                    const bPriority = bIndex === -1 ? 999 : bIndex;
-                    return aPriority - bPriority;
-                  })
-                  .map(role => (
-                    <span 
-                      key={role.id}
-                      className="badge" 
-                      style={{ 
-                        background: getRoleColor(role),
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '5px'
-                      }}
-                    >
-                      <FaUserShield /> {ROLE_NAMES[role.id] || role.name}
-                      {showRoleManager && (
-                        <button
-                          onClick={() => handleRemoveRole(role.id)}
-                          style={{
-                            background: 'rgba(0,0,0,0.3)',
-                            border: 'none',
-                            color: 'white',
-                            cursor: 'pointer',
-                            borderRadius: '3px',
-                            padding: '2px 5px',
-                            fontSize: '0.8em',
-                            marginLeft: '5px'
-                          }}
-                        >
-                          ×
-                        </button>
-                      )}
-                    </span>
-                  ))
-                }
-              </div>
-            </div>
-
-            {showRoleManager && (
-              <div className="form-group">
-                <label className="form-label">Add Role</label>
-                <select 
-                  className="form-select"
-                  onChange={(e) => {
-                    if (e.target.value) {
-                      handleAddRole(e.target.value);
-                      e.target.value = '';
-                    }
-                  }}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <option value="">Select a role to add...</option>
-                  {allRoles
-                    .filter(role => !selectedMember.roles.some(mr => mr.id === role.id))
+                </div>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', padding: '14px', background: 'var(--bg-tertiary)', borderRadius: '12px', border: '1px solid var(--border-secondary)' }}>
+                  {selectedMember.roles
+                    .sort((a, b) => {
+                      const aIndex = STAFF_ROLE_IDS.indexOf(a.id);
+                      const bIndex = STAFF_ROLE_IDS.indexOf(b.id);
+                      const aPriority = aIndex === -1 ? 999 : aIndex;
+                      const bPriority = bIndex === -1 ? 999 : bIndex;
+                      return aPriority - bPriority;
+                    })
                     .map(role => (
-                      <option key={role.id} value={role.id}>
-                        {role.name}
-                      </option>
-                    ))}
-                </select>
+                      <span 
+                        key={role.id}
+                        className="badge" 
+                        style={{ 
+                          background: 'var(--bg-secondary)',
+                          color: 'var(--text-primary)',
+                          border: `1px solid ${getRoleColor(role)}`,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px'
+                        }}
+                      >
+                        <FaUserShield style={{ color: getRoleColor(role) }} /> {ROLE_NAMES[role.id] || role.name}
+                        {showRoleManager && (
+                          <button
+                            onClick={() => handleRemoveRole(role.id)}
+                            style={{
+                              background: 'transparent',
+                              border: 'none',
+                              color: 'var(--danger)',
+                              cursor: 'pointer',
+                              fontWeight: 'bold',
+                              fontSize: '14px',
+                              marginLeft: '4px'
+                            }}
+                            title="Remove Role"
+                          >
+                            ×
+                          </button>
+                        )}
+                      </span>
+                    ))
+                  }
+                </div>
               </div>
-            )}
 
-            <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-              <button 
-                className="btn" 
-                style={{ flex: 1 }}
-                onClick={() => setShowMessageModal(true)}
-              >
-                Send Message
-              </button>
-              <button className="btn-secondary" style={{ flex: 1 }} onClick={() => { setSelectedMember(null); setShowRoleManager(false); }}>
-                Close
-              </button>
+              {showRoleManager && (
+                <div className="form-group" style={{ marginTop: '16px' }}>
+                  <label className="form-label">Add New Role</label>
+                  <select 
+                    className="form-select"
+                    onChange={(e) => {
+                      if (e.target.value) {
+                        handleAddRole(e.target.value);
+                        e.target.value = '';
+                      }
+                    }}
+                  >
+                    <option value="">Select a role to add to this member...</option>
+                    {allRoles
+                      .filter(role => !selectedMember.roles.some(mr => mr.id === role.id))
+                      .map(role => (
+                        <option key={role.id} value={role.id}>
+                          {role.name}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+              )}
+
+              <div style={{ display: 'flex', gap: '12px', marginTop: '28px', paddingTop: '20px', borderTop: '1px solid var(--border-secondary)' }}>
+                <button 
+                  className="btn" 
+                  style={{ flex: 1 }}
+                  onClick={() => setShowMessageModal(true)}
+                >
+                  Send Direct Message
+                </button>
+                <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => { setSelectedMember(null); setShowRoleManager(false); }}>
+                  Close
+                </button>
+              </div>
             </div>
-          </div>
           </div>
         </div>
       )}
@@ -547,33 +555,32 @@ function Staff() {
         <div className="modal-overlay" onClick={() => setShowMessageModal(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '500px' }}>
             <div className="modal-header">
-              <h3>Send DM to {selectedMember.username}</h3>
+              <h3>Send Direct Message to {selectedMember.username}</h3>
               <button className="modal-close" onClick={() => setShowMessageModal(false)}>×</button>
             </div>
             
             <div className="modal-body">
               <div className="form-group">
-                <label className="form-label">Message</label>
+                <label className="form-label">Message Content</label>
                 <textarea 
                   className="form-textarea"
                   rows="6"
                   placeholder="Type your message here..."
                   value={messageContent}
                   onChange={(e) => setMessageContent(e.target.value)}
-                  style={{ resize: 'vertical', minHeight: '120px' }}
                 />
               </div>
 
-              <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+              <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
                 <button 
                   className="btn" 
                   style={{ flex: 1 }}
                   onClick={handleSendMessage}
                 >
-                  Send Message
+                  Send Direct Message
                 </button>
                 <button 
-                  className="btn-secondary" 
+                  className="btn btn-secondary" 
                   style={{ flex: 1 }} 
                   onClick={() => {
                     setShowMessageModal(false);

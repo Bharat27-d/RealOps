@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaTicketAlt, FaCalendar, FaUsers, FaChartLine, FaSync, FaClock, FaExclamationTriangle, FaPaperPlane, FaPlus, FaCog, FaRocket, FaBell, FaCode, FaCheckCircle, FaCircle } from 'react-icons/fa';
+import { 
+  FaTicketAlt, FaCalendar, FaUsers, FaChartLine, FaSync, 
+  FaClock, FaExclamationTriangle, FaPaperPlane, FaPlus, 
+  FaCog, FaRocket, FaBell, FaCode, FaCheckCircle, FaCircle, FaArrowRight, FaHome
+} from 'react-icons/fa';
 import { analytics, events as eventsApi } from '../services/api';
 import { toast } from 'react-toastify';
 
@@ -30,7 +34,6 @@ function Dashboard() {
       
       setStats(statsRes.data);
       
-      // Get upcoming + recent events sorted by date
       const allEvents = eventsRes.data || [];
       const sorted = allEvents
         .filter(e => e.date)
@@ -61,40 +64,42 @@ function Dashboard() {
     return (
       <div className="loading">
         <div className="spinner"></div>
-        <p style={{ color: '#FFD700', fontSize: '16px' }}>Loading dashboard data...</p>
+        <p style={{ color: 'var(--text-secondary)', fontSize: '15px' }}>Loading system metrics...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="text-center" style={{ padding: '60px 20px', maxWidth: '600px', margin: '0 auto' }}>
-        <FaExclamationTriangle size={64} style={{ color: '#e74c3c', marginBottom: '20px' }} />
-        <h2 style={{ color: '#FFD700', marginBottom: '12px' }}>Failed to Load Dashboard</h2>
-        <p style={{ color: '#888', marginBottom: '24px' }}>{error}</p>
+      <div className="card" style={{ textAlign: 'center', padding: '60px 20px', maxWidth: '560px', margin: '40px auto' }}>
+        <div style={{ width: '64px', height: '64px', borderRadius: '16px', background: 'var(--danger-bg)', color: 'var(--danger)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', fontSize: '28px' }}>
+          <FaExclamationTriangle />
+        </div>
+        <h2 style={{ color: 'var(--text-primary)', marginBottom: '10px', fontSize: '20px' }}>Unable to Load Dashboard</h2>
+        <p style={{ color: 'var(--text-secondary)', marginBottom: '24px', fontSize: '14px' }}>{error}</p>
         <button onClick={handleRefresh} className="btn">
-          <FaSync /> Retry
+          <FaSync /> Retry Connection
         </button>
       </div>
     );
   }
 
   const quickActions = [
-    { icon: FaBell, label: 'Create Announcement', path: '/events', color: '#5865F2', desc: 'Send event announcement' },
-    { icon: FaPaperPlane, label: 'Send Embed', path: '/embeds', color: '#00b894', desc: 'Build & send Discord embed' },
-    { icon: FaPlus, label: 'Scenario Pack', path: '/events', color: '#fdcb6e', desc: 'Create scenario embeds' },
-    { icon: FaTicketAlt, label: 'View Tickets', path: '/tickets', color: '#e17055', desc: 'Manage support tickets' },
-    { icon: FaUsers, label: 'Staff Panel', path: '/staff', color: '#a29bfe', desc: 'Manage staff members' },
-    { icon: FaCog, label: 'Settings', path: '/settings', color: '#636e72', desc: 'Bot & dashboard settings' },
+    { icon: FaBell, label: 'Create Announcement', path: '/announcements', desc: 'Broadcast to Discord channels' },
+    { icon: FaPaperPlane, label: 'Send Embed', path: '/embeds', desc: 'Build & deploy custom embed' },
+    { icon: FaCalendar, label: 'Event Management', path: '/events', desc: 'Schedule & manage real-ops' },
+    { icon: FaTicketAlt, label: 'Tickets Archive', path: '/tickets', desc: 'Review closed support transcripts' },
+    { icon: FaUsers, label: 'Staff Roster', path: '/staff', desc: 'Manage staff roles & assignments' },
+    { icon: FaCog, label: 'System Settings', path: '/settings', desc: 'Configure bot preferences' },
   ];
 
-  const getEventStatusColor = (event) => {
+  const getEventStatusClass = (event) => {
     const eventDate = new Date(event.date);
     const now = new Date();
-    if (event.status === 'cancelled') return '#ed4245';
-    if (event.status === 'completed') return '#00b894';
-    if (eventDate < now) return '#b9bbbe';
-    return '#5865F2';
+    if (event.status === 'cancelled') return 'badge badge-danger';
+    if (event.status === 'completed') return 'badge badge-success';
+    if (eventDate < now) return 'badge badge-secondary';
+    return 'badge badge-primary';
   };
 
   const getEventStatusLabel = (event) => {
@@ -106,31 +111,46 @@ function Dashboard() {
     return 'Upcoming';
   };
 
+  const resolutionRate = ((stats?.tickets?.closed / (stats?.tickets?.total || 1)) * 100 || 0).toFixed(1);
+
   return (
-    <div className="page-container" style={{ maxWidth: '1600px', margin: '0 auto' }}>
-      {/* Header with refresh button */}
+    <div className="page-container" style={{ maxWidth: '1500px', margin: '0 auto' }}>
+      {/* Page Header */}
       <div className="page-title">
         <div>
-          <h1>Dashboard Overview</h1>
-          {lastUpdated && (
-            <p style={{ color: '#000', fontSize: '13px', margin: '5px 0 0 0', opacity: 0.7 }}>
-              <FaClock style={{ marginRight: '6px' }} />
-              Last updated: {lastUpdated.toLocaleTimeString()}
-            </p>
-          )}
+          <div className="page-subtitle" style={{ textTransform: 'uppercase', letterSpacing: '0.8px', fontSize: '11px', color: 'var(--primary)', fontWeight: '700', marginBottom: '4px' }}>
+            RealOps Portal / Overview
+          </div>
+          <h1>
+            <FaHome /> Dashboard Overview
+          </h1>
         </div>
-        <button onClick={handleRefresh} disabled={refreshing} className="btn">
-          <FaSync style={{ animation: refreshing ? 'spin 1s linear infinite' : 'none' }} />
-          {refreshing ? 'Refreshing...' : 'Refresh'}
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          {lastUpdated && (
+            <span style={{ color: 'var(--text-tertiary)', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', background: 'var(--bg-tertiary)', padding: '8px 14px', borderRadius: '10px', border: '1px solid var(--border-secondary)' }}>
+              <FaClock style={{ color: 'var(--primary)' }} />
+              Updated {lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </span>
+          )}
+          <button onClick={handleRefresh} disabled={refreshing} className="btn">
+            <FaSync style={{ animation: refreshing ? 'spin 1s linear infinite' : 'none' }} />
+            {refreshing ? 'Refreshing...' : 'Sync Data'}
+          </button>
+        </div>
       </div>
 
-      {/* Quick Stats Grid */}
+      {/* Metric Cards Grid */}
       <div className="grid grid-4">
         <div className="stat-card">
           <div className="stat-info">
             <h3>{stats?.tickets?.total || 0}</h3>
-            <p>Total Tickets</p>
+            <p>Total Support Tickets</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '10px' }}>
+              <span className="badge badge-success" style={{ fontSize: '11px' }}>
+                {stats?.tickets?.open || 0} Active
+              </span>
+              <span style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>• {stats?.tickets?.closed || 0} Resolved</span>
+            </div>
           </div>
           <div className="stat-icon">
             <FaTicketAlt />
@@ -141,8 +161,14 @@ function Dashboard() {
           <div className="stat-info">
             <h3>{stats?.events?.total || 0}</h3>
             <p>Total Events</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '10px' }}>
+              <span className="badge badge-primary" style={{ fontSize: '11px' }}>
+                {stats?.events?.scheduled || 0} Scheduled
+              </span>
+              <span style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>• {stats?.events?.completed || 0} Done</span>
+            </div>
           </div>
-          <div className="stat-icon">
+          <div className="stat-icon" style={{ background: 'var(--info-bg)', color: 'var(--info)' }}>
             <FaCalendar />
           </div>
         </div>
@@ -150,9 +176,14 @@ function Dashboard() {
         <div className="stat-card">
           <div className="stat-info">
             <h3>{stats?.staff?.total || 0}</h3>
-            <p>Staff Members</p>
+            <p>Active Staff Members</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '10px' }}>
+              <span className="badge badge-success" style={{ fontSize: '11px' }}>
+                Operational
+              </span>
+            </div>
           </div>
-          <div className="stat-icon">
+          <div className="stat-icon" style={{ background: 'var(--success-bg)', color: 'var(--success)' }}>
             <FaUsers />
           </div>
         </div>
@@ -160,40 +191,32 @@ function Dashboard() {
         <div className="stat-card">
           <div className="stat-info">
             <h3>{stats?.engagement?.totalInteractions || 0}</h3>
-            <p>Total Interactions</p>
+            <p>User Interactions</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '10px' }}>
+              <span style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>Real-time bot tracking</span>
+            </div>
           </div>
-          <div className="stat-icon">
+          <div className="stat-icon" style={{ background: 'var(--warning-bg)', color: 'var(--warning)' }}>
             <FaChartLine />
           </div>
         </div>
       </div>
 
-      {/* Quick Actions + Event Status Row */}
-      <div className="grid grid-2" style={{ marginTop: '30px', gap: '24px' }}>
+      {/* Main Content Grid: Quick Actions & System Health */}
+      <div className="grid grid-2" style={{ marginTop: '24px' }}>
         
-        {/* Quick Actions */}
-        <div style={{
-          backgroundColor: '#2C2F33',
-          borderRadius: '12px',
-          padding: '24px',
-          border: '1px solid #40444b'
-        }}>
-          <h2 style={{ 
-            fontSize: '18px', 
-            fontWeight: '600', 
-            color: '#ffffff',
-            marginBottom: '20px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px'
-          }}>
-            <FaRocket style={{ color: '#5865F2' }} />
-            Quick Actions
-          </h2>
+        {/* Quick Actions Card */}
+        <div className="card" style={{ display: 'flex', flexDirection: 'column' }}>
+          <div className="card-header">
+            <h2>
+              <FaRocket /> Quick Actions
+            </h2>
+          </div>
           <div style={{ 
             display: 'grid', 
             gridTemplateColumns: 'repeat(2, 1fr)', 
-            gap: '12px' 
+            gap: '14px',
+            flex: 1
           }}>
             {quickActions.map((action, i) => (
               <button 
@@ -202,290 +225,204 @@ function Dashboard() {
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '12px',
-                  padding: '14px 16px',
-                  backgroundColor: '#23272A',
-                  border: '1px solid #40444b',
-                  borderRadius: '10px',
+                  gap: '14px',
+                  padding: '16px',
+                  background: 'var(--bg-tertiary)',
+                  border: '1px solid var(--border-secondary)',
+                  borderRadius: '14px',
                   cursor: 'pointer',
-                  transition: 'all 0.2s ease',
+                  transition: 'all var(--transition-fast)',
                   textAlign: 'left',
-                  color: '#dcddde'
+                  color: 'var(--text-primary)'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = action.color;
-                  e.currentTarget.style.backgroundColor = '#2C2F33';
+                  e.currentTarget.style.borderColor = 'var(--primary)';
+                  e.currentTarget.style.background = 'var(--bg-hover)';
                   e.currentTarget.style.transform = 'translateY(-2px)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = '#40444b';
-                  e.currentTarget.style.backgroundColor = '#23272A';
+                  e.currentTarget.style.borderColor = 'var(--border-secondary)';
+                  e.currentTarget.style.background = 'var(--bg-tertiary)';
                   e.currentTarget.style.transform = 'translateY(0)';
                 }}
               >
                 <div style={{
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '10px',
-                  backgroundColor: `${action.color}20`,
+                  width: '44px',
+                  height: '44px',
+                  borderRadius: '12px',
+                  background: 'var(--primary-subtle)',
+                  color: 'var(--primary)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
+                  fontSize: '18px',
                   flexShrink: 0
                 }}>
-                  <action.icon style={{ color: action.color, fontSize: '16px' }} />
+                  <action.icon />
                 </div>
-                <div>
-                  <div style={{ fontWeight: '600', fontSize: '13px', color: '#ffffff' }}>{action.label}</div>
-                  <div style={{ fontSize: '11px', color: '#72767d', marginTop: '2px' }}>{action.desc}</div>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontWeight: '600', fontSize: '14px', color: 'var(--text-primary)', marginBottom: '2px' }}>{action.label}</div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-tertiary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{action.desc}</div>
                 </div>
               </button>
             ))}
           </div>
         </div>
 
-        {/* Event Status Card */}
-        <div style={{
-          backgroundColor: '#2C2F33',
-          borderRadius: '12px',
-          padding: '24px',
-          border: '1px solid #40444b'
-        }}>
-          <h2 style={{ 
-            fontSize: '18px', 
-            fontWeight: '600', 
-            color: '#ffffff',
-            marginBottom: '20px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px'
-          }}>
-            <FaCalendar style={{ color: '#00b894' }} />
-            Event Status
-          </h2>
-          <div>
-            {[
-              { label: 'Scheduled', value: stats?.events?.scheduled || 0, color: '#5865F2' },
-              { label: 'Completed', value: stats?.events?.completed || 0, color: '#00b894' },
-            ].map((item, i) => (
-              <div key={i} style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'center',
-                padding: '14px 16px',
-                backgroundColor: '#23272A',
-                borderRadius: '8px',
-                marginBottom: i < 1 ? '10px' : '0',
-                border: '1px solid #40444b'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <div style={{ 
-                    width: '8px', 
-                    height: '8px', 
-                    borderRadius: '50%', 
-                    backgroundColor: item.color 
-                  }}></div>
-                  <span style={{ color: '#dcddde', fontSize: '14px', fontWeight: '500' }}>{item.label}</span>
+        {/* System Health & Status Metrics */}
+        <div className="card" style={{ display: 'flex', flexDirection: 'column' }}>
+          <div className="card-header">
+            <h2>
+              <FaCheckCircle /> System Status & Performance
+            </h2>
+            <span className="badge badge-success">
+              <FaCircle style={{ fontSize: '8px' }} /> All Systems Operational
+            </span>
+          </div>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', flex: 1, justifyContent: 'center' }}>
+            {/* Ticket Resolution Progress */}
+            <div style={{ background: 'var(--bg-tertiary)', padding: '18px 20px', borderRadius: '14px', border: '1px solid var(--border-secondary)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                <div>
+                  <span style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)' }}>Ticket Resolution Rate</span>
+                  <p style={{ fontSize: '12px', color: 'var(--text-tertiary)', margin: '2px 0 0 0' }}>{stats?.tickets?.closed || 0} of {stats?.tickets?.total || 0} tickets successfully resolved</p>
                 </div>
-                <span style={{
-                  backgroundColor: `${item.color}20`,
-                  color: item.color,
-                  padding: '6px 14px',
-                  borderRadius: '12px',
-                  fontSize: '14px',
-                  fontWeight: '600'
-                }}>
-                  {item.value}
+                <span style={{ fontSize: '18px', fontWeight: '800', color: 'var(--success)' }}>{resolutionRate}%</span>
+              </div>
+              <div style={{ width: '100%', height: '8px', background: 'var(--bg-secondary)', borderRadius: '999px', overflow: 'hidden' }}>
+                <div style={{ 
+                  width: `${Math.min(resolutionRate, 100)}%`, 
+                  height: '100%', 
+                  background: 'var(--success)',
+                  borderRadius: '999px',
+                  transition: 'width 0.5s ease'
+                }} />
+              </div>
+            </div>
+
+            {/* Event Distribution */}
+            <div style={{ background: 'var(--bg-tertiary)', padding: '18px 20px', borderRadius: '14px', border: '1px solid var(--border-secondary)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                <div>
+                  <span style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)' }}>Event Schedule Status</span>
+                  <p style={{ fontSize: '12px', color: 'var(--text-tertiary)', margin: '2px 0 0 0' }}>Active operations vs completed events</p>
+                </div>
+                <span style={{ fontSize: '14px', fontWeight: '700', color: 'var(--primary)' }}>
+                  {stats?.events?.scheduled || 0} Active
                 </span>
               </div>
-            ))}
+              <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
+                <div style={{ flex: 1, background: 'var(--bg-secondary)', padding: '10px 14px', borderRadius: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Scheduled</span>
+                  <span style={{ fontSize: '14px', fontWeight: '700', color: '#818CF8' }}>{stats?.events?.scheduled || 0}</span>
+                </div>
+                <div style={{ flex: 1, background: 'var(--bg-secondary)', padding: '10px 14px', borderRadius: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Completed</span>
+                  <span style={{ fontSize: '14px', fontWeight: '700', color: 'var(--success)' }}>{stats?.events?.completed || 0}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Bot Status Bar */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--primary-subtle)', padding: '14px 20px', borderRadius: '14px', border: '1px solid var(--primary-border)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: 'var(--primary)', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>
+                  <FaCode />
+                </div>
+                <div>
+                  <div style={{ fontWeight: '600', fontSize: '14px', color: 'var(--text-primary)' }}>RealOps Discord Bot Service</div>
+                  <div style={{ fontSize: '12px', color: '#818CF8' }}>Connected to Gateway API • WebSocket Active</div>
+                </div>
+              </div>
+              <span className="badge badge-success" style={{ padding: '6px 14px' }}>
+                Online & Synced
+              </span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Recent Events Feed */}
-      <div style={{
-        backgroundColor: '#2C2F33',
-        borderRadius: '12px',
-        padding: '24px',
-        border: '1px solid #40444b',
-        marginTop: '24px'
-      }}>
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center',
-          marginBottom: '20px'
-        }}>
-          <h2 style={{ 
-            fontSize: '18px', 
-            fontWeight: '600', 
-            color: '#ffffff',
-            margin: 0,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px'
-          }}>
-            <FaCalendar style={{ color: '#fdcb6e' }} />
-            Recent Events
+      {/* Recent Events Feed Card */}
+      <div className="card" style={{ marginTop: '24px' }}>
+        <div className="card-header">
+          <h2>
+            <FaCalendar /> Recent & Upcoming Events
           </h2>
           <button 
             onClick={() => navigate('/events')}
-            style={{
-              backgroundColor: '#5865F220',
-              color: '#5865F2',
-              padding: '8px 16px',
-              borderRadius: '8px',
-              fontSize: '13px',
-              fontWeight: '600',
-              border: 'none',
-              cursor: 'pointer',
-              transition: 'all 0.2s'
-            }}
-            onMouseEnter={(e) => e.target.style.backgroundColor = '#5865F240'}
-            onMouseLeave={(e) => e.target.style.backgroundColor = '#5865F220'}
+            className="btn btn-outline"
+            style={{ padding: '8px 16px', fontSize: '13px' }}
           >
-            View All →
+            <span>View All Events</span>
+            <FaArrowRight style={{ fontSize: '11px' }} />
           </button>
         </div>
         
         {recentEvents.length > 0 ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {recentEvents.map((event, i) => (
-              <div key={event.id || i} style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '16px',
-                padding: '14px 16px',
-                backgroundColor: '#23272A',
-                borderRadius: '10px',
-                border: '1px solid #40444b',
-                transition: 'border-color 0.2s'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.borderColor = '#5865F2'}
-              onMouseLeave={(e) => e.currentTarget.style.borderColor = '#40444b'}
-              >
-                {event.image ? (
-                  <img 
-                    src={event.image} 
-                    alt={event.title} 
-                    style={{ 
-                      width: '48px', 
-                      height: '48px', 
-                      borderRadius: '8px', 
-                      objectFit: 'cover',
-                      flexShrink: 0
-                    }} 
-                  />
-                ) : (
-                  <div style={{
-                    width: '48px',
-                    height: '48px',
-                    borderRadius: '8px',
-                    backgroundColor: `${getEventStatusColor(event)}20`,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0
-                  }}>
-                    <FaCalendar style={{ color: getEventStatusColor(event), fontSize: '18px' }} />
-                  </div>
-                )}
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ 
-                    fontWeight: '600', 
-                    fontSize: '14px', 
-                    color: '#ffffff',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap'
-                  }}>
-                    {event.title}
-                  </div>
-                  <div style={{ fontSize: '12px', color: '#72767d', marginTop: '4px' }}>
-                    {event.date ? new Date(event.date).toLocaleDateString('en-US', { 
-                      weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' 
-                    }) : 'No date'}
-                    {event.time && ` • ${event.time}`}
-                  </div>
-                </div>
-                <span style={{
-                  backgroundColor: `${getEventStatusColor(event)}20`,
-                  color: getEventStatusColor(event),
-                  padding: '4px 12px',
-                  borderRadius: '12px',
-                  fontSize: '12px',
-                  fontWeight: '600',
-                  flexShrink: 0
-                }}>
-                  {getEventStatusLabel(event)}
-                </span>
-              </div>
-            ))}
+          <div className="table-container" style={{ border: 'none', background: 'transparent' }}>
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Event Name</th>
+                  <th>Schedule Date & Time</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentEvents.map((event, i) => (
+                  <tr key={event.id || i} style={{ cursor: 'pointer' }} onClick={() => navigate('/events')}>
+                    <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                        {event.image ? (
+                          <img 
+                            src={event.image} 
+                            alt={event.title} 
+                            style={{ width: '42px', height: '42px', borderRadius: '10px', objectFit: 'cover' }} 
+                          />
+                        ) : (
+                          <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: 'var(--primary-subtle)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', flexShrink: 0 }}>
+                            <FaCalendar />
+                          </div>
+                        )}
+                        <div>
+                          <div style={{ fontWeight: '600', color: 'var(--text-primary)', fontSize: '14px' }}>{event.title}</div>
+                          {event.description && (
+                            <div style={{ fontSize: '12px', color: 'var(--text-tertiary)', maxWidth: '450px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {event.description}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <div style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: '500' }}>
+                        {event.date ? new Date(event.date).toLocaleDateString('en-US', { 
+                          weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' 
+                        }) : 'Unscheduled'}
+                      </div>
+                      {event.time && (
+                        <div style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>{event.time} UTC</div>
+                      )}
+                    </td>
+                    <td>
+                      <span className={getEventStatusClass(event)}>
+                        {getEventStatusLabel(event)}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         ) : (
-          <div style={{ 
-            textAlign: 'center', 
-            padding: '40px 20px', 
-            color: '#72767d' 
-          }}>
-            <FaCalendar size={32} style={{ marginBottom: '12px', opacity: 0.5 }} />
-            <p>No events found. Create your first event!</p>
+          <div style={{ textAlign: 'center', padding: '50px 20px', color: 'var(--text-tertiary)' }}>
+            <FaCalendar size={36} style={{ marginBottom: '12px', opacity: 0.4 }} />
+            <p style={{ fontSize: '15px', color: 'var(--text-secondary)', fontWeight: '500', marginBottom: '4px' }}>No Events Found</p>
+            <p style={{ fontSize: '13px' }}>Your upcoming scheduled real-ops and server events will appear here.</p>
           </div>
         )}
       </div>
-
-      {/* Server Overview */}
-      <div className="grid grid-3" style={{ marginTop: '24px', gap: '16px' }}>
-        <div style={{
-          backgroundColor: '#2C2F33',
-          borderRadius: '12px',
-          padding: '20px',
-          border: '1px solid #40444b',
-          textAlign: 'center'
-        }}>
-          <FaCheckCircle size={28} style={{ color: '#00b894', marginBottom: '12px' }} />
-          <h3 style={{ fontSize: '26px', fontWeight: '700', color: '#ffffff', marginBottom: '6px' }}>
-            {((stats?.tickets?.closed / stats?.tickets?.total) * 100 || 0).toFixed(1)}%
-          </h3>
-          <p style={{ color: '#b9bbbe', fontSize: '13px', margin: 0 }}>Ticket Resolution Rate</p>
-        </div>
-
-        <div style={{
-          backgroundColor: '#2C2F33',
-          borderRadius: '12px',
-          padding: '20px',
-          border: '1px solid #40444b',
-          textAlign: 'center'
-        }}>
-          <FaCircle size={28} style={{ color: '#00b894', marginBottom: '12px' }} />
-          <h3 style={{ fontSize: '26px', fontWeight: '700', color: '#00b894', marginBottom: '6px' }}>
-            Online
-          </h3>
-          <p style={{ color: '#b9bbbe', fontSize: '13px', margin: 0 }}>Bot Status</p>
-        </div>
-
-        <div style={{
-          backgroundColor: '#2C2F33',
-          borderRadius: '12px',
-          padding: '20px',
-          border: '1px solid #40444b',
-          textAlign: 'center'
-        }}>
-          <FaCode size={28} style={{ color: '#a29bfe', marginBottom: '12px' }} />
-          <h3 style={{ fontSize: '26px', fontWeight: '700', color: '#ffffff', marginBottom: '6px' }}>
-            {stats?.tickets?.open || 0}
-          </h3>
-          <p style={{ color: '#b9bbbe', fontSize: '13px', margin: 0 }}>Open Tickets</p>
-        </div>
-      </div>
-
-      <style>{`
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
     </div>
   );
 }

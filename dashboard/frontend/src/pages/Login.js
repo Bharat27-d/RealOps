@@ -18,7 +18,7 @@ function Login() {
         window.location.reload();
       }
     } catch (error) {
-      toast.error(error.response?.data?.error || 'Login failed');
+      toast.error(error.response?.data?.error || 'Login failed. Check credentials.');
     } finally {
       setLoading(false);
     }
@@ -30,73 +30,107 @@ function Login() {
       justifyContent: 'center',
       alignItems: 'center',
       minHeight: '100vh',
-      background: '#1a1a1a'
+      background: 'var(--bg-primary)',
+      backgroundImage: 'radial-gradient(circle at 50% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 60%)',
+      padding: '20px'
     }}>
-      <div className="card" style={{ maxWidth: '400px', width: '100%', padding: '30px' }}>
-        <img 
-          src="https://i.ibb.co/FMYFdhk/real-ops-group-logo.png" 
-          alt="RealOps" 
-          style={{ width: '80px', margin: '0 auto 20px', display: 'block' }}
-        />
-        <h1 style={{ marginBottom: '10px', textAlign: 'center' }}>RealOps Dashboard</h1>
-        <p style={{ color: '#b9bbbe', marginBottom: '30px', textAlign: 'center' }}>
-          Login with your admin credentials
-        </p>
+      <div className="card" style={{ 
+        maxWidth: '420px', 
+        width: '100%', 
+        padding: '36px 32px',
+        background: 'var(--bg-secondary)',
+        border: '1px solid var(--border-secondary)',
+        borderRadius: '16px',
+        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
+      }}>
+        <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+          <div style={{
+            width: '72px',
+            height: '72px',
+            borderRadius: '16px',
+            background: 'var(--primary-subtle)',
+            border: '1px solid rgba(99, 102, 241, 0.3)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: '0 auto 18px auto'
+          }}>
+            <img 
+              src="https://i.ibb.co/FMYFdhk/real-ops-group-logo.png" 
+              alt="RealOps" 
+              style={{ width: '44px', height: 'auto', display: 'block' }}
+            />
+          </div>
+          <h1 style={{ fontSize: '22px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '6px' }}>
+            RealOps Portal
+          </h1>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
+            Enterprise Command & Management System
+          </p>
+        </div>
         
         <form onSubmit={handleLogin}>
-          <div style={{ marginBottom: '15px' }}>
-            <label style={{ display: 'block', marginBottom: '8px', color: '#b9bbbe', fontSize: '14px' }}>
-              Email
+          <div className="form-group" style={{ marginBottom: '18px' }}>
+            <label className="form-label" style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)', fontSize: '13px', fontWeight: '600' }}>
+              Admin Email Address
             </label>
             <input
               type="email"
-              placeholder="Enter your email"
+              className="form-input"
+              placeholder="admin@realops.group"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
               autoComplete="email"
               style={{
                 width: '100%',
-                padding: '12px',
-                background: '#2f3136',
-                border: '1px solid #40444b',
-                borderRadius: '4px',
-                color: '#fff',
-                fontSize: '14px'
+                padding: '12px 14px',
+                fontSize: '14px',
+                background: 'var(--bg-tertiary)'
               }}
             />
           </div>
-          <div style={{ marginBottom: '25px' }}>
-            <label style={{ display: 'block', marginBottom: '8px', color: '#b9bbbe', fontSize: '14px' }}>
+
+          <div className="form-group" style={{ marginBottom: '26px' }}>
+            <label className="form-label" style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)', fontSize: '13px', fontWeight: '600' }}>
               Password
             </label>
             <input
               type="password"
-              placeholder="Enter your password"
+              className="form-input"
+              placeholder="••••••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
               autoComplete="current-password"
               style={{
                 width: '100%',
-                padding: '12px',
-                background: '#2f3136',
-                border: '1px solid #40444b',
-                borderRadius: '4px',
-                color: '#fff',
-                fontSize: '14px'
+                padding: '12px 14px',
+                fontSize: '14px',
+                background: 'var(--bg-tertiary)'
               }}
             />
           </div>
+
           <button 
             type="submit" 
-            className="btn btn-primary" 
-            style={{ width: '100%', padding: '12px', fontSize: '16px' }}
+            className="btn" 
+            style={{ 
+              width: '100%', 
+              padding: '13px', 
+              fontSize: '15px', 
+              fontWeight: '700',
+              borderRadius: '10px'
+            }}
             disabled={loading}
           >
-            {loading ? 'Logging in...' : 'Login'}
+            {loading ? 'Authenticating...' : 'Sign In to Dashboard'}
           </button>
         </form>
+
+        <div style={{ marginTop: '28px', paddingTop: '20px', borderTop: '1px solid var(--border-secondary)', textAlign: 'center', fontSize: '12px', color: 'var(--text-tertiary)' }}>
+          RealOps Discord Infrastructure • Secure Portal
+        </div>
       </div>
     </div>
   );

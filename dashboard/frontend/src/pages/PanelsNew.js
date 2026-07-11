@@ -17,12 +17,11 @@ function PanelsNew() {
   const [confirmDelete, setConfirmDelete] = useState(null);
   const channelDropdownRef = useRef(null);
 
-  // New panel form state
   const [newPanel, setNewPanel] = useState({
     name: '',
     title: '',
     description: '',
-    color: '#5865F2',
+    color: '#6366F1',
     thumbnail: '',
     image: '',
     footer: {
@@ -56,9 +55,8 @@ function PanelsNew() {
       ]);
       
       setAllPanels(panelsRes.data);
-      setChannels(channelsRes.data.filter(ch => ch.type === 0)); // Only text channels
+      setChannels(channelsRes.data.filter(ch => ch.type === 0));
       
-      // Select first panel by default
       if (panelsRes.data.length > 0 && !selectedPanel) {
         setSelectedPanel(panelsRes.data[0]);
       }
@@ -118,7 +116,7 @@ function PanelsNew() {
         name: '',
         title: '',
         description: '',
-        color: '#5865F2',
+        color: '#6366F1',
         thumbnail: '',
         image: '',
         footer: {
@@ -136,7 +134,6 @@ function PanelsNew() {
 
   const updatePanel = async (panelData) => {
     if (panelData.isBuiltIn) {
-      // Update built-in panel
       try {
         await panels.save(panelData);
         toast.success('Panel updated successfully!');
@@ -145,7 +142,6 @@ function PanelsNew() {
         toast.error('Failed to update panel');
       }
     } else {
-      // Update custom panel
       try {
         await panels.updateCustom(panelData.id, panelData);
         toast.success('Panel updated successfully!');
@@ -188,42 +184,43 @@ function PanelsNew() {
   }
 
   return (
-    <div className="page-container">
+    <div className="page-container" style={{ maxWidth: '1400px', margin: '0 auto' }}>
       <div className="page-title">
-        <h1><FaInfoCircle /> Panel Management</h1>
-      </div>
-
-      <div style={{ 
-        padding: '18px 24px', 
-        background: 'linear-gradient(135deg, #27ae60 0%, #229954 100%)', 
-        border: '1px solid rgba(39, 174, 96, 0.3)', 
-        borderRadius: '12px', 
-        marginBottom: '25px',
-        color: '#ffffff',
-        boxShadow: '0 4px 12px rgba(39, 174, 96, 0.2)',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '10px'
-      }}>
-        <FaInfoCircle size={20} />
         <div>
-          <strong>Panel Management:</strong> Create custom ticket panels for special events (e.g., anniversary slot booking), enable/disable panels, and deploy them to Discord channels.
+          <div className="page-subtitle" style={{ textTransform: 'uppercase', letterSpacing: '0.8px', fontSize: '11px', color: 'var(--primary)', fontWeight: '700', marginBottom: '4px' }}>
+            RealOps Portal / Bot System
+          </div>
+          <h1><FaInfoCircle /> Panel Management</h1>
         </div>
       </div>
 
-      <div className="grid grid-3" style={{ gridTemplateColumns: '280px 1fr 1fr' }}>
+      <div style={{ 
+        padding: '16px 20px', 
+        background: 'rgba(16, 185, 129, 0.12)', 
+        border: '1px solid rgba(16, 185, 129, 0.3)', 
+        borderRadius: '12px', 
+        marginBottom: '24px',
+        color: 'var(--text-primary)',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px',
+        fontSize: '14px'
+      }}>
+        <FaInfoCircle size={20} style={{ color: '#10B981', flexShrink: 0 }} />
+        <div>
+          <strong style={{ color: '#10B981' }}>Panel Management:</strong> Create custom ticket panels for special events (e.g., anniversary slot booking), enable/disable panels, and deploy them to Discord channels.
+        </div>
+      </div>
+
+      <div className="grid grid-3" style={{ gridTemplateColumns: '280px 1fr 1fr', gap: '24px' }}>
         {/* Panel List Sidebar */}
         <div className="card">
           <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h3>Panels</h3>
+            <h2>Panels</h2>
             <button 
               className="btn btn-sm" 
               onClick={() => setShowNewPanelForm(!showNewPanelForm)}
-              style={{ 
-                background: 'linear-gradient(135deg, #FFD700, #FFA500)',
-                color: '#000',
-                padding: '6px 12px'
-              }}
+              style={{ padding: '6px 12px' }}
             >
               <FaPlus />
             </button>
@@ -235,23 +232,17 @@ function PanelsNew() {
                 key={panel.id || panel.type}
                 onClick={() => setSelectedPanel(panel)}
                 style={{
-                  padding: '12px',
+                  padding: '12px 14px',
                   margin: '8px 0',
-                  background: selectedPanel?.id === panel.id || selectedPanel?.type === panel.type ? '#2a2a2a' : '#1a1a1a',
-                  border: `1px solid ${selectedPanel?.id === panel.id || selectedPanel?.type === panel.type ? '#FFD700' : '#333'}`,
-                  borderRadius: '8px',
+                  background: selectedPanel?.id === panel.id || selectedPanel?.type === panel.type ? 'var(--primary-subtle)' : 'var(--bg-tertiary)',
+                  border: `1px solid ${selectedPanel?.id === panel.id || selectedPanel?.type === panel.type ? 'var(--primary)' : 'var(--border-secondary)'}`,
+                  borderRadius: '10px',
                   cursor: 'pointer',
-                  transition: 'all 0.2s'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.borderColor = '#FFD700'}
-                onMouseLeave={(e) => {
-                  if (selectedPanel?.id !== panel.id && selectedPanel?.type !== panel.type) {
-                    e.currentTarget.style.borderColor = '#333';
-                  }
+                  transition: 'all var(--transition-fast)'
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                  <span style={{ fontWeight: '600', color: panel.enabled !== false ? '#FFD700' : '#666' }}>
+                  <span style={{ fontWeight: '600', color: panel.enabled !== false ? 'var(--primary)' : 'var(--text-secondary)', fontSize: '14px' }}>
                     {panel.name || panel.type}
                   </span>
                   {!panel.isBuiltIn && (
@@ -264,15 +255,15 @@ function PanelsNew() {
                         background: 'none',
                         border: 'none',
                         cursor: 'pointer',
-                        color: panel.enabled !== false ? '#27ae60' : '#666',
-                        fontSize: '16px'
+                        color: panel.enabled !== false ? '#10B981' : 'var(--text-tertiary)',
+                        fontSize: '18px'
                       }}
                     >
                       {panel.enabled !== false ? <FaToggleOn /> : <FaToggleOff />}
                     </button>
                   )}
                 </div>
-                <div style={{ fontSize: '11px', color: '#888' }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', fontWeight: '500' }}>
                   {panel.isBuiltIn ? 'Built-in' : 'Custom'}
                 </div>
               </div>
@@ -283,13 +274,12 @@ function PanelsNew() {
         {/* Panel Editor */}
         <div className="card">
           <div className="card-header">
-            <h3>
+            <h2>
               {showNewPanelForm ? 'Create New Panel' : 'Panel Editor'}
-            </h3>
+            </h2>
           </div>
 
           {showNewPanelForm ? (
-            // New Panel Form
             <>
               <div className="form-group">
                 <label className="form-label">Panel Name *</label>
@@ -332,11 +322,13 @@ function PanelsNew() {
                     value={newPanel.color}
                     onChange={(e) => setNewPanel({...newPanel, color: e.target.value})}
                     style={{ 
-                      width: '60px', 
-                      height: '45px',
-                      border: '2px solid #2a2a2a',
+                      width: '54px', 
+                      height: '42px',
+                      border: '1px solid var(--border-secondary)',
                       borderRadius: '8px',
-                      cursor: 'pointer'
+                      cursor: 'pointer',
+                      background: 'transparent',
+                      padding: '2px'
                     }}
                   />
                   <input 
@@ -344,7 +336,7 @@ function PanelsNew() {
                     type="text"
                     value={newPanel.color}
                     onChange={(e) => setNewPanel({...newPanel, color: e.target.value})}
-                    placeholder="#5865F2"
+                    placeholder="#6366F1"
                     style={{ flex: 1 }}
                   />
                 </div>
@@ -366,7 +358,7 @@ function PanelsNew() {
               </button>
               
               <button 
-                className="btn btn-outline" 
+                className="btn btn-secondary" 
                 onClick={() => setShowNewPanelForm(false)} 
                 style={{ width: '100%', marginTop: '10px' }}
               >
@@ -374,7 +366,6 @@ function PanelsNew() {
               </button>
             </>
           ) : selectedPanel ? (
-            // Edit Existing Panel
             <>
               <div className="form-group">
                 <label className="form-label">Title</label>
@@ -403,22 +394,24 @@ function PanelsNew() {
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                   <input 
                     type="color"
-                    value={selectedPanel.color}
+                    value={selectedPanel.color || '#6366F1'}
                     onChange={(e) => setSelectedPanel({...selectedPanel, color: e.target.value})}
                     style={{ 
-                      width: '60px', 
-                      height: '45px',
-                      border: '2px solid #2a2a2a',
+                      width: '54px', 
+                      height: '42px',
+                      border: '1px solid var(--border-secondary)',
                       borderRadius: '8px',
-                      cursor: 'pointer'
+                      cursor: 'pointer',
+                      background: 'transparent',
+                      padding: '2px'
                     }}
                   />
                   <input 
                     className="form-input"
                     type="text"
-                    value={selectedPanel.color}
+                    value={selectedPanel.color || '#6366F1'}
                     onChange={(e) => setSelectedPanel({...selectedPanel, color: e.target.value})}
-                    placeholder="#00b894"
+                    placeholder="#6366F1"
                     style={{ flex: 1 }}
                   />
                 </div>
@@ -462,29 +455,31 @@ function PanelsNew() {
 
               {/* Deploy to Discord Section */}
               <div style={{ 
-                marginTop: '25px', 
+                marginTop: '28px', 
                 padding: '20px', 
-                background: 'linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 165, 0, 0.1) 100%)',
-                border: '1px solid rgba(255, 215, 0, 0.3)',
-                borderRadius: '12px' 
+                background: 'var(--bg-tertiary)',
+                border: '1px solid var(--border-secondary)',
+                borderRadius: '14px' 
               }}>
                 <h3 style={{ 
-                  marginBottom: '15px', 
-                  color: '#FFD700',
+                  marginBottom: '16px', 
+                  color: 'var(--text-primary)',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '10px'
+                  gap: '10px',
+                  fontSize: '16px',
+                  fontWeight: '700'
                 }}>
-                  <FaPaperPlane />
+                  <FaPaperPlane style={{ color: 'var(--primary)' }} />
                   Deploy to Discord
                 </h3>
                 
-                <div className="form-group" style={{ marginBottom: '10px' }}>
+                <div className="form-group" style={{ marginBottom: '14px' }}>
                   <label className="form-label">Select Channel</label>
                   <div ref={channelDropdownRef} style={{ position: 'relative' }}>
                     <input
                       type="text"
-                      className="form-control"
+                      className="form-input"
                       placeholder="Search channels..."
                       value={channelSearch}
                       onChange={(e) => {
@@ -492,13 +487,6 @@ function PanelsNew() {
                         setShowChannelDropdown(true);
                       }}
                       onFocus={() => setShowChannelDropdown(true)}
-                      style={{
-                        background: '#2C2F33',
-                        border: '1px solid #40444b',
-                        color: '#dcddde',
-                        padding: '10px',
-                        borderRadius: '6px'
-                      }}
                     />
                     
                     {showChannelDropdown && channelSearch && (
@@ -507,14 +495,14 @@ function PanelsNew() {
                         top: '100%',
                         left: 0,
                         right: 0,
-                        marginTop: '5px',
-                        background: '#2C2F33',
-                        border: '1px solid #40444b',
-                        borderRadius: '6px',
-                        maxHeight: '200px',
+                        marginTop: '6px',
+                        background: 'var(--bg-secondary)',
+                        border: '1px solid var(--border-secondary)',
+                        borderRadius: '10px',
+                        maxHeight: '220px',
                         overflowY: 'auto',
                         zIndex: 1000,
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+                        boxShadow: 'var(--shadow-lg)'
                       }}>
                         {channels
                           .filter(ch => ch.name.toLowerCase().includes(channelSearch.toLowerCase()))
@@ -528,20 +516,21 @@ function PanelsNew() {
                                 setShowChannelDropdown(false);
                               }}
                               style={{
-                                padding: '12px 15px',
+                                padding: '10px 14px',
                                 cursor: 'pointer',
-                                color: '#dcddde',
-                                borderBottom: '1px solid #40444b',
-                                transition: 'background 0.2s',
+                                color: 'var(--text-primary)',
+                                borderBottom: '1px solid var(--border-secondary)',
+                                transition: 'background var(--transition-fast)',
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: '8px'
+                                gap: '8px',
+                                fontSize: '13px'
                               }}
-                              onMouseEnter={(e) => e.currentTarget.style.background = '#40444b'}
+                              onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-hover)'}
                               onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                             >
-                              <span style={{ color: '#72767d' }}>#</span>
-                              <span>{channel.name}</span>
+                              <span style={{ color: 'var(--text-tertiary)' }}>#</span>
+                              <span style={{ fontWeight: '500' }}>{channel.name}</span>
                             </div>
                           ))}
                       </div>
@@ -550,7 +539,7 @@ function PanelsNew() {
                 </div>
 
                 <button 
-                  className="btn" 
+                  className="btn btn-secondary" 
                   onClick={deployPanel}
                   disabled={!selectedChannel || deploying}
                   style={{ width: '100%' }}
@@ -560,9 +549,9 @@ function PanelsNew() {
               </div>
             </>
           ) : (
-            <div style={{ padding: '40px', textAlign: 'center', color: '#666' }}>
-              <FaEye style={{ fontSize: '48px', color: '#FFD700', marginBottom: '16px' }} />
-              <p>Select a panel or create a new one</p>
+            <div style={{ padding: '60px 40px', textAlign: 'center', color: 'var(--text-tertiary)' }}>
+              <FaEye style={{ fontSize: '48px', opacity: 0.3, marginBottom: '16px' }} />
+              <p style={{ fontSize: '15px', color: 'var(--text-secondary)' }}>Select a panel or create a new one</p>
             </div>
           )}
         </div>
@@ -570,22 +559,25 @@ function PanelsNew() {
         {/* Live Preview */}
         <div className="card">
           <div className="card-header">
-            <h3>Live Preview</h3>
+            <h2>Live Preview</h2>
           </div>
           {(selectedPanel || showNewPanelForm) ? (
             <div style={{ 
-              borderLeft: `4px solid ${showNewPanelForm ? newPanel.color : selectedPanel.color}`,
-              background: '#1a1a1a',
-              padding: '18px',
-              borderRadius: '8px' 
+              borderLeft: `4px solid ${showNewPanelForm ? newPanel.color : (selectedPanel.color || 'var(--primary)')}`,
+              background: 'var(--bg-tertiary)',
+              borderTop: '1px solid var(--border-secondary)',
+              borderRight: '1px solid var(--border-secondary)',
+              borderBottom: '1px solid var(--border-secondary)',
+              padding: '20px',
+              borderRadius: '12px' 
             }}>
               {(showNewPanelForm ? newPanel.title : selectedPanel?.title) && (
-                <h3 style={{ marginBottom: '12px', color: '#FFD700', fontSize: '18px' }}>
+                <h3 style={{ marginBottom: '12px', color: 'var(--text-primary)', fontSize: '17px', fontWeight: '700' }}>
                   {showNewPanelForm ? newPanel.title : selectedPanel.title}
                 </h3>
               )}
               {(showNewPanelForm ? newPanel.description : selectedPanel?.description) && (
-                <p style={{ color: '#ccc', marginBottom: '12px', whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
+                <p style={{ color: 'var(--text-secondary)', marginBottom: '16px', whiteSpace: 'pre-wrap', lineHeight: '1.6', fontSize: '14px' }}>
                   {showNewPanelForm ? newPanel.description : selectedPanel.description}
                 </p>
               )}
@@ -594,7 +586,7 @@ function PanelsNew() {
                 <img 
                   src={showNewPanelForm ? newPanel.image : selectedPanel.image} 
                   alt="" 
-                  style={{ width: '100%', borderRadius: '8px', marginTop: '15px', border: '1px solid #2a2a2a' }} 
+                  style={{ width: '100%', borderRadius: '10px', marginTop: '14px', border: '1px solid var(--border-secondary)' }} 
                 />
               )}
 
@@ -602,12 +594,12 @@ function PanelsNew() {
                 <img 
                   src={showNewPanelForm ? newPanel.thumbnail : selectedPanel.thumbnail} 
                   alt="" 
-                  style={{ width: '80px', float: 'right', borderRadius: '8px', border: '1px solid #2a2a2a' }} 
+                  style={{ width: '80px', float: 'right', borderRadius: '8px', border: '1px solid var(--border-secondary)', marginLeft: '12px' }} 
                 />
               )}
 
               {(showNewPanelForm ? newPanel.footer?.text : selectedPanel?.footer?.text) && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '15px', fontSize: '12px', color: '#888' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '16px', paddingTop: '12px', borderTop: '1px solid var(--border-secondary)', fontSize: '12px', color: 'var(--text-tertiary)' }}>
                   {(showNewPanelForm ? newPanel.footer?.iconURL : selectedPanel?.footer?.iconURL) && (
                     <img 
                       src={showNewPanelForm ? newPanel.footer.iconURL : selectedPanel.footer.iconURL} 
@@ -620,9 +612,9 @@ function PanelsNew() {
               )}
             </div>
           ) : (
-            <div style={{ padding: '40px', textAlign: 'center', color: '#666' }}>
-              <FaEye style={{ fontSize: '48px', color: '#FFD700', marginBottom: '16px' }} />
-              <p>Preview will appear here</p>
+            <div style={{ padding: '60px 40px', textAlign: 'center', color: 'var(--text-tertiary)' }}>
+              <FaEye style={{ fontSize: '48px', opacity: 0.3, marginBottom: '16px' }} />
+              <p style={{ fontSize: '15px', color: 'var(--text-secondary)' }}>Preview will appear here</p>
             </div>
           )}
         </div>

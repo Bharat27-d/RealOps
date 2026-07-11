@@ -14,12 +14,12 @@ const OPTION_PLACEHOLDER = ['$', '{optionName}'].join('');
 const OPTION_MENTION_PLACEHOLDER = ['$', '{optionName.mention}'].join('');
 
 const inputStyle = {
-  width: '100%', padding: '9px 11px', background: '#2C2F33', border: '1px solid #40444b',
-  borderRadius: '6px', color: '#dcddde', fontSize: '13px', outline: 'none', boxSizing: 'border-box'
+  width: '100%', padding: '10px 12px', background: 'var(--bg-secondary)', border: '1px solid var(--border-secondary)',
+  borderRadius: '8px', color: 'var(--text-primary)', fontSize: '13px', outline: 'none', boxSizing: 'border-box'
 };
 const sectionStyle = {
-  background: '#202225', borderRadius: '8px', padding: '16px',
-  marginBottom: '15px', border: '1px solid #2d2f34'
+  background: 'var(--bg-tertiary)', borderRadius: '12px', padding: '18px',
+  marginBottom: '16px', border: '1px solid var(--border-secondary)'
 };
 
 function OptionsEditor({ options = [], onChange }) {
@@ -34,35 +34,34 @@ function OptionsEditor({ options = [], onChange }) {
   return (
     <div style={sectionStyle}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-        <span style={{ color: '#e67e22', fontSize: '14px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <span style={{ color: 'var(--primary)', fontSize: '15px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px' }}>
           ⚡ Command Options ({options.length})
         </span>
         {options.length < 25 && (
-          <button type="button" onClick={add} style={{
-            padding: '4px 10px', background: 'rgba(67,181,129,0.15)', border: '1px solid rgba(67,181,129,0.4)',
-            borderRadius: '4px', color: '#43b581', cursor: 'pointer', fontSize: '12px',
-            display: 'flex', alignItems: 'center', gap: '4px'
+          <button type="button" onClick={add} className="badge badge-primary" style={{
+            cursor: 'pointer', fontSize: '12px', border: 'none', padding: '6px 12px',
+            display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '600'
           }}><FaPlus /> Add Option</button>
         )}
       </div>
 
-      <p style={{ color: '#72767d', fontSize: '11px', margin: '0 0 10px 0', lineHeight: '1.5' }}>
-        Add input options that users fill in when running the command. Use <code style={{ color: '#e67e22', background: '#2C2F33', padding: '1px 4px', borderRadius: '3px' }}>{OPTION_PLACEHOLDER}</code> in your embed to insert their value.
-        For user/role/channel, use <code style={{ color: '#e67e22', background: '#2C2F33', padding: '1px 4px', borderRadius: '3px' }}>{OPTION_MENTION_PLACEHOLDER}</code> to tag them.
+      <p style={{ color: 'var(--text-secondary)', fontSize: '12px', margin: '0 0 14px 0', lineHeight: '1.6' }}>
+        Add input options that users fill in when running the command. Use <code style={{ color: 'var(--primary)', background: 'var(--bg-secondary)', padding: '2px 6px', borderRadius: '4px', border: '1px solid var(--border-secondary)' }}>{OPTION_PLACEHOLDER}</code> in your embed to insert their value.
+        For user/role/channel, use <code style={{ color: 'var(--primary)', background: 'var(--bg-secondary)', padding: '2px 6px', borderRadius: '4px', border: '1px solid var(--border-secondary)' }}>{OPTION_MENTION_PLACEHOLDER}</code> to tag them directly.
       </p>
 
       {options.length === 0 && (
-        <p style={{ color: '#72767d', fontSize: '12px', textAlign: 'center', padding: '8px', margin: 0 }}>
-          No options — command runs without inputs. Add a User option to tag someone.
+        <p style={{ color: 'var(--text-tertiary)', fontSize: '13px', textAlign: 'center', padding: '16px', margin: 0, background: 'var(--bg-secondary)', borderRadius: '8px', border: '1px dashed var(--border-secondary)' }}>
+          No options configured — command runs without arguments. Add a User or Role option if needed.
         </p>
       )}
 
       {options.map((opt, i) => (
         <div key={i} style={{
-          background: '#2C2F33', borderRadius: '6px', padding: '10px',
-          marginBottom: '8px', border: '1px solid #40444b'
+          background: 'var(--bg-secondary)', borderRadius: '10px', padding: '14px',
+          marginBottom: '10px', border: '1px solid var(--border-secondary)'
         }}>
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '10px', marginBottom: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
             {/* Type */}
             <select value={opt.type || 'string'} onChange={e => setOpt(i, 'type', e.target.value)}
               style={{ ...inputStyle, width: '150px', cursor: 'pointer', flex: '0 0 150px' }}>
@@ -75,25 +74,24 @@ function OptionsEditor({ options = [], onChange }) {
               value={opt.name || ''} placeholder="option-name"
               onChange={e => setOpt(i, 'name', e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ''))} />
             {/* Required toggle */}
-            <label style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#b9bbbe', fontSize: '11px', cursor: 'pointer', whiteSpace: 'nowrap' }}>
-              <input type="checkbox" checked={!!opt.required} onChange={e => setOpt(i, 'required', e.target.checked)} />
+            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap', fontWeight: '500' }}>
+              <input type="checkbox" checked={!!opt.required} onChange={e => setOpt(i, 'required', e.target.checked)} style={{ accentColor: 'var(--primary)' }} />
               Required
             </label>
             {/* Delete */}
-            <button type="button" onClick={() => remove(i)} style={{
-              background: 'rgba(240,71,71,0.15)', border: '1px solid rgba(240,71,71,0.4)',
-              borderRadius: '4px', color: '#f04747', cursor: 'pointer', padding: '4px 6px', fontSize: '12px'
+            <button type="button" onClick={() => remove(i)} className="badge badge-danger" style={{
+              cursor: 'pointer', padding: '6px 10px', fontSize: '12px', border: 'none'
             }}><FaTrash /></button>
           </div>
           {/* Description */}
-          <input style={inputStyle} value={opt.description || ''} placeholder="What this option is for..."
+          <input style={inputStyle} value={opt.description || ''} placeholder="Describe what this option is used for..."
             onChange={e => setOpt(i, 'description', e.target.value)} />
           {/* Usage hint */}
           {opt.name && (
-            <div style={{ marginTop: '4px', fontSize: '11px', color: '#72767d' }}>
-              Use: <code style={{ color: '#e67e22' }}>{`\${${opt.name}}`}</code>
+            <div style={{ marginTop: '6px', fontSize: '11px', color: 'var(--text-tertiary)' }}>
+              Usage syntax: <code style={{ color: 'var(--primary)', fontWeight: '600' }}>{`\${${opt.name}}`}</code>
               {['user', 'role', 'channel'].includes(opt.type) && (
-                <> or <code style={{ color: '#e67e22' }}>{`\${${opt.name}.mention}`}</code> to tag</>
+                <> or <code style={{ color: 'var(--primary)', fontWeight: '600' }}>{`\${${opt.name}.mention}`}</code> for Discord mention formatting</>
               )}
             </div>
           )}

@@ -654,7 +654,7 @@ function Events() {
                       >
                         <div style={{ fontSize: '12px', fontWeight: 'bold' }}>
                           {event.title}
-                          {event.reminder && <FaBell style={{ marginLeft: '5px', fontSize: '10px', color: '#FFD700' }} title="Reminder enabled" />}
+                          {event.reminder && <FaBell style={{ marginLeft: '5px', fontSize: '10px', color: 'var(--primary)' }} title="Reminder enabled" />}
                         </div>
                         {event.time && <div style={{ fontSize: '10px', color: '#aaa' }}>{event.time}</div>}
                         {event.truckerMpData && (
@@ -853,11 +853,11 @@ function Events() {
                           placeholder="Enter scenario description..."
                           rows={4}
                           style={{
-                            background: '#1e2124',
-                            border: '2px solid #40444b',
+                            background: '#111318',
+                            border: '1px solid rgba(255, 255, 255, 0.1)',
                             borderRadius: '8px',
                             padding: '12px',
-                            color: '#dcddde',
+                            color: '#F0F1F4',
                             fontSize: '14px',
                             lineHeight: '1.5',
                             resize: 'vertical',
@@ -880,11 +880,11 @@ function Events() {
                               placeholder="Enter URL or upload image"
                               style={{
                                 flex: 1,
-                                background: '#1e2124',
-                                border: '2px solid #40444b',
+                                background: '#111318',
+                                border: '1px solid rgba(255, 255, 255, 0.1)',
                                 borderRadius: '8px',
                                 padding: '12px',
-                                color: '#dcddde',
+                                color: '#F0F1F4',
                                 fontSize: '14px'
                               }}
                             />
@@ -907,7 +907,7 @@ function Events() {
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 gap: '6px',
-                                background: uploadingImage === scenario.id ? '#40444b' : '#5865F2',
+                                background: uploadingImage === scenario.id ? '#1E222D' : '#5865F2',
                                 border: 'none',
                                 borderRadius: '8px',
                                 color: '#fff',
@@ -942,7 +942,7 @@ function Events() {
                               height: '48px',
                               width: '100%',
                               cursor: 'pointer',
-                              border: '2px solid #40444b',
+                              border: '1px solid rgba(255, 255, 255, 0.1)',
                               borderRadius: '8px',
                               padding: '4px'
                             }}
@@ -970,22 +970,8 @@ function Events() {
               style={{ 
                 marginBottom: '24px', 
                 width: '100%',
-                background: 'linear-gradient(135deg, #FFD700, #FFA500)',
-                color: '#000',
-                fontWeight: '600',
                 padding: '14px 24px',
-                fontSize: '15px',
-                border: 'none',
-                boxShadow: '0 4px 12px rgba(255, 215, 0, 0.3)',
-                transition: 'all 0.3s ease'
-              }}
-              onMouseOver={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 6px 16px rgba(255, 215, 0, 0.5)';
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(255, 215, 0, 0.3)';
+                fontSize: '15px'
               }}
             >
               <FaPlus style={{ marginRight: '8px' }} /> 
@@ -1018,12 +1004,12 @@ function Events() {
                       right: 0,
                       maxHeight: '200px',
                       overflowY: 'auto',
-                      background: '#2C2F33',
-                      border: '1px solid #40444b',
-                      borderRadius: '4px',
+                      background: '#1A1E28',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      borderRadius: '8px',
                       marginTop: '4px',
                       zIndex: 1000,
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+                      boxShadow: '0 8px 24px rgba(0,0,0,0.4)'
                     }}>
                       {channels
                         .filter(channel => channel.name.toLowerCase().includes(scenarioChannelSearch.toLowerCase()))
@@ -1043,7 +1029,7 @@ function Events() {
                             }}
                             onMouseEnter={(e) => {
                               if (scenarioChannel !== channel.id) {
-                                e.target.style.background = '#40444b';
+                                e.target.style.background = 'rgba(255, 255, 255, 0.05)';
                               }
                             }}
                             onMouseLeave={(e) => {
@@ -1073,11 +1059,11 @@ function Events() {
                   onChange={(e) => setScenarioUser(e.target.value)}
                   placeholder="Discord User ID"
                   style={{
-                    background: '#1e2124',
-                    border: '2px solid #40444b',
+                    background: '#111318',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
                     borderRadius: '8px',
                     padding: '12px',
-                    color: '#dcddde',
+                    color: '#F0F1F4',
                     fontSize: '14px'
                   }}
                 />
@@ -1089,7 +1075,7 @@ function Events() {
               gap: '12px', 
               marginTop: '24px',
               paddingTop: '24px',
-              borderTop: '2px solid #40444b'
+              borderTop: '1px solid rgba(255, 255, 255, 0.06)'
             }}>
               <button 
                 className="btn" 
@@ -1097,15 +1083,8 @@ function Events() {
                 disabled={loading} 
                 style={{ 
                   flex: 1,
-                  background: loading ? '#40444b' : 'linear-gradient(135deg, #FFD700, #FFA500)',
-                  color: loading ? '#72767d' : '#000',
-                  fontWeight: '600',
                   padding: '14px 24px',
-                  fontSize: '15px',
-                  border: 'none',
-                  boxShadow: loading ? 'none' : '0 4px 12px rgba(255, 215, 0, 0.3)',
-                  cursor: loading ? 'not-allowed' : 'pointer',
-                  transition: 'all 0.3s ease'
+                  fontSize: '15px'
                 }}
               >
                 <FaPaperPlane style={{ marginRight: '8px' }} /> 
@@ -1116,8 +1095,7 @@ function Events() {
                 onClick={() => setShowScenarioBuilder(false)}
                 style={{
                   padding: '14px 32px',
-                  fontSize: '15px',
-                  fontWeight: '600'
+                  fontSize: '15px'
                 }}
               >
                 Cancel
@@ -1140,22 +1118,22 @@ function Events() {
             <div style={{ padding: '20px', maxHeight: '70vh', overflowY: 'auto' }}>
               {/* TruckerMP Integration Section */}
               <div style={{ 
-                background: 'linear-gradient(135deg, #2C2F33 0%, #23272A 100%)', 
+                background: 'var(--bg-tertiary)', 
                 padding: '20px', 
-                borderRadius: '12px', 
+                borderRadius: '14px', 
                 marginBottom: '24px',
-                border: '1px solid #FFD700'
+                border: '1px solid var(--border-secondary)'
               }}>
                 <label style={{ 
                   display: 'flex', 
                   alignItems: 'center', 
                   gap: '8px', 
                   marginBottom: '12px',
-                  color: '#FFD700',
+                  color: 'var(--text-primary)',
                   fontWeight: '600'
                 }}>
                   🚛 TruckerMP Event Link 
-                  <span style={{ color: '#888', fontWeight: 'normal', fontSize: '12px' }}>(Optional - Auto-fills fields)</span>
+                  <span style={{ color: 'var(--text-tertiary)', fontWeight: 'normal', fontSize: '12px' }}>(Optional - Auto-fills fields)</span>
                 </label>
                 <div style={{ display: 'flex', gap: '10px' }}>
                   <input 
@@ -1195,11 +1173,11 @@ function Events() {
               {/* Event Details Section */}
               <div style={{ marginBottom: '24px' }}>
                 <h4 style={{ 
-                  color: '#FFD700', 
+                  color: 'var(--text-primary)', 
                   marginBottom: '16px', 
                   fontSize: '14px', 
                   textTransform: 'uppercase',
-                  letterSpacing: '1px'
+                  letterSpacing: '0.8px'
                 }}>
                   Event Details
                 </h4>
@@ -1237,11 +1215,11 @@ function Events() {
               {truckerMpData && (
                 <div style={{ marginBottom: '24px' }}>
                   <h4 style={{ 
-                    color: '#FFD700', 
+                    color: 'var(--text-primary)', 
                     marginBottom: '16px', 
                     fontSize: '14px', 
                     textTransform: 'uppercase',
-                    letterSpacing: '1px'
+                    letterSpacing: '0.8px'
                   }}>
                     Additional Links
                   </h4>
@@ -1272,13 +1250,13 @@ function Events() {
               {truckerMpData && roles.length > 0 && (
                 <div style={{ marginBottom: '24px' }}>
                   <h4 style={{ 
-                    color: '#FFD700', 
+                    color: 'var(--text-primary)', 
                     marginBottom: '16px', 
                     fontSize: '14px', 
                     textTransform: 'uppercase',
-                    letterSpacing: '1px'
+                    letterSpacing: '0.8px'
                   }}>
-                    Tag Roles <span style={{ color: '#888', fontWeight: 'normal', fontSize: '11px' }}>(Max 2)</span>
+                    Tag Roles <span style={{ color: 'var(--text-tertiary)', fontWeight: 'normal', fontSize: '11px' }}>(Max 2)</span>
                   </h4>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                     {roles.map(role => (
@@ -1287,11 +1265,11 @@ function Events() {
                         alignItems: 'center', 
                         gap: '8px', 
                         padding: '8px 14px', 
-                        background: announcement.roles.includes(role.id) ? '#5865F2' : '#2C2F33', 
+                        background: announcement.roles.includes(role.id) ? 'var(--primary)' : 'var(--bg-secondary)', 
                         borderRadius: '20px',
                         cursor: 'pointer',
                         transition: 'all 0.2s ease',
-                        border: announcement.roles.includes(role.id) ? '1px solid #5865F2' : '1px solid #40444b',
+                        border: announcement.roles.includes(role.id) ? '1px solid var(--primary)' : '1px solid var(--border-secondary)',
                         fontSize: '13px'
                       }}>
                         <input 
@@ -1318,11 +1296,11 @@ function Events() {
               {/* Channel Selection Section */}
               <div style={{ marginBottom: '24px' }}>
                 <h4 style={{ 
-                  color: '#FFD700', 
+                  color: 'var(--text-primary)', 
                   marginBottom: '16px', 
                   fontSize: '14px', 
                   textTransform: 'uppercase',
-                  letterSpacing: '1px'
+                  letterSpacing: '0.8px'
                 }}>
                   Posting Settings
                 </h4>
@@ -1352,8 +1330,8 @@ function Events() {
                         right: 0,
                         maxHeight: '180px',
                         overflowY: 'auto',
-                        background: '#2C2F33',
-                        border: '1px solid #40444b',
+                        background: 'var(--bg-secondary)',
+                        border: '1px solid var(--border-secondary)',
                         borderRadius: '8px',
                         marginTop: '4px',
                         zIndex: 1000,
@@ -1404,9 +1382,10 @@ function Events() {
                   display: 'grid', 
                   gridTemplateColumns: '1fr 1fr', 
                   gap: '16px',
-                  background: '#23272A',
+                  background: 'var(--bg-tertiary)',
+                  border: '1px solid var(--border-secondary)',
                   padding: '16px',
-                  borderRadius: '8px'
+                  borderRadius: '10px'
                 }}>
                   <div>
                     <label style={{ 
@@ -1420,7 +1399,7 @@ function Events() {
                         type="checkbox"
                         checked={announcement.schedule}
                         onChange={(e) => setAnnouncement({...announcement, schedule: e.target.checked})}
-                        style={{ width: 'auto', accentColor: '#FFD700' }}
+                        style={{ width: 'auto', accentColor: 'var(--primary)' }}
                       />
                       <span style={{ fontSize: '13px' }}>Schedule for later</span>
                     </label>
@@ -1445,7 +1424,7 @@ function Events() {
                         type="checkbox"
                         checked={announcement.reminder}
                         onChange={(e) => setAnnouncement({...announcement, reminder: e.target.checked, reminderTime: '30'})}
-                        style={{ width: 'auto', accentColor: '#FFD700' }}
+                        style={{ width: 'auto', accentColor: 'var(--primary)' }}
                       />
                       <span style={{ fontSize: '13px' }}>Send reminder (30 min before)</span>
                     </label>
@@ -1476,18 +1455,15 @@ function Events() {
               display: 'flex', 
               gap: '12px', 
               padding: '20px',
-              borderTop: '1px solid #40444b',
-              background: '#23272A'
+              borderTop: '1px solid var(--border-secondary)',
+              background: 'var(--bg-tertiary)'
             }}>
               <button 
                 className="btn" 
                 onClick={createAnnouncement} 
                 disabled={loading} 
                 style={{ 
-                  flex: 1, 
-                  background: '#FFD700', 
-                  color: '#000',
-                  fontWeight: '600'
+                  flex: 1
                 }}
               >
                 <FaBell /> {loading ? 'Creating...' : (announcement.schedule ? 'Schedule Announcement' : 'Send Now')}
@@ -1513,7 +1489,7 @@ function Events() {
               <button className="close-btn" onClick={() => setShowAddToCalendar(false)}>×</button>
             </div>
 
-            <div className="form-group" style={{ background: '#2C2F33', padding: '15px', borderRadius: '8px', marginBottom: '20px' }}>
+            <div className="form-group" style={{ background: 'var(--bg-tertiary)', border: '1px solid var(--border-secondary)', padding: '16px', borderRadius: '10px', marginBottom: '20px' }}>
               <label>🚛 TruckerMP Event Link</label>
               <div style={{ display: 'flex', gap: '10px' }}>
                 <input 
@@ -1532,8 +1508,8 @@ function Events() {
                 </button>
               </div>
               {calendarEventData && (
-                <div style={{ marginTop: '15px', padding: '15px', background: '#23272A', borderRadius: '4px' }}>
-                  <h4 style={{ marginBottom: '10px', color: '#5865F2' }}>✅ {calendarEventData.name}</h4>
+                <div style={{ marginTop: '16px', padding: '16px', background: 'var(--bg-secondary)', border: '1px solid var(--border-secondary)', borderRadius: '8px' }}>
+                  <h4 style={{ marginBottom: '10px', color: 'var(--primary)' }}>✅ {calendarEventData.name}</h4>
                   <div style={{ fontSize: '13px', lineHeight: '1.8' }}>
                     <div><strong>Server:</strong> {calendarEventData.server?.name || 'N/A'}</div>
                     <div><strong>Game:</strong> {calendarEventData.game || 'N/A'}</div>
@@ -1563,8 +1539,8 @@ function Events() {
                 Send reminder notification 2 hours before event
               </label>
               {announcement.reminder && (
-                <div style={{ marginTop: '10px', padding: '10px', background: '#2C2F33', borderRadius: '6px', fontSize: '13px' }}>
-                  <FaBell style={{ marginRight: '8px', color: '#FFD700' }} />
+                <div style={{ marginTop: '10px', padding: '10px', background: 'var(--bg-tertiary)', borderRadius: '6px', fontSize: '13px', border: '1px solid var(--border-secondary)' }}>
+                  <FaBell style={{ marginRight: '8px', color: 'var(--primary)' }} />
                   A reminder will be automatically sent to Discord 2 hours before the event starts
                 </div>
               )}

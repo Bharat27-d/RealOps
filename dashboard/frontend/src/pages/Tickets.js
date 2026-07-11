@@ -3,7 +3,7 @@ import { toLocaleStringSafe } from '../utils/dateUtils';
 import { toast } from 'react-toastify';
 import { 
   FaEye, FaDownload, FaUser, FaCalendar, 
-  FaClock, FaTag, FaFileAlt, FaSync, FaSearch 
+  FaClock, FaTag, FaFileAlt, FaSync, FaSearch, FaTicketAlt 
 } from 'react-icons/fa';
 import { tickets } from '../services/api';
 import './Tickets.css';
@@ -22,20 +22,15 @@ function Tickets() {
     setLoading(true);
     try {
       const response = await tickets.getAll({ status: 'closed' });
-      console.log('Fetched tickets:', response.data);
-      
-      // Filter: Make sure they are closed (in case backend returns mixed data)
       const closedTickets = (response.data || []).filter(ticket => 
         ticket.status === 'closed' || ticket.closedAt
       );
       
-      // Sort by closed date, newest first
       const sorted = closedTickets.sort((a, b) => 
         new Date(b.closedAt || b.createdAt) - new Date(a.closedAt || a.createdAt)
       );
       
       setTicketList(sorted);
-      console.log(`Displaying ${sorted.length} closed tickets`);
     } catch (error) {
       toast.error('Failed to load tickets');
       console.error('Error fetching tickets:', error);
@@ -54,10 +49,8 @@ function Tickets() {
   };
 
   const exportTranscript = (ticket) => {
-    // If HTML transcript exists, download that
     if (ticket.transcriptHtml) {
       try {
-        // Decode base64 to binary
         const binaryString = atob(ticket.transcriptHtml);
         const bytes = new Uint8Array(binaryString.length);
         for (let i = 0; i < binaryString.length; i++) {
@@ -79,7 +72,6 @@ function Tickets() {
       }
     }
     
-    // Fallback to text transcript
     const content = `═══════════════════════════════════════════════════════
   REALOPS TICKET #${ticket.id}
   ═══════════════════════════════════════════════════════
@@ -134,12 +126,12 @@ function Tickets() {
     );
   });
 
-  const getStatusColor = (status) => {
+  const getStatusClass = (status) => {
     switch(status) {
-      case 'open': return '#43b581';
-      case 'pending': return '#faa61a';
-      case 'closed': return '#f04747';
-      default: return '#5865F2';
+      case 'open': return 'badge badge-success';
+      case 'pending': return 'badge badge-warning';
+      case 'closed': return 'badge badge-danger';
+      default: return 'badge badge-primary';
     }
   };
 
@@ -147,246 +139,224 @@ function Tickets() {
     return (
       <div className="loading">
         <div className="spinner"></div>
-        <p>Loading tickets...</p>
+        <p style={{ color: 'var(--text-secondary)', fontSize: '15px' }}>Loading archived tickets and transcripts...</p>
       </div>
     );
   }
 
   return (
     <div className="tickets-container">
-      <div className="card-header">
+      <div className="page-title">
         <div>
-          <h1>Closed Ticket Archive</h1>
-          <p style={{ color: '#b9bbbe', marginTop: '5px' }}>
-            Resolved tickets with transcripts - {ticketList.length} total
-          </p>
+          <div className="page-subtitle" style={{ textTransform: 'uppercase', letterSpacing: '0.8px', fontSize: '11px', color: 'var(--primary)', fontWeight: '700', marginBottom: '4px' }}>
+            RealOps Portal / Management
+          </div>
+          <h1>
+            <FaTicketAlt /> Closed Ticket Archive
+          </h1>
         </div>
-        <button className="btn btn-outline" onClick={fetchTickets}>
-          <FaSync /> Refresh
-        </button>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <span className="badge badge-primary" style={{ padding: '8px 14px', fontSize: '13px' }}>
+            {ticketList.length} Archived
+          </span>
+          <button className="btn btn-outline" onClick={fetchTickets}>
+            <FaSync /> Sync Transcripts
+          </button>
+        </div>
       </div>
 
-      {/* Search Bar */}
-      <div className="card" style={{ marginBottom: '20px' }}>
+      {/* Search Bar Card */}
+      <div className="card" style={{ padding: '18px 24px', marginBottom: '24px' }}>
         <div style={{ position: 'relative' }}>
           <FaSearch style={{ 
             position: 'absolute', 
-            left: '12px', 
+            left: '16px', 
             top: '50%', 
             transform: 'translateY(-50%)', 
-            color: '#b9bbbe' 
+            color: 'var(--text-tertiary)' 
           }} />
           <input
             type="text"
-            placeholder="Search by ticket ID, user, subject, or department..."
+            placeholder="Search tickets by ID, username, subject, or department..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            className="form-input"
             style={{ 
-              paddingLeft: '40px', 
-              width: '100%',
-              background: '#2C2F33',
-              border: '1px solid #40444b',
-              borderRadius: '8px',
-              padding: '12px 12px 12px 40px',
-              color: '#dcddde',
-              fontSize: '14px'
+              paddingLeft: '44px',
+              fontSize: '14px',
+              background: 'var(--bg-tertiary)'
             }}
           />
         </div>
       </div>
 
-      {/* Tickets List */}
-      <div className="card">
-        <div className="tickets-grid">
-          {filteredTickets.map(ticket => (
-            <div key={ticket.id} className="ticket-card">
-              <div className="ticket-card-header">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <FaTag style={{ color: getStatusColor(ticket.status) }} />
-                  <div>
-                    <h4 style={{ margin: 0, fontSize: '14px' }}>#{ticket.id?.slice(0, 18) || 'N/A'}</h4>
-                    <p style={{ margin: 0, color: '#b9bbbe', fontSize: '12px' }}>
-                      {ticket.department || ticket.type || 'Support'}
-                    </p>
-                  </div>
+      {/* Tickets Grid */}
+      <div className="tickets-grid">
+        {filteredTickets.map(ticket => (
+          <div key={ticket.id} className="ticket-card">
+            <div className="ticket-card-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <FaTag style={{ color: 'var(--primary)' }} />
+                <div>
+                  <h4 style={{ margin: 0, fontSize: '15px', color: 'var(--text-primary)', fontWeight: '600' }}>#{ticket.id?.slice(0, 18) || 'N/A'}</h4>
+                  <p style={{ margin: '2px 0 0 0', color: 'var(--text-tertiary)', fontSize: '12px' }}>
+                    {ticket.department || ticket.type || 'Support'}
+                  </p>
                 </div>
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  {ticket.transcriptHtml && (
-                    <span 
-                      style={{ 
-                        background: '#FFD70020',
-                        color: '#FFD700',
-                        border: '1px solid #FFD700',
-                        padding: '4px 8px',
-                        borderRadius: '4px',
-                        fontSize: '11px',
-                        fontWeight: '600'
-                      }}
-                      title="HTML transcript available"
-                    >
-                      HTML
-                    </span>
-                  )}
-                  <span 
-                    className="ticket-status-badge"
-                    style={{ 
-                      background: getStatusColor(ticket.status) + '20',
-                      color: getStatusColor(ticket.status),
-                      border: `1px solid ${getStatusColor(ticket.status)}`
-                    }}
-                  >
-                    {ticket.status || 'open'}
+              </div>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                {ticket.transcriptHtml && (
+                  <span className="badge badge-primary" style={{ fontSize: '10px' }} title="HTML transcript available">
+                    HTML
                   </span>
-                </div>
-              </div>
-
-              <div className="ticket-card-body">
-                {ticket.subject && (
-                  <div className="ticket-info-row">
-                    <FaFileAlt style={{ color: '#b9bbbe' }} />
-                    <span style={{ fontWeight: '500' }}>{ticket.subject}</span>
-                  </div>
                 )}
-                <div className="ticket-info-row">
-                  <FaUser style={{ color: '#b9bbbe' }} />
-                  <span>{ticket.username || ticket.userId || 'Unknown'}</span>
-                </div>
-                <div className="ticket-info-row">
-                  <FaCalendar style={{ color: '#b9bbbe' }} />
-                  <span>{toLocaleStringSafe(ticket.createdAt).split(',')[0]}</span>
-                </div>
-                <div className="ticket-info-row">
-                  <FaClock style={{ color: '#b9bbbe' }} />
-                  <span>{toLocaleStringSafe(ticket.createdAt).split(',')[1]}</span>
-                </div>
-                {ticket.transcript && ticket.transcript.length > 0 && (
-                  <div className="ticket-info-row">
-                    <FaFileAlt style={{ color: '#b9bbbe' }} />
-                    <span>{ticket.transcript.length} messages</span>
-                  </div>
-                )}
-              </div>
-
-              <div className="ticket-card-actions">
-                <button 
-                  className="btn btn-sm btn-outline" 
-                  onClick={() => viewTicket(ticket.id)}
-                >
-                  <FaEye /> View Details
-                </button>
-                {(ticket.transcriptHtml || (ticket.transcript && ticket.transcript.length > 0)) && (
-                  <button 
-                    className="btn btn-sm btn-secondary" 
-                    onClick={() => exportTranscript(ticket)}
-                    title={ticket.transcriptHtml ? 'Download HTML Transcript' : 'Download Text Transcript'}
-                  >
-                    <FaDownload /> {ticket.transcriptHtml ? 'HTML' : 'Text'}
-                  </button>
-                )}
+                <span className={getStatusClass(ticket.status)}>
+                  {ticket.status || 'open'}
+                </span>
               </div>
             </div>
-          ))}
-        </div>
 
-        {filteredTickets.length === 0 && (
-          <div style={{ textAlign: 'center', padding: '60px 20px', color: '#b9bbbe' }}>
-            <FaTag size={48} style={{ marginBottom: '20px', opacity: 0.3 }} />
-            <p style={{ fontSize: '18px', marginBottom: '10px' }}>No closed tickets found</p>
-            <p style={{ fontSize: '14px', opacity: 0.7 }}>
-              {searchQuery ? 'Try adjusting your search query' : 'Closed tickets will appear here after you close them in Discord'}
-            </p>
+            <div className="ticket-card-body">
+              {ticket.subject && (
+                <div className="ticket-info-row">
+                  <FaFileAlt />
+                  <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>{ticket.subject}</span>
+                </div>
+              )}
+              <div className="ticket-info-row">
+                <FaUser />
+                <span>{ticket.username || ticket.userId || 'Unknown User'}</span>
+              </div>
+              <div className="ticket-info-row">
+                <FaCalendar />
+                <span>{toLocaleStringSafe(ticket.createdAt).split(',')[0]}</span>
+              </div>
+              <div className="ticket-info-row">
+                <FaClock />
+                <span>{toLocaleStringSafe(ticket.createdAt).split(',')[1]}</span>
+              </div>
+              {ticket.transcript && ticket.transcript.length > 0 && (
+                <div className="ticket-info-row">
+                  <FaFileAlt />
+                  <span>{ticket.transcript.length} messages in log</span>
+                </div>
+              )}
+            </div>
+
+            <div className="ticket-card-actions">
+              <button 
+                className="btn btn-outline" 
+                onClick={() => viewTicket(ticket.id)}
+              >
+                <FaEye /> View Log
+              </button>
+              {(ticket.transcriptHtml || (ticket.transcript && ticket.transcript.length > 0)) && (
+                <button 
+                  className="btn btn-secondary" 
+                  onClick={() => exportTranscript(ticket)}
+                  title={ticket.transcriptHtml ? 'Download HTML Transcript' : 'Download Text Transcript'}
+                >
+                  <FaDownload /> {ticket.transcriptHtml ? 'HTML' : 'Text'}
+                </button>
+              )}
+            </div>
           </div>
-        )}
+        ))}
       </div>
+
+      {filteredTickets.length === 0 && (
+        <div className="card" style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-tertiary)' }}>
+          <FaTag size={48} style={{ marginBottom: '16px', opacity: 0.3 }} />
+          <p style={{ fontSize: '18px', color: 'var(--text-primary)', fontWeight: '600', marginBottom: '8px' }}>No Archived Tickets Found</p>
+          <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
+            {searchQuery ? 'Try adjusting or clearing your search filter query.' : 'Closed support tickets will appear here with full downloadable chat logs.'}
+          </p>
+        </div>
+      )}
 
       {/* Ticket Detail Modal */}
       {selectedTicket && (
         <div className="modal-overlay" onClick={() => setSelectedTicket(null)}>
           <div className="modal modal-large" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <div>
-                <h3>Ticket #{selectedTicket.id}</h3>
-                <p style={{ color: '#b9bbbe', margin: '5px 0 0 0' }}>
-                  {selectedTicket.department || selectedTicket.type || 'Support Ticket'}
-                </p>
-              </div>
+              <h2>
+                <FaTicketAlt /> Ticket #{selectedTicket.id}
+              </h2>
               <button className="close-btn" onClick={() => setSelectedTicket(null)}>×</button>
             </div>
             
-            <div style={{ overflowY: 'auto', flex: 1, padding: '25px' }}>
+            <div>
               <div className="ticket-detail-info">
-              <div className="info-grid">
-                <div className="info-item">
-                  <label>User</label>
-                  <span>{selectedTicket.username || selectedTicket.userId || 'Unknown'}</span>
-                </div>
-                <div className="info-item">
-                  <label>User ID</label>
-                  <span style={{ fontSize: '12px', fontFamily: 'monospace' }}>{selectedTicket.userId || 'N/A'}</span>
-                </div>
-                <div className="info-item">
-                  <label>Created</label>
-                  <span>{toLocaleStringSafe(selectedTicket.createdAt)}</span>
-                </div>
-                <div className="info-item">
-                  <label>Closed</label>
-                  <span>{toLocaleStringSafe(selectedTicket.closedAt)}</span>
-                </div>
-                <div className="info-item">
-                  <label>Department</label>
-                  <span>{selectedTicket.department || selectedTicket.type || 'General'}</span>
-                </div>
-              </div>
-
-              {selectedTicket.formData && Object.keys(selectedTicket.formData).length > 0 && (
-                <div style={{ marginTop: '20px' }}>
-                  <h4 style={{ marginBottom: '10px', color: '#dcddde' }}>
-                    <FaFileAlt /> Form Data
-                  </h4>
-                  <div style={{ 
-                    background: '#2C2F33', 
-                    padding: '15px', 
-                    borderRadius: '8px',
-                    border: '1px solid #40444b'
-                  }}>
-                    {Object.entries(selectedTicket.formData).map(([key, value]) => (
-                      <div key={key} style={{ 
-                        display: 'flex', 
-                        marginBottom: '8px',
-                        fontSize: '14px'
-                      }}>
-                        <strong style={{ 
-                          minWidth: '150px', 
-                          color: '#b9bbbe',
-                          textTransform: 'capitalize'
-                        }}>
-                          {key}:
-                        </strong>
-                        <span style={{ color: '#dcddde' }}>{value || 'N/A'}</span>
-                      </div>
-                    ))}
+                <div className="info-grid">
+                  <div className="info-item">
+                    <label>User</label>
+                    <span>{selectedTicket.username || selectedTicket.userId || 'Unknown'}</span>
+                  </div>
+                  <div className="info-item">
+                    <label>User ID</label>
+                    <span style={{ fontFamily: 'monospace', fontSize: '13px' }}>{selectedTicket.userId || 'N/A'}</span>
+                  </div>
+                  <div className="info-item">
+                    <label>Created Timestamp</label>
+                    <span>{toLocaleStringSafe(selectedTicket.createdAt)}</span>
+                  </div>
+                  <div className="info-item">
+                    <label>Closed Timestamp</label>
+                    <span>{toLocaleStringSafe(selectedTicket.closedAt)}</span>
+                  </div>
+                  <div className="info-item">
+                    <label>Department Category</label>
+                    <span>{selectedTicket.department || selectedTicket.type || 'General Support'}</span>
+                  </div>
+                  <div className="info-item">
+                    <label>Status</label>
+                    <span style={{ textTransform: 'uppercase', color: 'var(--danger)' }}>Closed</span>
                   </div>
                 </div>
-              )}
 
-              {(selectedTicket.transcriptHtml || (selectedTicket.transcript && selectedTicket.transcript.length > 0)) && (
-                <div className="ticket-actions-bar" style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
-                  <button 
-                    className="btn"
-                    onClick={() => exportTranscript(selectedTicket)}
-                    title={selectedTicket.transcriptHtml ? 'Download HTML Transcript with full Discord styling' : 'Download Text Transcript'}
-                    style={{ 
-                      background: '#FFD700', 
-                      color: '#000',
-                      border: 'none'
-                    }}
-                  >
-                    <FaDownload /> Download HTML Transcript
-                  </button>
-                </div>
-              )}
-            </div>
+                {selectedTicket.formData && Object.keys(selectedTicket.formData).length > 0 && (
+                  <div style={{ marginTop: '20px' }}>
+                    <h4 style={{ marginBottom: '12px', color: 'var(--text-primary)', fontSize: '15px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <FaFileAlt style={{ color: 'var(--primary)' }} /> Form Submission Answers
+                    </h4>
+                    <div style={{ 
+                      background: 'var(--bg-tertiary)', 
+                      padding: '16px 20px', 
+                      borderRadius: '12px',
+                      border: '1px solid var(--border-secondary)'
+                    }}>
+                      {Object.entries(selectedTicket.formData).map(([key, value]) => (
+                        <div key={key} style={{ 
+                          display: 'flex', 
+                          marginBottom: '10px',
+                          fontSize: '14px'
+                        }}>
+                          <strong style={{ 
+                            minWidth: '160px', 
+                            color: 'var(--text-secondary)',
+                            textTransform: 'capitalize'
+                          }}>
+                            {key}:
+                          </strong>
+                          <span style={{ color: 'var(--text-primary)', fontWeight: '500' }}>{value || 'N/A'}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
+                {(selectedTicket.transcriptHtml || (selectedTicket.transcript && selectedTicket.transcript.length > 0)) && (
+                  <div className="ticket-actions-bar" style={{ marginTop: '24px' }}>
+                    <button 
+                      className="btn"
+                      onClick={() => exportTranscript(selectedTicket)}
+                      title="Download full chat log"
+                    >
+                      <FaDownload /> Download Complete Transcript Log
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

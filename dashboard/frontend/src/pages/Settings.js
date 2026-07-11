@@ -30,20 +30,20 @@ function RoleSelector({ roleKey, label, selectedRoleIds, discordRoles, updateCon
 
   return (
     <div className="form-group">
-      <label>{label}</label>
+      {label && <label className="form-label">{label}</label>}
       
       {/* Selected Roles Display */}
       <div style={{ 
-        background: '#2C2F33', 
-        border: '1px solid #40444b', 
-        borderRadius: '4px', 
-        padding: '8px',
+        background: 'var(--bg-tertiary)', 
+        border: '1px solid var(--border-secondary)', 
+        borderRadius: '10px', 
+        padding: '10px',
         minHeight: '48px',
         display: 'flex',
         flexWrap: 'wrap',
-        gap: '6px',
+        gap: '8px',
         alignItems: 'center',
-        marginBottom: '8px'
+        marginBottom: '10px'
       }}>
         {selectedRoles.map(role => (
           <div
@@ -51,19 +51,21 @@ function RoleSelector({ roleKey, label, selectedRoleIds, discordRoles, updateCon
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
-              padding: '4px 8px',
-              background: '#5865F2',
-              borderRadius: '4px',
-              color: '#fff',
-              fontSize: '13px'
+              gap: '8px',
+              padding: '6px 12px',
+              background: 'var(--primary-subtle)',
+              border: '1px solid var(--primary-border)',
+              borderRadius: '8px',
+              color: '#FFFFFF',
+              fontSize: '13px',
+              fontWeight: '500'
             }}
           >
             <div style={{
               width: '10px',
               height: '10px',
               borderRadius: '50%',
-              background: role.color || '#99aab5'
+              background: role.color && role.color !== '#000000' ? role.color : 'var(--primary)'
             }} />
             <span>{role.name}</span>
             <button
@@ -71,20 +73,23 @@ function RoleSelector({ roleKey, label, selectedRoleIds, discordRoles, updateCon
               style={{
                 background: 'transparent',
                 border: 'none',
-                color: '#fff',
+                color: 'var(--text-secondary)',
                 cursor: 'pointer',
                 padding: '0 2px',
                 fontSize: '16px',
                 lineHeight: '1',
-                marginLeft: '2px'
+                marginLeft: '4px',
+                transition: 'color var(--transition-fast)'
               }}
+              onMouseEnter={(e) => e.target.style.color = 'var(--danger)'}
+              onMouseLeave={(e) => e.target.style.color = 'var(--text-secondary)'}
             >
               ×
             </button>
           </div>
         ))}
         {selectedRoles.length === 0 && (
-          <span style={{ color: '#72767d', fontSize: '14px' }}>No roles selected</span>
+          <span style={{ color: 'var(--text-tertiary)', fontSize: '13px' }}>No roles selected</span>
         )}
       </div>
 
@@ -100,16 +105,8 @@ function RoleSelector({ roleKey, label, selectedRoleIds, discordRoles, updateCon
           }}
           onFocus={() => setShowDropdown(true)}
           onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
-          placeholder="Type to search roles..."
-          style={{
-            width: '100%',
-            padding: '10px',
-            background: '#202225',
-            border: '1px solid #40444b',
-            borderRadius: '4px',
-            color: '#dcddde',
-            fontSize: '14px'
-          }}
+          placeholder="Type to search and add server roles..."
+          className="form-input"
         />
         
         {/* Dropdown */}
@@ -119,45 +116,46 @@ function RoleSelector({ roleKey, label, selectedRoleIds, discordRoles, updateCon
             top: '100%',
             left: 0,
             right: 0,
-            marginTop: '4px',
-            background: '#2C2F33',
-            border: '1px solid #40444b',
-            borderRadius: '4px',
-            maxHeight: '200px',
+            marginTop: '6px',
+            background: 'var(--bg-secondary)',
+            border: '1px solid var(--border-secondary)',
+            borderRadius: '10px',
+            maxHeight: '220px',
             overflowY: 'auto',
             zIndex: 1000,
-            boxShadow: '0 4px 6px rgba(0,0,0,0.3)'
+            boxShadow: 'var(--shadow-lg)'
           }}>
             {availableRoles.slice(0, 10).map(role => (
               <div
                 key={role.id}
                 onClick={() => addRole(role.id)}
                 style={{
-                  padding: '10px',
+                  padding: '12px 14px',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '8px',
-                  borderBottom: '1px solid #40444b'
+                  gap: '10px',
+                  borderBottom: '1px solid var(--border-secondary)',
+                  transition: 'background var(--transition-fast)'
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.background = '#36393f'}
+                onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-hover)'}
                 onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
               >
                 <div style={{
                   width: '12px',
                   height: '12px',
                   borderRadius: '50%',
-                  background: role.color || '#99aab5'
+                  background: role.color && role.color !== '#000000' ? role.color : 'var(--primary)'
                 }} />
-                <span style={{ color: '#dcddde', fontSize: '14px' }}>{role.name}</span>
+                <span style={{ color: 'var(--text-primary)', fontSize: '14px', fontWeight: '500' }}>{role.name}</span>
               </div>
             ))}
           </div>
         )}
       </div>
       
-      <small style={{ color: '#b9bbbe', display: 'block', marginTop: '8px' }}>
-        {selectedRoles.length} role{selectedRoles.length !== 1 ? 's' : ''} selected
+      <small style={{ color: 'var(--text-tertiary)', display: 'block', marginTop: '6px', fontSize: '12px' }}>
+        {selectedRoles.length} role{selectedRoles.length !== 1 ? 's' : ''} assigned
       </small>
     </div>
   );
@@ -191,19 +189,21 @@ function SearchableSelect({ value, onChange, options, placeholder = "Select..." 
       <div
         onClick={() => setIsOpen(!isOpen)}
         style={{
-          padding: '10px',
-          background: '#2C2F33',
-          border: '1px solid #40444b',
-          borderRadius: '4px',
+          padding: '12px 16px',
+          background: 'var(--bg-tertiary)',
+          border: '1px solid var(--border-secondary)',
+          borderRadius: '10px',
           cursor: 'pointer',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          color: selectedOption ? '#dcddde' : '#72767d'
+          color: selectedOption ? 'var(--text-primary)' : 'var(--text-tertiary)',
+          fontSize: '14px',
+          fontWeight: selectedOption ? '500' : '400'
         }}
       >
-        <span>{selectedOption ? `#${selectedOption.name}` : placeholder}</span>
-        <span style={{ fontSize: '12px' }}>▼</span>
+        <span>{selectedOption ? `# ${selectedOption.name}` : placeholder}</span>
+        <span style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>▼</span>
       </div>
       
       {isOpen && (
@@ -212,37 +212,35 @@ function SearchableSelect({ value, onChange, options, placeholder = "Select..." 
           top: '100%',
           left: 0,
           right: 0,
-          marginTop: '5px',
-          background: '#2C2F33',
-          border: '1px solid #40444b',
-          borderRadius: '4px',
+          marginTop: '6px',
+          background: 'var(--bg-secondary)',
+          border: '1px solid var(--border-secondary)',
+          borderRadius: '12px',
           maxHeight: '300px',
           overflow: 'hidden',
           zIndex: 1000,
-          boxShadow: '0 4px 6px rgba(0,0,0,0.3)'
+          boxShadow: 'var(--shadow-lg)'
         }}>
-          <div style={{ padding: '10px', borderBottom: '1px solid #40444b' }}>
+          <div style={{ padding: '10px', borderBottom: '1px solid var(--border-secondary)', background: 'var(--bg-tertiary)' }}>
             <div style={{ position: 'relative' }}>
-              <FaSearch style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#72767d' }} />
+              <FaSearch style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-tertiary)' }} />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search channels..."
                 autoFocus
+                className="form-input"
                 style={{
-                  width: '100%',
-                  padding: '8px 8px 8px 35px',
-                  background: '#202225',
-                  border: '1px solid #40444b',
-                  borderRadius: '4px',
-                  color: '#dcddde',
-                  fontSize: '14px'
+                  paddingLeft: '38px',
+                  paddingTop: '8px',
+                  paddingBottom: '8px',
+                  fontSize: '13px'
                 }}
               />
             </div>
           </div>
-          <div style={{ maxHeight: '250px', overflowY: 'auto' }}>
+          <div style={{ maxHeight: '240px', overflowY: 'auto' }}>
             <div
               onClick={() => {
                 onChange('');
@@ -250,16 +248,15 @@ function SearchableSelect({ value, onChange, options, placeholder = "Select..." 
                 setSearchTerm('');
               }}
               style={{
-                padding: '10px',
+                padding: '10px 16px',
                 cursor: 'pointer',
-                background: !value ? '#5865F2' : 'transparent',
-                color: '#dcddde',
-                borderBottom: '1px solid #40444b'
+                background: !value ? 'var(--primary-subtle)' : 'transparent',
+                color: !value ? '#FFFFFF' : 'var(--text-secondary)',
+                borderBottom: '1px solid var(--border-secondary)',
+                fontSize: '13px'
               }}
-              onMouseEnter={(e) => !value && (e.target.style.background = '#4752C4')}
-              onMouseLeave={(e) => !value && (e.target.style.background = '#5865F2')}
             >
-              {placeholder}
+              {placeholder} (Clear Selection)
             </div>
             {filteredOptions.map(option => (
               <div
@@ -270,25 +267,26 @@ function SearchableSelect({ value, onChange, options, placeholder = "Select..." 
                   setSearchTerm('');
                 }}
                 style={{
-                  padding: '10px',
+                  padding: '10px 16px',
                   cursor: 'pointer',
-                  background: value === option.id ? '#5865F2' : 'transparent',
-                  color: '#dcddde',
-                  borderBottom: '1px solid #40444b'
+                  background: value === option.id ? 'var(--primary)' : 'transparent',
+                  color: value === option.id ? '#FFFFFF' : 'var(--text-primary)',
+                  borderBottom: '1px solid var(--border-secondary)',
+                  fontSize: '14px'
                 }}
                 onMouseEnter={(e) => {
-                  if (value !== option.id) e.target.style.background = '#36393f';
+                  if (value !== option.id) e.currentTarget.style.background = 'var(--bg-hover)';
                 }}
                 onMouseLeave={(e) => {
-                  if (value !== option.id) e.target.style.background = 'transparent';
+                  if (value !== option.id) e.currentTarget.style.background = 'transparent';
                 }}
               >
-                #{option.name}
+                # {option.name}
               </div>
             ))}
             {filteredOptions.length === 0 && (
-              <div style={{ padding: '10px', color: '#72767d', textAlign: 'center' }}>
-                No channels found
+              <div style={{ padding: '16px', color: 'var(--text-tertiary)', textAlign: 'center', fontSize: '13px' }}>
+                No channels matching search
               </div>
             )}
           </div>
@@ -325,7 +323,7 @@ function Settings() {
       const response = await configApi.get();
       setConfig(response.data);
     } catch (error) {
-      toast.error('Failed to load configuration');
+      toast.error('Failed to load bot configuration');
     } finally {
       setLoading(false);
     }
@@ -364,7 +362,7 @@ function Settings() {
         configApi.update(config),
         generalSettings && configApi.updateGeneralSettings(generalSettings)
       ]);
-      toast.success('Configuration saved successfully! Bot will use new settings.');
+      toast.success('Configuration saved successfully! Bot synced immediately.');
     } catch (error) {
       console.error('Settings save error:', error);
       const errorMessage = error.response?.data?.error || error.message || 'Failed to save configuration';
@@ -392,7 +390,7 @@ function Settings() {
       const response = await auth.changePassword(currentPassword, newPassword);
 
       if (response.data.success) {
-        toast.success('Password changed successfully! You can now use your new password to login.');
+        toast.success('Password changed successfully! You can now use your new credentials.');
         setCurrentPassword('');
         setNewPassword('');
         setConfirmPassword('');
@@ -424,38 +422,55 @@ function Settings() {
   };
 
   if (loading) {
-    return <div className="loading"><div className="spinner"></div></div>;
+    return (
+      <div className="loading">
+        <div className="spinner"></div>
+        <p style={{ color: 'var(--text-secondary)', fontSize: '15px' }}>Loading system settings and channels...</p>
+      </div>
+    );
   }
 
   return (
-    <div className="page-container">
+    <div className="page-container" style={{ maxWidth: '1400px', margin: '0 auto' }}>
       <div className="page-title">
-        <h1><FaCog /> Bot Configuration</h1>
+        <div>
+          <div className="page-subtitle" style={{ textTransform: 'uppercase', letterSpacing: '0.8px', fontSize: '11px', color: 'var(--primary)', fontWeight: '700', marginBottom: '4px' }}>
+            RealOps Portal / System
+          </div>
+          <h1>
+            <FaCog /> System & Bot Configuration
+          </h1>
+        </div>
         <button onClick={handleSave} className="btn" disabled={saving}>
-          <FaSave /> {saving ? 'Saving...' : 'Save Configuration'}
+          <FaSave /> {saving ? 'Saving Changes...' : 'Save Configuration'}
         </button>
       </div>
 
       {/* Password Change Section */}
-      <div className="card" style={{ marginBottom: '20px' }}>
-        <h3 style={{ marginBottom: '15px', color: '#FFD700' }}>
-          Change Admin Password
-        </h3>
+      <div className="card" style={{ marginBottom: '24px' }}>
+        <div className="card-header">
+          <h2>Change Admin Credentials</h2>
+        </div>
         
         {!showPasswordSection ? (
-          <button 
-            onClick={() => setShowPasswordSection(true)}
-            className="btn"
-            style={{ background: '#5865F2' }}
-          >
-            Change Password
-          </button>
+          <div>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginBottom: '16px' }}>
+              Update your administrative account password used to access this dashboard.
+            </p>
+            <button 
+              onClick={() => setShowPasswordSection(true)}
+              className="btn btn-secondary"
+            >
+              Update Password
+            </button>
+          </div>
         ) : (
-          <form onSubmit={handleChangePassword}>
+          <form onSubmit={handleChangePassword} style={{ maxWidth: '480px' }}>
             <div className="form-group">
-              <label>Current Password</label>
+              <label className="form-label">Current Password</label>
               <input
                 type="password"
+                className="form-input"
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 required
@@ -464,9 +479,10 @@ function Settings() {
             </div>
 
             <div className="form-group">
-              <label>New Password</label>
+              <label className="form-label">New Password</label>
               <input
                 type="password"
+                className="form-input"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 required
@@ -476,9 +492,10 @@ function Settings() {
             </div>
 
             <div className="form-group">
-              <label>Confirm New Password</label>
+              <label className="form-label">Confirm New Password</label>
               <input
                 type="password"
+                className="form-input"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
@@ -487,14 +504,13 @@ function Settings() {
               />
             </div>
 
-            <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
+            <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
               <button 
                 type="submit" 
-                className="btn"
+                className="btn btn-success"
                 disabled={changingPassword}
-                style={{ background: '#43b581' }}
               >
-                {changingPassword ? 'Changing...' : 'Update Password'}
+                {changingPassword ? 'Updating...' : 'Save New Password'}
               </button>
               <button 
                 type="button"
@@ -504,89 +520,88 @@ function Settings() {
                   setNewPassword('');
                   setConfirmPassword('');
                 }}
-                className="btn"
-                style={{ background: '#f04747' }}
+                className="btn btn-secondary"
               >
                 Cancel
               </button>
-            </div>
-
-            <div style={{ marginTop: '15px', padding: '10px', background: '#2C2F33', borderRadius: '4px', fontSize: '13px', color: '#dcddde' }}>
-              <strong>Note:</strong> The password will be updated immediately and persisted to the server configuration. You can use the new password right away.
             </div>
           </form>
         )}
       </div>
 
       <div className="card">
-        <p style={{ marginBottom: '25px', color: '#888', fontSize: '15px' }}>
-          <FaDiscord style={{ marginRight: '8px', color: '#FFD700' }} /> 
-          Configure bot settings that sync across dashboard and Discord bot. Changes take effect immediately.
+        <div className="card-header">
+          <h2><FaDiscord /> Bot Integration Settings</h2>
+        </div>
+        <p style={{ marginBottom: '28px', color: 'var(--text-secondary)', fontSize: '14px' }}>
+          Configure live Discord channels and role assignments that sync directly across your bot and dashboard services.
         </p>
 
         {/* Channels Configuration */}
-        <div style={{ marginBottom: '35px' }}>
-          <h2 style={{ color: '#FFD700', marginBottom: '20px', fontSize: '20px', fontWeight: '700' }}>
-            📺 Channel Configuration
-          </h2>
-          <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
-            <div className="form-group">
-              <label>Log Channel</label>
+        <div style={{ marginBottom: '36px' }}>
+          <h3 style={{ color: 'var(--text-primary)', marginBottom: '16px', fontSize: '17px', fontWeight: '700' }}>
+            Channel Routing
+          </h3>
+          <div className="grid grid-2" style={{ gap: '20px' }}>
+            <div className="form-group" style={{ margin: 0 }}>
+              <label className="form-label">System Log Channel</label>
               <SearchableSelect
                 value={config?.channels?.logChannel || ''}
                 onChange={(value) => updateConfig('channels.logChannel', value)}
                 options={discordChannels}
-                placeholder="Select Channel"
+                placeholder="Select System Log Channel"
               />
             </div>
 
-            <div className="form-group">
-              <label>Transcript Channel</label>
+            <div className="form-group" style={{ margin: 0 }}>
+              <label className="form-label">Transcript Archive Channel</label>
               <SearchableSelect
                 value={config?.channels?.transcriptChannel || ''}
                 onChange={(value) => updateConfig('channels.transcriptChannel', value)}
                 options={discordChannels}
-                placeholder="Select Channel"
+                placeholder="Select Transcript Channel"
               />
             </div>
 
-            <div className="form-group">
-              <label>Welcome Channel</label>
+            <div className="form-group" style={{ margin: 0 }}>
+              <label className="form-label">Welcome & Greeting Channel</label>
               <SearchableSelect
                 value={config?.channels?.welcomeChannel || ''}
                 onChange={(value) => updateConfig('channels.welcomeChannel', value)}
                 options={discordChannels}
-                placeholder="Select Channel"
+                placeholder="Select Welcome Channel"
               />
             </div>
 
-            <div className="form-group">
-              <label>Staff Changes Channel</label>
+            <div className="form-group" style={{ margin: 0 }}>
+              <label className="form-label">Staff Roster Changes Channel</label>
               <SearchableSelect
                 value={config?.channels?.staffChangesChannel || ''}
                 onChange={(value) => updateConfig('channels.staffChangesChannel', value)}
                 options={discordChannels}
-                placeholder="Select Channel"
+                placeholder="Select Staff Changes Channel"
               />
             </div>
           </div>
         </div>
 
         {/* Ticket Categories */}
-        <div style={{ marginBottom: '30px' }}>
-          <h2>🎫 Ticket Categories</h2>
-          <p style={{ fontSize: '14px', color: '#b9bbbe', marginBottom: '15px' }}>
-            Select Discord channels for different ticket types
+        <div style={{ marginBottom: '36px', paddingTop: '24px', borderTop: '1px solid var(--border-secondary)' }}>
+          <h3 style={{ color: 'var(--text-primary)', marginBottom: '8px', fontSize: '17px', fontWeight: '700' }}>
+            Ticket Category Channels
+          </h3>
+          <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '18px' }}>
+            Assign specific destination categories or channels for opened support tickets
           </p>
-          <div className="form-grid">
+          <div className="grid grid-2" style={{ gap: '20px' }}>
             {config?.ticketCategories && Object.keys(config.ticketCategories).map(key => (
-              <div key={key} className="form-group">
-                <label>{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</label>
+              <div key={key} className="form-group" style={{ margin: 0 }}>
+                <label className="form-label">{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</label>
                 <SearchableSelect
                   value={config.ticketCategories[key]}
                   onChange={(value) => updateConfig(`ticketCategories.${key}`, value)}
                   options={discordChannels}
-                  placeholder="Select Channel"
+                  placeholder="Select Destination Category/Channel"
                 />
               </div>
             ))}
@@ -594,28 +609,27 @@ function Settings() {
         </div>
 
         {/* Event Reminder Settings */}
-        <div style={{ marginBottom: '30px' }}>
-          <h2>🔔 Event Reminder Settings</h2>
-          <p style={{ fontSize: '14px', color: '#b9bbbe', marginBottom: '15px' }}>
-            Configure where automatic event reminders are sent (2 hours before calendar events)
+        <div style={{ marginBottom: '36px', paddingTop: '24px', borderTop: '1px solid var(--border-secondary)' }}>
+          <h3 style={{ color: 'var(--text-primary)', marginBottom: '8px', fontSize: '17px', fontWeight: '700' }}>
+            Event Reminder Automation
+          </h3>
+          <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '18px' }}>
+            Configure where automatic event reminders are dispatched (2 hours before scheduled calendar events)
           </p>
           <div className="form-group" style={{ marginBottom: '20px' }}>
-            <label>Event Reminder Channel *</label>
+            <label className="form-label">Event Reminder Notification Channel</label>
             {generalSettings && (
               <SearchableSelect
                 value={generalSettings.eventReminderChannelId}
                 onChange={(value) => setGeneralSettings({...generalSettings, eventReminderChannelId: value})}
                 options={discordChannels}
-                placeholder="Select channel for event reminders"
+                placeholder="Select channel for automated event reminders"
               />
             )}
-            <small style={{ color: '#72767d', marginTop: '8px', display: 'block' }}>
-              This channel will receive automatic reminder notifications 2 hours before events.
-            </small>
           </div>
           
-          <div className="form-group">
-            <label>Roles to Tag (Optional)</label>
+          <div className="form-group" style={{ margin: 0 }}>
+            <label className="form-label">Roles to Tag in Reminder Alerts</label>
             {generalSettings && (
               <RoleSelector
                 roleKey="eventReminder"
@@ -625,24 +639,23 @@ function Settings() {
                 updateConfig={(path, value) => setGeneralSettings({...generalSettings, eventReminderRoleIds: value})}
               />
             )}
-            <small style={{ color: '#72767d', marginTop: '8px', display: 'block' }}>
-              These roles will be mentioned in reminder notifications to alert members.
-            </small>
           </div>
         </div>
 
         {/* Staff Roles */}
-        <div style={{ marginBottom: '30px' }}>
-          <h2>👥 Staff Roles</h2>
-          <p style={{ fontSize: '14px', color: '#b9bbbe', marginBottom: '15px' }}>
-            Configure which Discord roles can manage different ticket types
+        <div style={{ paddingTop: '24px', borderTop: '1px solid var(--border-secondary)' }}>
+          <h3 style={{ color: 'var(--text-primary)', marginBottom: '8px', fontSize: '17px', fontWeight: '700' }}>
+            Ticket Management Staff Roles
+          </h3>
+          <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '18px' }}>
+            Assign Discord roles permitted to view, claim, and close specific ticket departments
           </p>
-          <div className="form-grid">
+          <div className="grid grid-2" style={{ gap: '24px' }}>
             {config?.staffRoles && Object.keys(config.staffRoles).map(key => (
               <RoleSelector
                 key={key}
                 roleKey={key}
-                label={`${key.charAt(0).toUpperCase() + key.slice(1)} Staff`}
+                label={`${key.charAt(0).toUpperCase() + key.slice(1)} Department Staff Roles`}
                 selectedRoleIds={config.staffRoles[key] || []}
                 discordRoles={discordRoles}
                 updateConfig={updateConfig}
@@ -652,12 +665,12 @@ function Settings() {
         </div>
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px' }}>
-        <button onClick={() => { fetchConfig(); fetchGeneralSettings(); }} className="btn">
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '24px' }}>
+        <button onClick={() => { fetchConfig(); fetchGeneralSettings(); }} className="btn btn-secondary">
           Reset Changes
         </button>
-        <button onClick={handleSave} className="btn btn-primary" disabled={saving}>
-          <FaSave /> {saving ? 'Saving...' : 'Save All Changes'}
+        <button onClick={handleSave} className="btn" disabled={saving}>
+          <FaSave /> {saving ? 'Saving Changes...' : 'Save Configuration'}
         </button>
       </div>
     </div>

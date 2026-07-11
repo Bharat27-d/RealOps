@@ -27,8 +27,8 @@ const EMPTY_FORM = {
 };
 
 const commandLabelStyle = {
-  color: '#b9bbbe',
-  fontSize: '12px',
+  color: 'var(--text-secondary)',
+  fontSize: '13px',
   marginBottom: '6px',
   display: 'block',
   fontWeight: '600'
@@ -37,21 +37,21 @@ const commandLabelStyle = {
 const commandInputStyle = {
   width: '100%',
   padding: '12px 14px',
-  background: '#0f1115',
-  border: '1px solid #40444b',
-  borderRadius: '6px',
-  color: '#dcddde',
+  background: 'var(--bg-secondary)',
+  border: '1px solid var(--border-secondary)',
+  borderRadius: '8px',
+  color: 'var(--text-primary)',
   fontSize: '14px',
   outline: 'none',
   boxSizing: 'border-box'
 };
 
 const commandPanelStyle = {
-  background: '#202225',
-  borderRadius: '8px',
-  padding: '16px',
-  marginBottom: '16px',
-  border: '1px solid #2d2f34'
+  background: 'var(--bg-tertiary)',
+  borderRadius: '12px',
+  padding: '18px',
+  marginBottom: '18px',
+  border: '1px solid var(--border-secondary)'
 };
 
 const makeEmptyForm = () => ({
@@ -142,12 +142,10 @@ const buildBuiltInPayload = (data) => {
     timestamp: (data.timestamp || '').trim()
   };
 
-  // Only include fields that have actual content
   for (const [key, value] of Object.entries(fieldMap)) {
     if (value) payload[key] = value;
   }
 
-  // Only include fields array if there are valid entries
   const validFields = cleanFields(data.fields);
   if (validFields.length > 0) payload.fields = validFields;
 
@@ -176,30 +174,33 @@ function CommandBuilderPreview({ data, type }) {
   const hasResponse = !!(data.content || data.title || data.text || data.image || data.thumbnail || data.authorName || data.footerText || (data.fields || []).length);
 
   return (
-    <div className="custom-command-preview">
+    <div className="custom-command-preview" style={{ background: 'var(--bg-tertiary)', border: '1px solid var(--border-secondary)', borderRadius: '12px', padding: '16px' }}>
       <div>
-        <div className="custom-command-preview-label">
+        <div className="custom-command-preview-label" style={{ color: 'var(--primary)', fontWeight: '700', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.6px' }}>
           {type === 'built-in' ? 'Built-in command' : type === 'custom' ? 'Custom command' : 'New custom command'}
         </div>
-        <div className="custom-command-preview-command">
-          /{data.name || 'command-name'}{optionText && <span> {optionText}</span>}
+        <div className="custom-command-preview-command" style={{ color: 'var(--text-primary)', fontSize: '18px', fontWeight: '700', marginTop: '4px' }}>
+          /{data.name || 'command-name'}{optionText && <span style={{ color: 'var(--text-tertiary)', fontWeight: '400', fontSize: '15px' }}> {optionText}</span>}
         </div>
-        <div className="custom-command-preview-description">
+        <div className="custom-command-preview-description" style={{ color: 'var(--text-secondary)', fontSize: '13px', marginTop: '4px' }}>
           {data.description || 'Add the slash-command description users will see in Discord.'}
         </div>
       </div>
-      <div className="custom-command-preview-stats">
+      <div className="custom-command-preview-stats" style={{ display: 'flex', gap: '12px', marginTop: '12px', fontSize: '12px', color: 'var(--text-tertiary)' }}>
         <span>{options.length} options</span>
+        <span>•</span>
         <span>{(data.fields || []).length} fields</span>
-        <span className={data.enabled !== false ? 'is-enabled' : 'is-disabled'}>{data.enabled !== false ? 'Enabled' : 'Disabled'}</span>
-        <span>{hasResponse ? 'Response ready' : 'No response yet'}</span>
+        <span>•</span>
+        <span className={data.enabled !== false ? 'badge badge-success' : 'badge badge-danger'}>{data.enabled !== false ? 'Enabled' : 'Disabled'}</span>
+        <span>•</span>
+        <span style={{ color: hasResponse ? '#10B981' : 'var(--text-tertiary)' }}>{hasResponse ? 'Response ready' : 'No response yet'}</span>
       </div>
     </div>
   );
 }
 
 function CommandResponsePreview({ data }) {
-  const color = data.color || '#00b894';
+  const color = data.color || 'var(--primary)';
   const fields = (data.fields || []).filter(field => field.name?.trim() && field.value?.trim());
   const hasAuthor = data.authorName && data.authorName.trim();
   const hasFooter = data.footerText && data.footerText.trim();
@@ -207,45 +208,45 @@ function CommandResponsePreview({ data }) {
 
   if (!hasContent) {
     return (
-      <div className="command-empty-preview">
-        <FaImage />
-        <strong>No response content yet</strong>
-        <span>Add a title, description, field, image, or footer in the editor.</span>
+      <div className="command-empty-preview" style={{ padding: '40px', textAlign: 'center', color: 'var(--text-tertiary)' }}>
+        <FaImage size={36} style={{ opacity: 0.3, marginBottom: '10px' }} />
+        <strong style={{ display: 'block', color: 'var(--text-secondary)' }}>No response content yet</strong>
+        <span style={{ fontSize: '13px' }}>Add a title, description, field, image, or footer in the editor.</span>
       </div>
     );
   }
 
   return (
     <div style={{ maxWidth: '640px' }}>
-      {data.content && <div className="command-preview-content" style={{ color: '#dcddde', fontSize: '15px', marginBottom: '8px', whiteSpace: 'pre-wrap' }}>{data.content}</div>}
-      <div className="command-discord-preview" style={{ borderLeftColor: color, marginTop: data.content ? 0 : undefined }}>
+      {data.content && <div className="command-preview-content" style={{ color: 'var(--text-primary)', fontSize: '15px', marginBottom: '8px', whiteSpace: 'pre-wrap' }}>{data.content}</div>}
+      <div className="command-discord-preview" style={{ borderLeft: `4px solid ${color}`, background: 'var(--bg-tertiary)', borderTop: '1px solid var(--border-secondary)', borderRight: '1px solid var(--border-secondary)', borderBottom: '1px solid var(--border-secondary)', padding: '16px', borderRadius: '10px', marginTop: data.content ? 0 : undefined }}>
         <div className="command-discord-preview-main">
           {hasAuthor && (
-          <div className="command-preview-author">
-            {data.authorIcon && <img src={data.authorIcon} alt="" onError={e => { e.currentTarget.style.display = 'none'; }} />}
-            <strong>{data.authorName}</strong>
+          <div className="command-preview-author" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+            {data.authorIcon && <img src={data.authorIcon} alt="" style={{ width: '22px', height: '22px', borderRadius: '50%' }} onError={e => { e.currentTarget.style.display = 'none'; }} />}
+            <strong style={{ color: 'var(--text-primary)', fontSize: '14px' }}>{data.authorName}</strong>
           </div>
         )}
         {data.title && (
-          <div className={data.url ? 'command-preview-title is-link' : 'command-preview-title'}>
+          <div className={data.url ? 'command-preview-title is-link' : 'command-preview-title'} style={{ color: 'var(--text-primary)', fontSize: '16px', fontWeight: '700', marginBottom: '8px' }}>
             {data.title}
           </div>
         )}
-        {data.text && <div className="command-preview-text">{data.text}</div>}
+        {data.text && <div className="command-preview-text" style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: '1.6' }}>{data.text}</div>}
         {fields.length > 0 && (
-          <div className="command-preview-fields">
+          <div className="command-preview-fields" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginTop: '14px' }}>
             {fields.map((field, index) => (
               <div key={`${field.name}-${index}`} style={{ gridColumn: field.inline ? 'span 1' : 'span 3' }}>
-                <strong>{field.name}</strong>
-                <span>{field.value}</span>
+                <strong style={{ display: 'block', color: 'var(--text-primary)', fontSize: '13px', marginBottom: '2px' }}>{field.name}</strong>
+                <span style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>{field.value}</span>
               </div>
             ))}
           </div>
         )}
-        {data.image && <img className="command-preview-image" src={data.image} alt="" onError={e => { e.currentTarget.style.display = 'none'; }} />}
+        {data.image && <img className="command-preview-image" src={data.image} alt="" style={{ width: '100%', borderRadius: '8px', marginTop: '14px' }} onError={e => { e.currentTarget.style.display = 'none'; }} />}
         {(hasFooter || data.timestamp) && (
-          <div className="command-preview-footer">
-            {data.footerIcon && hasFooter && <img src={data.footerIcon} alt="" onError={e => { e.currentTarget.style.display = 'none'; }} />}
+          <div className="command-preview-footer" style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '14px', paddingTop: '10px', borderTop: '1px solid var(--border-secondary)', fontSize: '12px', color: 'var(--text-tertiary)' }}>
+            {data.footerIcon && hasFooter && <img src={data.footerIcon} alt="" style={{ width: '18px', height: '18px', borderRadius: '50%' }} onError={e => { e.currentTarget.style.display = 'none'; }} />}
             {hasFooter && <span>{data.footerText}</span>}
             {hasFooter && data.timestamp && <span>•</span>}
             {data.timestamp && <span>{data.timestamp === 'auto' ? 'Today at 12:00 PM' : data.timestamp}</span>}
@@ -253,7 +254,7 @@ function CommandResponsePreview({ data }) {
         )}
       </div>
       {data.thumbnail && (
-        <img className="command-preview-thumbnail" src={data.thumbnail} alt="" onError={e => { e.currentTarget.style.display = 'none'; }} />
+        <img className="command-preview-thumbnail" src={data.thumbnail} alt="" style={{ width: '70px', borderRadius: '6px', marginLeft: '12px' }} onError={e => { e.currentTarget.style.display = 'none'; }} />
       )}
       </div>
     </div>
@@ -440,30 +441,34 @@ function CustomCommands() {
   if (loading) return <div className="loading"><div className="spinner"></div></div>;
 
   return (
-    <div className="page-container">
-      <div className="page-title command-builder-title">
+    <div className="page-container" style={{ maxWidth: '1400px', margin: '0 auto' }}>
+      <div className="page-title command-builder-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div className="command-builder-title-left">
-          <button className="btn btn-primary" onClick={handleNewCommand}>
+          <div className="page-subtitle" style={{ textTransform: 'uppercase', letterSpacing: '0.8px', fontSize: '11px', color: 'var(--primary)', fontWeight: '700', marginBottom: '4px' }}>
+            RealOps Portal / Automation
+          </div>
+          <h1><FaTerminal /> Slash Commands Builder</h1>
+        </div>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <div className="command-builder-title-stats" style={{ display: 'flex', gap: '12px', fontSize: '13px', color: 'var(--text-secondary)' }}>
+            <span className="badge badge-primary">{builtInCommands.length} built-in</span>
+            <span className="badge badge-info">{commands.length} custom</span>
+          </div>
+          <button className="btn" onClick={handleNewCommand}>
             <FaPlus /> Create New Command
           </button>
-          <h1><FaTerminal /> Commands Builder</h1>
-        </div>
-        <div className="command-builder-title-stats">
-          <span>{builtInCommands.length} built-in</span>
-          <span>{commands.length} custom</span>
-          <span>{builtInCommands.filter(hasOverrides).length} customized</span>
         </div>
       </div>
 
-      <div className="card command-builder-picker">
-        <div>
+      <div className="card command-builder-picker" style={{ marginBottom: '24px' }}>
+        <div style={{ marginBottom: '16px' }}>
           <label style={commandLabelStyle}>Select Command To Edit</label>
           <select
-            className="command-builder-select"
+            className="form-select"
             value={selectedKey}
             onChange={(event) => handleSelectCommand(event.target.value)}
           >
-            <option value="new">New custom command</option>
+            <option value="new">+ New custom command</option>
             <optgroup label="Built-in commands">
               {builtInCommands.map(command => (
                 <option key={command.id} value={`built-in:${command.name}`}>
@@ -483,33 +488,35 @@ function CustomCommands() {
         <CommandBuilderPreview data={formData} type={builderType} />
       </div>
 
-      <div className="grid grid-2 command-builder-grid">
-        <div className="card command-builder-editor-card">
-          <div className="command-builder-card-header">
+      <div className="grid grid-2" style={{ gap: '24px' }}>
+        <div className="card">
+          <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h2><FaEdit /> Command Editor</h2>
-            <span className={`command-builder-type ${builderType}`}>
-              {isBuiltIn ? 'Built-in override' : isExistingCustom ? 'Editing custom' : 'New custom'}
+            <span className="badge badge-primary" style={{ textTransform: 'capitalize' }}>
+              {isBuiltIn ? 'Built-in Override' : isExistingCustom ? 'Editing Custom' : 'New Custom'}
             </span>
           </div>
 
           <div style={commandPanelStyle}>
-            <div className="custom-command-section-heading"><FaCog /> Command Settings</div>
-            <div className="command-settings-grid">
+            <div style={{ fontWeight: '700', color: 'var(--text-primary)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <FaCog style={{ color: 'var(--primary)' }} /> Command Settings
+            </div>
+            <div className="grid grid-2" style={{ gap: '16px', marginBottom: '12px' }}>
               <div>
                 <label style={commandLabelStyle}>Command Name *</label>
                 <div style={{ position: 'relative' }}>
-                  <span className="command-input-prefix">/</span>
+                  <span style={{ position: 'absolute', left: '12px', top: '12px', color: 'var(--text-tertiary)', fontWeight: '700' }}>/</span>
                   <input
                     type="text"
                     value={formData.name}
                     onChange={(event) => updateForm({ name: event.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, '') })}
                     disabled={isBuiltIn || isExistingCustom}
                     placeholder="rules"
-                    style={{ ...commandInputStyle, paddingLeft: '30px', fontFamily: 'monospace' }}
+                    style={{ ...commandInputStyle, paddingLeft: '28px', fontFamily: 'monospace' }}
                   />
                 </div>
-                <small style={{ color: '#72767d' }}>
-                  {isBuiltIn ? 'Built-in command names come from the bot code.' : isExistingCustom ? 'Existing command names cannot be renamed.' : 'Use lowercase letters, numbers, dashes, and underscores.'}
+                <small style={{ color: 'var(--text-tertiary)', fontSize: '11px', marginTop: '4px', display: 'block' }}>
+                  {isBuiltIn ? 'Built-in command names come from code.' : isExistingCustom ? 'Existing command names cannot be renamed.' : 'Use lowercase letters, numbers, and dashes.'}
                 </small>
               </div>
 
@@ -524,26 +531,27 @@ function CustomCommands() {
                   placeholder="Displays the server rules..."
                   style={commandInputStyle}
                 />
-                <small style={{ color: '#72767d' }}>{(formData.description || '').length}/100 characters</small>
+                <small style={{ color: 'var(--text-tertiary)', fontSize: '11px', marginTop: '4px', display: 'block' }}>{(formData.description || '').length}/100 characters</small>
               </div>
             </div>
 
             {isBuiltIn && (
-              <div className="command-builder-alert">
-                Built-in slash command details are read from <strong>{formData.sourceFile || selectedBuiltIn?.file}</strong>. This builder edits the response content override only.
+              <div style={{ padding: '10px 14px', background: 'rgba(99, 102, 241, 0.12)', border: '1px solid rgba(99, 102, 241, 0.3)', borderRadius: '8px', fontSize: '13px', color: 'var(--text-primary)', marginTop: '12px' }}>
+                Built-in slash command details are read from <code style={{ color: 'var(--primary)' }}>{formData.sourceFile || selectedBuiltIn?.file}</code>. This builder edits the response content override.
               </div>
             )}
 
             {!isBuiltIn && (
-              <label className="custom-command-enabled-toggle">
+              <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '14px', cursor: 'pointer' }}>
                 <input
                   type="checkbox"
                   checked={formData.enabled !== false}
                   onChange={(event) => updateForm({ enabled: event.target.checked })}
+                  style={{ width: 'auto', accentColor: 'var(--primary)' }}
                 />
                 <span>
-                  <strong>{formData.enabled !== false ? 'Enabled' : 'Disabled'}</strong>
-                  <small>{formData.enabled !== false ? 'Users can run this command.' : 'Saved but hidden from use.'}</small>
+                  <strong style={{ color: 'var(--text-primary)', display: 'block', fontSize: '14px' }}>{formData.enabled !== false ? 'Command Enabled' : 'Command Disabled'}</strong>
+                  <small style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>{formData.enabled !== false ? 'Users in Discord can trigger this command.' : 'Saved but hidden from Discord menu.'}</small>
                 </span>
               </label>
             )}
@@ -556,13 +564,13 @@ function CustomCommands() {
             />
           )}
 
-          <div className="custom-command-section-heading response-heading">
-            <FaImage /> Response Embed Builder
+          <div style={{ fontWeight: '700', color: 'var(--text-primary)', margin: '20px 0 12px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <FaImage style={{ color: 'var(--primary)' }} /> Response Embed Builder
           </div>
           <EmbedEditor data={formData} onChange={(data) => setFormData(data)} showPreview={false} />
 
-          <div className="command-builder-actions">
-            <button className="btn btn-primary" type="button" onClick={handleSave} disabled={saving}>
+          <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
+            <button className="btn" type="button" onClick={handleSave} disabled={saving} style={{ flex: 1 }}>
               <FaSave /> {saving ? 'Saving...' : isBuiltIn ? 'Save Overrides' : isExistingCustom ? 'Save Command' : 'Create Command'}
             </button>
             {isBuiltIn && hasOverrides(selectedBuiltIn || {}) && (
@@ -579,12 +587,17 @@ function CustomCommands() {
         </div>
 
         <div>
-          <div className="card command-builder-preview-card">
-            <h2>Live Preview</h2>
+          <div className="card">
+            <div className="card-header">
+              <h2>Live Discord Response Preview</h2>
+            </div>
             <CommandBuilderPreview data={formData} type={builderType} />
-            <CommandResponsePreview data={formData} />
-            <div className="command-builder-count">
-              Character Count: <strong className={count > 6000 ? 'danger' : ''}>{count} / 6000</strong>
+            <div style={{ marginTop: '16px' }}>
+              <CommandResponsePreview data={formData} />
+            </div>
+            <div style={{ marginTop: '16px', paddingTop: '14px', borderTop: '1px solid var(--border-secondary)', display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: 'var(--text-secondary)' }}>
+              <span>Total Embed Characters:</span>
+              <strong style={{ color: count > 6000 ? 'var(--danger)' : 'var(--text-primary)' }}>{count} / 6000</strong>
             </div>
           </div>
         </div>

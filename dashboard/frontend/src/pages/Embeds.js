@@ -80,7 +80,7 @@ function FormattingToolbar({ onInsert, targetRef }) {
       display: 'flex',
       gap: '4px',
       padding: '8px',
-      backgroundColor: '#23272A',
+      backgroundColor: 'var(--bg-tertiary)',
       borderRadius: '6px',
       border: '1px solid #40444b',
       marginBottom: '8px',
@@ -94,10 +94,10 @@ function FormattingToolbar({ onInsert, targetRef }) {
           title={label}
           style={{
             padding: '6px 10px',
-            backgroundColor: '#40444b',
+            backgroundColor: 'var(--border-secondary)',
             border: 'none',
             borderRadius: '4px',
-            color: '#dcddde',
+            color: 'var(--text-primary)',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
@@ -106,7 +106,7 @@ function FormattingToolbar({ onInsert, targetRef }) {
             transition: 'background 0.2s'
           }}
           onMouseEnter={(e) => e.target.style.backgroundColor = '#5865F2'}
-          onMouseLeave={(e) => e.target.style.backgroundColor = '#40444b'}
+          onMouseLeave={(e) => e.target.style.backgroundColor = 'var(--border-secondary)'}
         >
           <Icon size={12} />
         </button>
@@ -117,17 +117,17 @@ function FormattingToolbar({ onInsert, targetRef }) {
         title="Code Block"
         style={{
           padding: '6px 10px',
-          backgroundColor: '#40444b',
+          backgroundColor: 'var(--border-secondary)',
           border: 'none',
           borderRadius: '4px',
-          color: '#dcddde',
+          color: 'var(--text-primary)',
           cursor: 'pointer',
           fontSize: '11px',
           fontFamily: 'monospace',
           transition: 'background 0.2s'
         }}
         onMouseEnter={(e) => e.target.style.backgroundColor = '#5865F2'}
-        onMouseLeave={(e) => e.target.style.backgroundColor = '#40444b'}
+        onMouseLeave={(e) => e.target.style.backgroundColor = 'var(--border-secondary)'}
       >
         {'{}'}
       </button>
@@ -140,10 +140,10 @@ function FormattingToolbar({ onInsert, targetRef }) {
         title="Link"
         style={{
           padding: '6px 10px',
-          backgroundColor: '#40444b',
+          backgroundColor: 'var(--border-secondary)',
           border: 'none',
           borderRadius: '4px',
-          color: '#dcddde',
+          color: 'var(--text-primary)',
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
@@ -152,7 +152,7 @@ function FormattingToolbar({ onInsert, targetRef }) {
           transition: 'background 0.2s'
         }}
         onMouseEnter={(e) => e.target.style.backgroundColor = '#5865F2'}
-        onMouseLeave={(e) => e.target.style.backgroundColor = '#40444b'}
+        onMouseLeave={(e) => e.target.style.backgroundColor = 'var(--border-secondary)'}
       >
         <FaLink size={12} />
       </button>
@@ -202,7 +202,7 @@ function ChannelMultiSelect({ selectedChannelIds, channels, onChange }) {
         flexWrap: 'wrap',
         gap: '8px',
         padding: '12px',
-        background: '#23272A',
+        background: 'var(--bg-tertiary)',
         border: '1px solid #40444b',
         borderRadius: '4px',
         minHeight: '50px',
@@ -228,7 +228,7 @@ function ChannelMultiSelect({ selectedChannelIds, channels, onChange }) {
           </div>
         ))}
         {selectedChannels.length === 0 && (
-          <span style={{ color: '#72767d', fontSize: '14px', alignSelf: 'center' }}>
+          <span style={{ color: 'var(--text-tertiary)', fontSize: '14px', alignSelf: 'center' }}>
             No channels selected
           </span>
         )}
@@ -248,10 +248,10 @@ function ChannelMultiSelect({ selectedChannelIds, channels, onChange }) {
           style={{
             width: '100%',
             padding: '12px',
-            background: '#2C2F33',
+            background: 'var(--bg-secondary)',
             border: '1px solid #40444b',
             borderRadius: '4px',
-            color: '#dcddde',
+            color: 'var(--text-primary)',
             fontSize: '14px',
             outline: 'none'
           }}
@@ -264,7 +264,7 @@ function ChannelMultiSelect({ selectedChannelIds, channels, onChange }) {
             left: 0,
             right: 0,
             marginTop: '5px',
-            background: '#2C2F33',
+            background: 'var(--bg-secondary)',
             border: '1px solid #40444b',
             borderRadius: '4px',
             maxHeight: '200px',
@@ -279,10 +279,10 @@ function ChannelMultiSelect({ selectedChannelIds, channels, onChange }) {
                 style={{
                   padding: '10px',
                   cursor: 'pointer',
-                  color: '#dcddde',
+                  color: 'var(--text-primary)',
                   transition: 'background 0.2s'
                 }}
-                onMouseEnter={(e) => e.target.style.background = '#40444b'}
+                onMouseEnter={(e) => e.target.style.background = 'var(--border-secondary)'}
                 onMouseLeave={(e) => e.target.style.background = 'transparent'}
               >
                 #{channel.name}
@@ -336,7 +336,7 @@ function MentionSelector({ selectedMentions, roles, onChange, label = 'Mention R
 
   return (
     <div>
-      <label style={{ display: 'block', marginBottom: '10px', fontWeight: '500', color: '#dcddde', fontSize: '14px' }}>
+      <label style={{ display: 'block', marginBottom: '10px', fontWeight: '500', color: 'var(--text-primary)', fontSize: '14px' }}>
         {label}
       </label>
       <div style={{
@@ -344,7 +344,7 @@ function MentionSelector({ selectedMentions, roles, onChange, label = 'Mention R
         flexWrap: 'wrap',
         gap: '8px',
         padding: '12px',
-        background: '#23272A',
+        background: 'var(--bg-tertiary)',
         border: '1px solid #40444b',
         borderRadius: '4px',
         minHeight: '50px',
@@ -375,7 +375,7 @@ function MentionSelector({ selectedMentions, roles, onChange, label = 'Mention R
           </div>
         ))}
         {selectedMentions.length === 0 && (
-          <span style={{ color: '#72767d', fontSize: '14px', alignSelf: 'center' }}>
+          <span style={{ color: 'var(--text-tertiary)', fontSize: '14px', alignSelf: 'center' }}>
             No mentions selected
           </span>
         )}
@@ -395,10 +395,10 @@ function MentionSelector({ selectedMentions, roles, onChange, label = 'Mention R
           style={{
             width: '100%',
             padding: '12px',
-            background: '#2C2F33',
+            background: 'var(--bg-secondary)',
             border: '1px solid #40444b',
             borderRadius: '4px',
-            color: '#dcddde',
+            color: 'var(--text-primary)',
             fontSize: '14px',
             outline: 'none'
           }}
@@ -411,7 +411,7 @@ function MentionSelector({ selectedMentions, roles, onChange, label = 'Mention R
             left: 0,
             right: 0,
             marginTop: '5px',
-            background: '#2C2F33',
+            background: 'var(--bg-secondary)',
             border: '1px solid #40444b',
             borderRadius: '4px',
             maxHeight: '200px',
@@ -426,14 +426,14 @@ function MentionSelector({ selectedMentions, roles, onChange, label = 'Mention R
                 style={{
                   padding: '10px',
                   cursor: 'pointer',
-                  color: '#dcddde',
+                  color: 'var(--text-primary)',
                   transition: 'background 0.2s',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '8px',
                   justifyContent: 'space-between'
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.background = '#40444b'}
+                onMouseEnter={(e) => e.currentTarget.style.background = 'var(--border-secondary)'}
                 onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
@@ -445,7 +445,7 @@ function MentionSelector({ selectedMentions, roles, onChange, label = 'Mention R
                   }} />
                   <span>@{role.name}</span>
                 </div>
-                <span style={{ fontSize: '11px', color: '#72767d', fontFamily: 'monospace' }}>
+                <span style={{ fontSize: '11px', color: 'var(--text-tertiary)', fontFamily: 'monospace' }}>
                   {role.id}
                 </span>
               </div>
@@ -500,7 +500,7 @@ function UserMentionSelector({ selectedUsers, members, onChange, label = 'Mentio
 
   return (
     <div>
-      <label style={{ display: 'block', marginBottom: '10px', fontWeight: '500', color: '#dcddde', fontSize: '14px' }}>
+      <label style={{ display: 'block', marginBottom: '10px', fontWeight: '500', color: 'var(--text-primary)', fontSize: '14px' }}>
         {label}
       </label>
       <div style={{
@@ -508,7 +508,7 @@ function UserMentionSelector({ selectedUsers, members, onChange, label = 'Mentio
         flexWrap: 'wrap',
         gap: '8px',
         padding: '12px',
-        background: '#23272A',
+        background: 'var(--bg-tertiary)',
         border: '1px solid #40444b',
         borderRadius: '4px',
         minHeight: '50px',
@@ -539,7 +539,7 @@ function UserMentionSelector({ selectedUsers, members, onChange, label = 'Mentio
           </div>
         ))}
         {selectedUsers.length === 0 && (
-          <span style={{ color: '#72767d', fontSize: '14px', alignSelf: 'center' }}>
+          <span style={{ color: 'var(--text-tertiary)', fontSize: '14px', alignSelf: 'center' }}>
             No users selected
           </span>
         )}
@@ -559,10 +559,10 @@ function UserMentionSelector({ selectedUsers, members, onChange, label = 'Mentio
           style={{
             width: '100%',
             padding: '12px',
-            background: '#2C2F33',
+            background: 'var(--bg-secondary)',
             border: '1px solid #40444b',
             borderRadius: '4px',
-            color: '#dcddde',
+            color: 'var(--text-primary)',
             fontSize: '14px',
             outline: 'none'
           }}
@@ -575,7 +575,7 @@ function UserMentionSelector({ selectedUsers, members, onChange, label = 'Mentio
             left: 0,
             right: 0,
             marginTop: '5px',
-            background: '#2C2F33',
+            background: 'var(--bg-secondary)',
             border: '1px solid #40444b',
             borderRadius: '4px',
             maxHeight: '200px',
@@ -590,14 +590,14 @@ function UserMentionSelector({ selectedUsers, members, onChange, label = 'Mentio
                 style={{
                   padding: '10px',
                   cursor: 'pointer',
-                  color: '#dcddde',
+                  color: 'var(--text-primary)',
                   transition: 'background 0.2s',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '8px',
                   justifyContent: 'space-between'
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.background = '#40444b'}
+                onMouseEnter={(e) => e.currentTarget.style.background = 'var(--border-secondary)'}
                 onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
@@ -605,11 +605,11 @@ function UserMentionSelector({ selectedUsers, members, onChange, label = 'Mentio
                   <div>
                     <span>@{member.nickname || member.username}</span>
                     {member.nickname && (
-                      <span style={{ fontSize: '11px', color: '#72767d', marginLeft: '6px' }}>({member.username})</span>
+                      <span style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginLeft: '6px' }}>({member.username})</span>
                     )}
                   </div>
                 </div>
-                <span style={{ fontSize: '11px', color: '#72767d', fontFamily: 'monospace' }}>
+                <span style={{ fontSize: '11px', color: 'var(--text-tertiary)', fontFamily: 'monospace' }}>
                   {member.id}
                 </span>
               </div>
@@ -1039,7 +1039,7 @@ function Embeds() {
               {editMessageLoading ? '⏳ Loading...' : '📥 Load Embed'}
             </button>
           </div>
-          <p style={{ color: '#72767d', fontSize: '12px', marginTop: '10px' }}>
+          <p style={{ color: 'var(--text-tertiary)', fontSize: '12px', marginTop: '10px' }}>
             Paste the message link of a bot-sent embed. Right-click the message in Discord → Copy Message Link.
           </p>
         </div>
@@ -1189,7 +1189,7 @@ function Embeds() {
               </div>
 
               {editEmbedData.fields.map((field, index) => (
-                <div key={index} style={{ padding: '15px', background: '#2C2F33', borderRadius: '8px', marginBottom: '10px' }}>
+                <div key={index} style={{ padding: '15px', background: 'var(--bg-secondary)', borderRadius: '8px', marginBottom: '10px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
                     <strong>Field {index + 1}</strong>
                     <button className="btn btn-danger" onClick={() => setEditEmbedData({...editEmbedData, fields: editEmbedData.fields.filter((_, i) => i !== index)})} style={{ padding: '5px 10px' }}>
@@ -1253,7 +1253,7 @@ function Embeds() {
               <h2>Live Preview</h2>
               <div style={{
                 borderLeft: `4px solid ${editEmbedData.color}`,
-                background: '#2C2F33',
+                background: 'var(--bg-secondary)',
                 padding: '15px',
                 borderRadius: '4px',
                 marginTop: '20px',
@@ -1268,14 +1268,14 @@ function Embeds() {
                     </div>
                   )}
                   {editEmbedData.title && <h3 style={{ marginBottom: '10px', color: '#ffffff' }}>{renderDiscordMarkdown(editEmbedData.title)}</h3>}
-                  {editEmbedData.description && <div style={{ color: '#b9bbbe', marginBottom: '10px', lineHeight: '1.5' }}>{renderDiscordMarkdown(editEmbedData.description)}</div>}
+                  {editEmbedData.description && <div style={{ color: 'var(--text-secondary)', marginBottom: '10px', lineHeight: '1.5' }}>{renderDiscordMarkdown(editEmbedData.description)}</div>}
 
                   {editEmbedData.fields.length > 0 && (
                     <div style={{ display: 'grid', gridTemplateColumns: editEmbedData.fields.some(f => f.inline) ? 'repeat(3, 1fr)' : '1fr', gap: '10px', marginTop: '10px' }}>
                       {editEmbedData.fields.map((field, idx) => (
                         <div key={idx}>
                           <strong style={{ fontSize: '14px', display: 'block', marginBottom: '5px', color: '#ffffff' }}>{renderDiscordMarkdown(field.name)}</strong>
-                          <div style={{ fontSize: '13px', color: '#b9bbbe', lineHeight: '1.4' }}>{renderDiscordMarkdown(field.value)}</div>
+                          <div style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.4' }}>{renderDiscordMarkdown(field.value)}</div>
                         </div>
                       ))}
                     </div>
@@ -1284,7 +1284,7 @@ function Embeds() {
                   {editEmbedData.image && <img src={editEmbedData.image} alt="" style={{ width: '100%', borderRadius: '4px', marginTop: '15px' }} />}
 
                   {editEmbedData.footer?.text && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '15px', fontSize: '12px', color: '#b9bbbe' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '15px', fontSize: '12px', color: 'var(--text-secondary)' }}>
                       {editEmbedData.footer.iconURL && <img src={editEmbedData.footer.iconURL} alt="" style={{ width: '20px', height: '20px', borderRadius: '50%' }} />}
                       <span>{renderDiscordMarkdown(editEmbedData.footer.text)}</span>
                       {editEmbedData.timestamp && <span> • {new Date().toLocaleString()}</span>}
@@ -1303,15 +1303,15 @@ function Embeds() {
                 <div style={{
                   marginTop: '20px',
                   padding: '14px',
-                  background: '#23272A',
+                  background: 'var(--bg-tertiary)',
                   borderRadius: '8px',
                   border: '1px solid #40444b'
                 }}>
-                  <p style={{ fontSize: '13px', color: '#b9bbbe', margin: 0 }}>
-                    <strong style={{ color: '#dcddde' }}>Channel ID:</strong> {editMessageData.channelId}
+                  <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0 }}>
+                    <strong style={{ color: 'var(--text-primary)' }}>Channel ID:</strong> {editMessageData.channelId}
                   </p>
-                  <p style={{ fontSize: '13px', color: '#b9bbbe', margin: '6px 0 0 0' }}>
-                    <strong style={{ color: '#dcddde' }}>Message ID:</strong> {editMessageData.messageId}
+                  <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '6px 0 0 0' }}>
+                    <strong style={{ color: 'var(--text-primary)' }}>Message ID:</strong> {editMessageData.messageId}
                   </p>
                 </div>
               )}
@@ -1324,13 +1324,13 @@ function Embeds() {
           <div style={{
             textAlign: 'center',
             padding: '60px 20px',
-            backgroundColor: '#2C2F33',
+            backgroundColor: 'var(--bg-secondary)',
             borderRadius: '12px',
             border: '1px solid #40444b'
           }}>
-            <FaEdit size={48} style={{ color: '#40444b', marginBottom: '16px' }} />
-            <h3 style={{ color: '#dcddde', marginBottom: '8px' }}>No Embed Loaded</h3>
-            <p style={{ color: '#72767d', maxWidth: '400px', margin: '0 auto' }}>
+            <FaEdit size={48} style={{ color: 'var(--border-secondary)', marginBottom: '16px' }} />
+            <h3 style={{ color: 'var(--text-primary)', marginBottom: '8px' }}>No Embed Loaded</h3>
+            <p style={{ color: 'var(--text-tertiary)', maxWidth: '400px', margin: '0 auto' }}>
               Paste a Discord message link above and click "Load Embed" to edit an existing embed sent by the bot.
             </p>
           </div>
@@ -1369,8 +1369,8 @@ function Embeds() {
                     padding: '8px 16px',
                     borderRadius: embedsList.length > 1 ? '8px 0 0 8px' : '8px',
                     border: i === activeEmbedIndex ? '1px solid #5865F2' : '1px solid #40444b',
-                    backgroundColor: i === activeEmbedIndex ? '#5865F2' : '#23272A',
-                    color: i === activeEmbedIndex ? '#ffffff' : '#b9bbbe',
+                    backgroundColor: i === activeEmbedIndex ? '#5865F2' : 'var(--bg-tertiary)',
+                    color: i === activeEmbedIndex ? '#ffffff' : 'var(--text-secondary)',
                     cursor: 'pointer',
                     fontSize: '13px',
                     fontWeight: i === activeEmbedIndex ? '600' : '400',
@@ -1396,14 +1396,14 @@ function Embeds() {
                       borderRadius: '0 8px 8px 0',
                       border: '1px solid #40444b',
                       borderLeft: 'none',
-                      backgroundColor: '#23272A',
+                      backgroundColor: 'var(--bg-tertiary)',
                       color: '#ed4245',
                       cursor: 'pointer',
                       fontSize: '12px',
                       transition: 'all 0.2s'
                     }}
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#ed424520'}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#23272A'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)'}
                     title={`Remove Embed ${i + 1}`}
                   >
                     ×
@@ -1442,7 +1442,7 @@ function Embeds() {
               borderRadius: '8px',
               marginBottom: '16px',
               fontSize: '12px',
-              color: '#b9bbbe',
+              color: 'var(--text-secondary)',
               display: 'flex',
               alignItems: 'center',
               gap: '8px'
@@ -1653,7 +1653,7 @@ function Embeds() {
           </div>
 
           {embedData.fields.map((field, index) => (
-            <div key={index} style={{ padding: '15px', background: '#2C2F33', borderRadius: '8px', marginBottom: '10px' }}>
+            <div key={index} style={{ padding: '15px', background: 'var(--bg-secondary)', borderRadius: '8px', marginBottom: '10px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
                 <strong>Field {index + 1}</strong>
                 <button className="btn btn-danger" onClick={() => removeField(index)} style={{ padding: '5px 10px' }}>
@@ -1695,8 +1695,8 @@ function Embeds() {
             </div>
           ))}
 
-          <div style={{ marginTop: '20px', padding: '10px', background: '#2C2F33', borderRadius: '8px' }}>
-            <p style={{ fontSize: '12px', color: '#b9bbbe' }}>
+          <div style={{ marginTop: '20px', padding: '10px', background: 'var(--bg-secondary)', borderRadius: '8px' }}>
+            <p style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
               Character Count: <strong style={{ color: charCount > 6000 ? '#ED4245' : '#00b894' }}>{charCount} / 6000</strong>
             </p>
           </div>
@@ -1738,14 +1738,14 @@ function Embeds() {
         {/* Preview */}
         <div>
           <div className="card">
-            <h2>Live Preview {embedsList.length > 1 && <span style={{ fontSize: '14px', color: '#b9bbbe', fontWeight: '400' }}>({embedsList.length} embeds)</span>}</h2>
+            <h2>Live Preview {embedsList.length > 1 && <span style={{ fontSize: '14px', color: 'var(--text-secondary)', fontWeight: '400' }}>({embedsList.length} embeds)</span>}</h2>
 
             {/* Mentions outside embed preview */}
             {(mentions.length > 0 || userMentions.length > 0) && (
               <div style={{
                 padding: '8px 0',
                 marginTop: '16px',
-                color: '#dcddde',
+                color: 'var(--text-primary)',
                 fontSize: '14px',
                 lineHeight: '1.6'
               }}>
@@ -1779,7 +1779,7 @@ function Embeds() {
                 (emb.title || emb.description || emb.image) && (
                   <div key={embIdx} style={{ 
                     borderLeft: `4px solid ${emb.color || '#00b894'}`, 
-                    background: '#2C2F33', 
+                    background: 'var(--bg-secondary)', 
                     padding: '15px', 
                     borderRadius: '4px',
                     marginTop: embIdx === 0 ? ((mentions.length > 0 || userMentions.length > 0) ? '8px' : '20px') : '4px',
@@ -1800,14 +1800,14 @@ function Embeds() {
                       )}
                       
                       {emb.title && <h3 style={{ marginBottom: '10px', color: '#ffffff' }}>{renderDiscordMarkdown(emb.title)}</h3>}
-                      {emb.description && <div style={{ color: '#b9bbbe', marginBottom: '10px', lineHeight: '1.5' }}>{renderDiscordMarkdown(emb.description)}</div>}
+                      {emb.description && <div style={{ color: 'var(--text-secondary)', marginBottom: '10px', lineHeight: '1.5' }}>{renderDiscordMarkdown(emb.description)}</div>}
                       
                       {emb.fields?.length > 0 && (
                         <div style={{ display: 'grid', gridTemplateColumns: emb.fields.some(f => f.inline) ? 'repeat(3, 1fr)' : '1fr', gap: '10px', marginTop: '10px' }}>
                           {emb.fields.map((field, idx) => (
                             <div key={idx}>
                               <strong style={{ fontSize: '14px', display: 'block', marginBottom: '5px', color: '#ffffff' }}>{renderDiscordMarkdown(field.name)}</strong>
-                              <div style={{ fontSize: '13px', color: '#b9bbbe', lineHeight: '1.4' }}>{renderDiscordMarkdown(field.value)}</div>
+                              <div style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.4' }}>{renderDiscordMarkdown(field.value)}</div>
                             </div>
                           ))}
                         </div>
@@ -1818,7 +1818,7 @@ function Embeds() {
                       )}
 
                       {emb.footer?.text && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '15px', fontSize: '12px', color: '#b9bbbe' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '15px', fontSize: '12px', color: 'var(--text-secondary)' }}>
                           {emb.footer.iconURL && <img src={emb.footer.iconURL} alt="" style={{ width: '20px', height: '20px', borderRadius: '50%' }} />}
                           <span>{renderDiscordMarkdown(emb.footer.text)}</span>
                           {emb.timestamp && <span> • {new Date().toLocaleString()}</span>}
@@ -1842,7 +1842,7 @@ function Embeds() {
             {savedEmbeds.map(embed => (
               <div key={embed.id} style={{
                 padding: '10px 12px',
-                background: editingEmbedId === embed.id ? '#5865F215' : '#2C2F33',
+                background: editingEmbedId === embed.id ? '#5865F215' : 'var(--bg-secondary)',
                 borderRadius: '8px',
                 marginTop: '10px',
                 display: 'flex',
@@ -1872,7 +1872,7 @@ function Embeds() {
               </div>
             ))}
             {savedEmbeds.length === 0 && (
-              <p style={{ textAlign: 'center', padding: '20px', color: '#b9bbbe' }}>No saved templates</p>
+              <p style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)' }}>No saved templates</p>
             )}
           </div>
         </div>

@@ -3,7 +3,6 @@ import { toast } from 'react-toastify';
 import { FaToggleOn, FaToggleOff, FaPaperPlane, FaInfoCircle } from 'react-icons/fa';
 import { panels, discord } from '../services/api';
 
-// Hardcoded panel list
 const HARDCODED_PANELS = [
   { id: 'support', name: 'Support Panel', description: 'General support and enquiries' },
   { id: 'bookus', name: 'Book Us Panel', description: 'Event booking requests' },
@@ -28,19 +27,16 @@ function PanelsManagement() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      // Fetch panel states from backend
       const response = await panels.getAll();
       const states = {};
       
-      // Initialize all hardcoded panels
       HARDCODED_PANELS.forEach(panel => {
         const foundPanel = response.data.find(p => p.type === panel.id);
-        states[panel.id] = foundPanel?.enabled !== false; // Default to enabled if not found
+        states[panel.id] = foundPanel?.enabled !== false;
       });
       
       setPanelStates(states);
 
-      // Fetch channels
       const channelsRes = await discord.getChannels();
       setChannels(channelsRes.data.filter(ch => ch.type === 0));
     } catch (error) {
@@ -55,10 +51,8 @@ function PanelsManagement() {
     try {
       const newState = !panelStates[panelId];
       
-      // Update backend
       await panels.updatePanelState(panelId, newState);
       
-      // Update local state
       setPanelStates(prev => ({
         ...prev,
         [panelId]: newState
@@ -100,55 +94,55 @@ function PanelsManagement() {
   }
 
   return (
-    <div className="page-container">
+    <div className="page-container" style={{ maxWidth: '1400px', margin: '0 auto' }}>
       <div className="page-title">
-        <h1><FaInfoCircle /> Panel Management</h1>
+        <div>
+          <div className="page-subtitle" style={{ textTransform: 'uppercase', letterSpacing: '0.8px', fontSize: '11px', color: 'var(--primary)', fontWeight: '700', marginBottom: '4px' }}>
+            RealOps Portal / Bot Operations
+          </div>
+          <h1><FaInfoCircle /> Panel Management</h1>
+        </div>
       </div>
 
       <div style={{ 
-        padding: '18px 24px', 
-        background: 'linear-gradient(135deg, #27ae60 0%, #229954 100%)', 
-        border: '1px solid rgba(39, 174, 96, 0.3)', 
+        padding: '16px 20px', 
+        background: 'rgba(16, 185, 129, 0.12)', 
+        border: '1px solid rgba(16, 185, 129, 0.3)', 
         borderRadius: '12px', 
-        marginBottom: '25px',
-        color: '#ffffff',
-        boxShadow: '0 4px 12px rgba(39, 174, 96, 0.2)',
+        marginBottom: '24px',
+        color: 'var(--text-primary)',
         display: 'flex',
         alignItems: 'center',
-        gap: '10px'
+        gap: '12px',
+        fontSize: '14px'
       }}>
-        <FaInfoCircle size={20} />
+        <FaInfoCircle size={20} style={{ color: '#10B981', flexShrink: 0 }} />
         <div>
-          <strong>Panel Management:</strong> Enable/disable ticket panels and deploy them to Discord channels. Disabled panels will be visible but unclickable.
+          <strong style={{ color: '#10B981' }}>Panel Management Overview:</strong> Enable or disable ticket panels and deploy them to Discord channels. Disabled panels will be visible but unclickable.
         </div>
       </div>
 
       {/* Channel Selector */}
-      <div className="card" style={{ marginBottom: '20px' }}>
-        <h3>Select Channel for Deployment</h3>
-        <div className="form-group">
+      <div className="card" style={{ marginBottom: '24px' }}>
+        <div className="card-header">
+          <h2>Select Channel for Deployment</h2>
+        </div>
+        <div className="form-group" style={{ marginBottom: 0 }}>
           <input
             type="text"
             placeholder="Search channels..."
             value={channelSearch}
             onChange={(e) => setChannelSearch(e.target.value)}
-            style={{
-              background: '#2C2F33',
-              border: '1px solid #40444b',
-              color: '#dcddde',
-              padding: '10px',
-              borderRadius: '6px',
-              width: '100%'
-            }}
+            className="form-input"
           />
         </div>
         
         {channelSearch && (
           <div style={{
-            background: '#2C2F33',
-            border: '1px solid #40444b',
-            borderRadius: '6px',
-            maxHeight: '200px',
+            background: 'var(--bg-secondary)',
+            border: '1px solid var(--border-secondary)',
+            borderRadius: '10px',
+            maxHeight: '220px',
             overflowY: 'auto',
             marginTop: '10px'
           }}>
@@ -163,16 +157,17 @@ function PanelsManagement() {
                     setChannelSearch(`# ${channel.name}`);
                   }}
                   style={{
-                    padding: '12px 15px',
+                    padding: '10px 14px',
                     cursor: 'pointer',
-                    color: '#dcddde',
-                    borderBottom: '1px solid #40444b',
-                    transition: 'background 0.2s'
+                    color: 'var(--text-primary)',
+                    borderBottom: '1px solid var(--border-secondary)',
+                    transition: 'background var(--transition-fast)',
+                    fontSize: '13px'
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = '#40444b'}
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-hover)'}
                   onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                 >
-                  <span style={{ color: '#72767d' }}>#</span> {channel.name}
+                  <span style={{ color: 'var(--text-tertiary)' }}>#</span> <strong style={{ marginLeft: '4px' }}>{channel.name}</strong>
                 </div>
               ))}
           </div>
@@ -180,7 +175,7 @@ function PanelsManagement() {
       </div>
 
       {/* Panels Grid */}
-      <div className="grid grid-2">
+      <div className="grid grid-2" style={{ gap: '24px' }}>
         {HARDCODED_PANELS.map(panel => {
           const isEnabled = panelStates[panel.id];
           
@@ -190,9 +185,9 @@ function PanelsManagement() {
                 display: 'flex', 
                 justifyContent: 'space-between', 
                 alignItems: 'center',
-                marginBottom: '15px'
+                marginBottom: '14px'
               }}>
-                <h3 style={{ margin: 0, color: isEnabled ? '#FFD700' : '#666' }}>
+                <h3 style={{ margin: 0, color: isEnabled ? 'var(--primary)' : 'var(--text-secondary)', fontSize: '18px', fontWeight: '700' }}>
                   {panel.name}
                 </h3>
                 <button
@@ -201,9 +196,9 @@ function PanelsManagement() {
                     background: 'none',
                     border: 'none',
                     cursor: 'pointer',
-                    fontSize: '32px',
-                    color: isEnabled ? '#27ae60' : '#666',
-                    transition: 'all 0.3s'
+                    fontSize: '28px',
+                    color: isEnabled ? '#10B981' : 'var(--text-tertiary)',
+                    transition: 'all var(--transition-fast)'
                   }}
                   title={isEnabled ? 'Click to disable' : 'Click to enable'}
                 >
@@ -211,38 +206,38 @@ function PanelsManagement() {
                 </button>
               </div>
 
-              <p style={{ color: '#aaa', fontSize: '14px', marginBottom: '20px' }}>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginBottom: '20px', lineHeight: '1.5' }}>
                 {panel.description}
               </p>
 
               <div style={{ 
-                padding: '12px', 
-                background: isEnabled ? 'rgba(39, 174, 96, 0.1)' : 'rgba(102, 102, 102, 0.1)',
-                border: `1px solid ${isEnabled ? 'rgba(39, 174, 96, 0.3)' : 'rgba(102, 102, 102, 0.3)'}`,
+                padding: '10px 14px', 
+                background: isEnabled ? 'rgba(16, 185, 129, 0.12)' : 'var(--bg-tertiary)',
+                border: `1px solid ${isEnabled ? 'rgba(16, 185, 129, 0.3)' : 'var(--border-secondary)'}`,
                 borderRadius: '8px',
-                marginBottom: '15px',
+                marginBottom: '16px',
                 textAlign: 'center',
-                fontWeight: '600',
-                color: isEnabled ? '#27ae60' : '#666'
+                fontWeight: '700',
+                fontSize: '13px',
+                color: isEnabled ? '#10B981' : 'var(--text-tertiary)'
               }}>
-                {isEnabled ? '✓ ENABLED' : '✗ DISABLED'}
+                {isEnabled ? '✓ ENABLED & ACTIVE' : '✗ CURRENTLY DISABLED'}
               </div>
 
               <button 
-                className="btn" 
+                className={isEnabled ? "btn" : "btn btn-secondary"}
                 onClick={() => deployPanel(panel.id)}
                 disabled={!selectedChannel || deploying || !isEnabled}
                 style={{ 
                   width: '100%',
-                  opacity: !isEnabled ? 0.5 : 1,
-                  cursor: !isEnabled ? 'not-allowed' : 'pointer',
-                  background: !isEnabled ? '#666' : 'linear-gradient(135deg, #FFD700, #FFA500)'
+                  opacity: !isEnabled ? 0.6 : 1,
+                  cursor: !isEnabled ? 'not-allowed' : 'pointer'
                 }}
                 title={!isEnabled ? 'Panel is disabled' : 'Deploy to selected channel'}
               >
                 {deploying ? 'Deploying...' : (
                   <>
-                    <FaPaperPlane style={{ marginRight: '8px' }} /> 
+                    <FaPaperPlane /> 
                     {isEnabled ? 'Deploy to Channel' : 'Panel Disabled'}
                   </>
                 )}
@@ -251,11 +246,12 @@ function PanelsManagement() {
               {!isEnabled && (
                 <p style={{ 
                   fontSize: '12px', 
-                  color: '#e74c3c', 
-                  marginTop: '10px',
-                  textAlign: 'center'
+                  color: 'var(--danger)', 
+                  marginTop: '12px',
+                  textAlign: 'center',
+                  fontWeight: '500'
                 }}>
-                  ⚠️ This panel is disabled. Users cannot create tickets.
+                  ⚠️ This panel is disabled. Users will not be able to create tickets.
                 </p>
               )}
             </div>
@@ -265,15 +261,17 @@ function PanelsManagement() {
 
       {!selectedChannel && (
         <div style={{
-          marginTop: '20px',
-          padding: '15px',
-          background: 'rgba(255, 215, 0, 0.1)',
-          border: '1px solid rgba(255, 215, 0, 0.3)',
-          borderRadius: '8px',
+          marginTop: '24px',
+          padding: '16px',
+          background: 'var(--primary-subtle)',
+          border: '1px solid rgba(99, 102, 241, 0.3)',
+          borderRadius: '12px',
           textAlign: 'center',
-          color: '#FFD700'
+          color: 'var(--primary)',
+          fontSize: '14px',
+          fontWeight: '600'
         }}>
-          ℹ️ Select a channel above to enable panel deployment
+          ℹ️ Select a destination channel above to enable live panel deployment
         </div>
       )}
     </div>
