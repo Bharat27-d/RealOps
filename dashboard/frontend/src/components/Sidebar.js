@@ -112,15 +112,15 @@ function Sidebar({ user, onLogout }) {
       <div style={{ 
         marginTop: 'auto', 
         padding: '16px', 
-        borderTop: '1px solid var(--border-secondary)',
-        background: 'var(--bg-secondary)'
+        borderTop: '1px solid #1E2538',
+        background: '#0A0D16'
       }}>
         <div style={{ 
           padding: '12px 14px', 
           marginBottom: '12px',
-          background: 'var(--bg-tertiary)',
+          background: '#141828',
           borderRadius: '12px',
-          border: '1px solid var(--border-secondary)',
+          border: '1px solid #1E2538',
           display: 'flex',
           alignItems: 'center',
           gap: '12px'
@@ -129,8 +129,8 @@ function Sidebar({ user, onLogout }) {
             width: '36px',
             height: '36px',
             borderRadius: '10px',
-            background: 'var(--primary-subtle)',
-            color: 'var(--primary)',
+            background: '#3B4262',
+            color: '#FFFFFF',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -138,14 +138,14 @@ function Sidebar({ user, onLogout }) {
             fontSize: '15px',
             flexShrink: 0
           }}>
-            {user?.username?.charAt(0)?.toUpperCase() || 'U'}
+            {user?.username?.charAt(0)?.toUpperCase() || 'A'}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <p style={{ fontSize: '11px', color: 'var(--text-tertiary)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.4px', fontWeight: '600' }}>
+            <p style={{ fontSize: '10px', color: '#64748B', margin: 0, textTransform: 'uppercase', letterSpacing: '0.6px', fontWeight: '700' }}>
               Logged in as
             </p>
-            <p style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {user?.username || 'Administrator'}
+            <p style={{ fontSize: '13px', fontWeight: '700', color: '#F8FAFC', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {user?.username || 'Admin'}
             </p>
           </div>
         </div>
@@ -155,7 +155,7 @@ function Sidebar({ user, onLogout }) {
           background: 'rgba(239, 68, 68, 0.12)',
           border: '1px solid rgba(239, 68, 68, 0.25)',
           borderRadius: '10px',
-          color: 'var(--danger)',
+          color: '#EF4444',
           fontSize: '13px',
           fontWeight: '600',
           cursor: 'pointer',
@@ -163,15 +163,15 @@ function Sidebar({ user, onLogout }) {
           alignItems: 'center',
           justifyContent: 'center',
           gap: '8px',
-          transition: 'all var(--transition-fast)'
+          transition: 'all 0.2s ease'
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.background = 'var(--danger)';
+          e.currentTarget.style.background = '#EF4444';
           e.currentTarget.style.color = '#FFFFFF';
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.background = 'rgba(239, 68, 68, 0.12)';
-          e.currentTarget.style.color = 'var(--danger)';
+          e.currentTarget.style.color = '#EF4444';
         }}>
           <FaSignOutAlt /> <span>Sign Out</span>
         </button>

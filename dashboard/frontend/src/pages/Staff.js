@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import { FaSearch, FaUserShield, FaCalendarAlt, FaUsers } from 'react-icons/fa';
+import { FaSearch, FaUserShield, FaCalendarAlt, FaUsers, FaChartBar, FaBriefcase } from 'react-icons/fa';
 import { discord } from '../services/api';
 
 const STAFF_ROLE_IDS = [
@@ -190,48 +190,133 @@ function Staff() {
 
   return (
     <div className="page-container" style={{ maxWidth: '1400px', margin: '0 auto' }}>
-      <div className="page-title">
+      {/* Page Header */}
+      <div style={{
+        background: 'var(--bg-secondary)',
+        border: '1px solid var(--border-secondary)',
+        borderRadius: '16px',
+        padding: '22px 28px',
+        marginBottom: '24px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        boxShadow: 'var(--shadow-sm)'
+      }}>
         <div>
-          <div className="page-subtitle" style={{ textTransform: 'uppercase', letterSpacing: '0.8px', fontSize: '11px', color: 'var(--primary)', fontWeight: '700', marginBottom: '4px' }}>
-            RealOps Portal / Management
+          <div style={{ textTransform: 'uppercase', letterSpacing: '0.8px', fontSize: '11px', color: '#60A5FA', fontWeight: '700', marginBottom: '6px' }}>
+            REALOPS PORTAL / MANAGEMENT
           </div>
-          <h1>
-            <FaUsers /> Staff Roster Directory
+          <h1 style={{ margin: 0, fontSize: '22px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '12px', color: '#FFFFFF' }}>
+            <FaUsers style={{ color: '#818CF8', fontSize: '24px' }} /> Staff Roster Directory
           </h1>
         </div>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          <span className="badge badge-primary" style={{ padding: '8px 14px', fontSize: '13px' }}>
+          <span style={{ background: 'rgba(99, 102, 241, 0.12)', border: '1px solid rgba(99, 102, 241, 0.35)', color: '#818CF8', padding: '6px 14px', borderRadius: '999px', fontSize: '12px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '6px' }}>
             {filteredStaff.length} Active Members
           </span>
-          <button className="btn btn-outline" onClick={() => setShowAvailability(true)}>
-            <FaCalendarAlt /> Availability Status
+          <button style={{
+            background: 'var(--bg-tertiary)',
+            border: '1px solid var(--border-secondary)',
+            color: '#FFFFFF',
+            padding: '9px 16px',
+            borderRadius: '10px',
+            fontSize: '13px',
+            fontWeight: '600',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            transition: 'all 0.2s ease'
+          }} onClick={() => setShowAvailability(true)}>
+            <FaCalendarAlt style={{ color: '#60A5FA' }} /> Availability Status
           </button>
         </div>
       </div>
 
-      <div className="card">
-        <div className="grid grid-2" style={{ marginBottom: '24px' }}>
-          <div className="form-group" style={{ margin: 0 }}>
-            <label className="form-label">Search Directory</label>
+      {/* Stat Cards Row */}
+      <div className="grid grid-4" style={{ gap: '20px', marginBottom: '24px' }}>
+        <div style={{
+          background: 'var(--bg-secondary)', border: '1px solid var(--border-secondary)', borderRadius: '16px', padding: '22px',
+          display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '130px'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <h3 style={{ margin: 0, fontSize: '32px', fontWeight: '800', color: '#FFFFFF', lineHeight: 1 }}>{safeStaffList.length}</h3>
+            <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: '#1C203A', color: '#818CF8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>
+              <FaUsers />
+            </div>
+          </div>
+          <p style={{ margin: '8px 0 0 0', fontSize: '11px', fontWeight: '700', color: '#64748B', letterSpacing: '0.8px', textTransform: 'uppercase' }}>TOTAL STAFF</p>
+        </div>
+
+        <div style={{
+          background: 'var(--bg-secondary)', border: '1px solid var(--border-secondary)', borderRadius: '16px', padding: '22px',
+          display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '130px'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <h3 style={{ margin: 0, fontSize: '32px', fontWeight: '800', color: '#FFFFFF', lineHeight: 1 }}>{STAFF_ROLE_IDS.length}</h3>
+            <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: '#15213D', color: '#60A5FA', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>
+              <FaUserShield />
+            </div>
+          </div>
+          <p style={{ margin: '8px 0 0 0', fontSize: '11px', fontWeight: '700', color: '#64748B', letterSpacing: '0.8px', textTransform: 'uppercase' }}>STAFF POSITIONS</p>
+        </div>
+
+        <div style={{
+          background: 'var(--bg-secondary)', border: '1px solid var(--border-secondary)', borderRadius: '16px', padding: '22px',
+          display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '130px'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <h3 style={{ margin: 0, fontSize: '32px', fontWeight: '800', color: '#FFFFFF', lineHeight: 1 }}>{filteredStaff.length}</h3>
+            <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: '#112C27', color: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>
+              <FaChartBar />
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px' }}>
+            <span style={{ background: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.3)', color: '#10B981', padding: '3px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: '600' }}>
+              Operational
+            </span>
+          </div>
+          <p style={{ margin: '4px 0 0 0', fontSize: '11px', fontWeight: '700', color: '#64748B', letterSpacing: '0.8px', textTransform: 'uppercase' }}>FILTERED RESULTS</p>
+        </div>
+
+        <div style={{
+          background: 'var(--bg-secondary)', border: '1px solid var(--border-secondary)', borderRadius: '16px', padding: '22px',
+          display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '130px'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <h3 style={{ margin: 0, fontSize: '32px', fontWeight: '800', color: '#FFFFFF', lineHeight: 1 }}>{new Set(safeStaffList.flatMap(m => m.roles?.map(r => r.id) || [])).size}</h3>
+            <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: '#2B2116', color: '#F59E0B', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>
+              <FaBriefcase />
+            </div>
+          </div>
+          <p style={{ margin: '8px 0 0 0', fontSize: '11px', fontWeight: '700', color: '#64748B', letterSpacing: '0.8px', textTransform: 'uppercase' }}>UNIQUE ROLES</p>
+        </div>
+      </div>
+
+      {/* Directory Card */}
+      <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-secondary)', borderRadius: '16px', padding: '24px' }}>
+        {/* Filters */}
+        <div className="grid grid-2" style={{ marginBottom: '24px', gap: '20px' }}>
+          <div style={{ margin: 0 }}>
+            <label style={{ display: 'block', color: '#64748B', fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '8px' }}>Search Directory</label>
             <div style={{ position: 'relative' }}>
-              <FaSearch style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-tertiary)' }} />
+              <FaSearch style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#64748B' }} />
               <input 
-                className="form-input"
                 type="text" 
                 placeholder="Search by username or nickname..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                style={{ paddingLeft: '44px' }}
+                style={{ width: '100%', background: 'var(--bg-tertiary)', border: '1px solid var(--border-secondary)', color: '#FFFFFF', padding: '12px 16px 12px 44px', borderRadius: '10px', fontSize: '14px', outline: 'none', fontFamily: 'inherit', transition: 'all 0.2s ease' }}
               />
             </div>
           </div>
 
-          <div className="form-group" style={{ margin: 0 }}>
-            <label className="form-label">Filter by Position</label>
+          <div style={{ margin: 0 }}>
+            <label style={{ display: 'block', color: '#64748B', fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '8px' }}>Filter by Position</label>
             <select 
-              className="form-select"
               value={selectedRole}
               onChange={(e) => setSelectedRole(e.target.value)}
+              style={{ width: '100%', background: 'var(--bg-tertiary)', border: '1px solid var(--border-secondary)', color: '#FFFFFF', padding: '12px 16px', borderRadius: '10px', fontSize: '14px', outline: 'none', fontFamily: 'inherit', cursor: 'pointer', appearance: 'none', backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394A3B8' d='M6 9L1 4h10z'/%3E%3C/svg%3E\")", backgroundRepeat: 'no-repeat', backgroundPosition: 'right 16px center', paddingRight: '40px' }}
             >
               <option value="all">All Positions</option>
               <option value="1291116832308068448">Founder</option>
@@ -278,21 +363,21 @@ function Staff() {
                             height: '42px', 
                             borderRadius: '12px',
                             objectFit: 'cover',
-                            border: '1px solid var(--border-secondary)'
+                            border: '1px solid #1E2538'
                           }}
                         />
                         <div>
-                          <div style={{ fontWeight: '600', color: 'var(--text-primary)', fontSize: '14px' }}>
+                          <div style={{ fontWeight: '700', color: '#FFFFFF', fontSize: '14px' }}>
                             {member.username}
                           </div>
-                          <div style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>
+                          <div style={{ fontSize: '12px', color: '#64748B' }}>
                             #{member.discriminator || '0000'}
                           </div>
                         </div>
                       </div>
                     </td>
-                    <td style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
-                      {member.nickname || <span style={{ color: 'var(--text-tertiary)', fontStyle: 'italic' }}>None</span>}
+                    <td style={{ color: '#94A3B8', fontSize: '14px' }}>
+                      {member.nickname || <span style={{ color: '#64748B', fontStyle: 'italic' }}>None</span>}
                     </td>
                     <td>
                       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
@@ -300,32 +385,48 @@ function Staff() {
                           topRoles.map(role => (
                             <span 
                               key={role.id}
-                              className="badge" 
                               style={{ 
-                                background: 'var(--primary-subtle)',
+                                background: 'rgba(99, 102, 241, 0.12)',
                                 color: '#FFFFFF',
                                 border: `1px solid ${getRoleColor(role)}`,
-                                fontSize: '11px'
+                                fontSize: '11px',
+                                padding: '4px 10px',
+                                borderRadius: '999px',
+                                fontWeight: '600',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '5px'
                               }}
                             >
-                              <FaUserShield style={{ color: getRoleColor(role) }} /> {role.displayName}
+                              <FaUserShield style={{ color: getRoleColor(role), fontSize: '10px' }} /> {role.displayName}
                             </span>
                           ))
                         ) : (
-                          <span style={{ color: 'var(--text-tertiary)' }}>No staff role</span>
+                          <span style={{ color: '#64748B' }}>No staff role</span>
                         )}
                       </div>
                     </td>
-                    <td style={{ color: 'var(--text-tertiary)', fontSize: '13px' }}>
+                    <td style={{ color: '#64748B', fontSize: '13px' }}>
                       {new Date(member.joinedAt).toLocaleDateString('en-US', {
                         month: 'short', day: 'numeric', year: 'numeric'
                       })}
                     </td>
                     <td>
                       <button 
-                        className="btn btn-outline" 
-                        style={{ padding: '6px 14px', fontSize: '13px' }}
+                        style={{ 
+                          background: 'var(--bg-tertiary)', 
+                          border: '1px solid var(--border-secondary)', 
+                          color: '#FFFFFF', 
+                          padding: '6px 14px', 
+                          fontSize: '13px', 
+                          borderRadius: '8px', 
+                          cursor: 'pointer', 
+                          fontWeight: '600', 
+                          transition: 'all 0.2s ease' 
+                        }}
                         onClick={() => setSelectedMember(member)}
+                        onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#60A5FA'; e.currentTarget.style.background = '#1A2035'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border-secondary)'; e.currentTarget.style.background = 'var(--bg-tertiary)'; }}
                       >
                         Profile
                       </button>
@@ -341,14 +442,14 @@ function Staff() {
           <div style={{ 
             textAlign: 'center', 
             padding: '60px 20px',
-            color: 'var(--text-tertiary)',
+            color: '#64748B',
             background: 'var(--bg-tertiary)',
             borderRadius: '14px',
             marginTop: '20px',
             border: '1px solid var(--border-secondary)'
           }}>
             <FaUsers size={48} style={{ opacity: 0.3, marginBottom: '14px' }} />
-            <p style={{ fontSize: '16px', color: 'var(--text-primary)', fontWeight: '600', margin: '0 0 4px 0' }}>No Staff Members Found</p>
+            <p style={{ fontSize: '16px', color: '#FFFFFF', fontWeight: '600', margin: '0 0 4px 0' }}>No Staff Members Found</p>
             <p style={{ fontSize: '14px', margin: 0 }}>Try modifying your directory search query or role filter.</p>
           </div>
         )}

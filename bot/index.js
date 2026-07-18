@@ -14,6 +14,7 @@ const GUILD_ID = config.GUILD_ID;
 const { setupTicketSystem } = require('./ticketSystem');
 const { setupCustomCommandsListener } = require('./customCommandsHandler');
 const { setupCommandConfig } = require('./commandConfig');
+const { setupWeeklyAnnouncements } = require('./utils/weeklyAnnouncer');
 const fs = require('fs');
 const path = require('path');
 
@@ -143,6 +144,7 @@ client.once('ready', async () => {
     setupCustomCommandsListener(client, registerCommands);
     
     setupTicketSystem(client);
+    setupWeeklyAnnouncements(client);
 
     // Start lightweight health check HTTP server
     startHealthServer();

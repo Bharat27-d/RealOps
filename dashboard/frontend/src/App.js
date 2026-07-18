@@ -85,7 +85,20 @@ function App() {
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </div>
-        <ToastContainer position="bottom-right" theme="dark" />
+        <ToastContainer 
+          position="bottom-right" 
+          theme="dark"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          pauseOnHover
+          draggable={false}
+          limit={3}
+          toastClassName="custom-toast"
+          bodyClassName="custom-toast-body"
+          progressClassName="custom-toast-progress"
+        />
       </div>
     </Router>
   );

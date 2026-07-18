@@ -128,7 +128,10 @@ function RoleSelector({ roleKey, label, selectedRoleIds, discordRoles, updateCon
             {availableRoles.slice(0, 10).map(role => (
               <div
                 key={role.id}
-                onClick={() => addRole(role.id)}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  addRole(role.id);
+                }}
                 style={{
                   padding: '12px 14px',
                   cursor: 'pointer',
@@ -337,7 +340,9 @@ function Settings() {
       console.error('Failed to load general settings');
       setGeneralSettings({ 
         eventReminderChannelId: null,
-        eventReminderRoleIds: []
+        weeklyAnnouncementChannelId: null,
+        eventReminderRoleIds: [],
+        weeklyAnnouncementRoleIds: []
       });
     }
   };
@@ -621,9 +626,21 @@ function Settings() {
             {generalSettings && (
               <SearchableSelect
                 value={generalSettings.eventReminderChannelId}
-                onChange={(value) => setGeneralSettings({...generalSettings, eventReminderChannelId: value})}
+                onChange={(value) => setGeneralSettings(prev => ({...prev, eventReminderChannelId: value}))}
                 options={discordChannels}
                 placeholder="Select channel for automated event reminders"
+              />
+            )}
+          </div>
+
+          <div className="form-group" style={{ marginBottom: '20px' }}>
+            <label className="form-label">Weekly Announcement Channel</label>
+            {generalSettings && (
+              <SearchableSelect
+                value={generalSettings.weeklyAnnouncementChannelId}
+                onChange={(value) => setGeneralSettings(prev => ({...prev, weeklyAnnouncementChannelId: value}))}
+                options={discordChannels}
+                placeholder="Select channel for weekly calendar announcements"
               />
             )}
           </div>
@@ -636,7 +653,20 @@ function Settings() {
                 label=""
                 selectedRoleIds={generalSettings.eventReminderRoleIds || []}
                 discordRoles={discordRoles}
-                updateConfig={(path, value) => setGeneralSettings({...generalSettings, eventReminderRoleIds: value})}
+                updateConfig={(path, value) => setGeneralSettings(prev => ({...prev, eventReminderRoleIds: value}))}
+              />
+            )}
+          </div>
+          
+          <div className="form-group" style={{ margin: 0, marginTop: '20px' }}>
+            <label className="form-label">Roles to Tag in Weekly Announcements</label>
+            {generalSettings && (
+              <RoleSelector
+                roleKey="weeklyAnnouncement"
+                label=""
+                selectedRoleIds={generalSettings.weeklyAnnouncementRoleIds || []}
+                discordRoles={discordRoles}
+                updateConfig={(path, value) => setGeneralSettings(prev => ({...prev, weeklyAnnouncementRoleIds: value}))}
               />
             )}
           </div>

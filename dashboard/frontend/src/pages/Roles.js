@@ -6,7 +6,6 @@ import ConfirmDialog from '../components/ConfirmDialog';
 
 function Roles() {
   const [nicknameRules, setNicknameRules] = useState([]);
-  const [channels, setChannels] = useState([]);
   const [discordRoles, setDiscordRoles] = useState([]);
   const [members, setMembers] = useState([]);
   // eslint-disable-next-line no-unused-vars
@@ -28,11 +27,7 @@ function Roles() {
 
   const fetchAllData = async () => {
     try {
-      const [channelsRes, rolesRes] = await Promise.all([
-        discord.getChannels(),
-        discord.getRoles()
-      ]);
-      setChannels(channelsRes.data);
+      const rolesRes = await discord.getRoles();
       setDiscordRoles(rolesRes.data);
 
       if (activeTab === 'analytics') {

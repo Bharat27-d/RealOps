@@ -189,6 +189,10 @@ app.get('/health', (req, res) => {
 
 // Error handler
 app.use((err, req, res, next) => {
+  if (res.headersSent) {
+    console.error('Error occurred after headers sent:', err.message);
+    return next(err);
+  }
   console.error(err.stack);
   res.status(500).json({ error: 'Something went wrong!' });
 });

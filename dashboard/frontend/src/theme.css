@@ -11,14 +11,14 @@
   --primary-border: rgba(99, 102, 241, 0.35);
   
   /* Background Hierarchy (Obsidian & Slate) */
-  --bg-primary: #090C15;       /* Main Page Background */
-  --bg-secondary: #111625;     /* Card & Surface Base */
-  --bg-tertiary: #181E32;      /* Elevated Surfaces / Input Fields / Table Head */
-  --bg-hover: #1F2740;         /* Row & Card Hover */
+  --bg-primary: #06080E;       /* Main Page Background */
+  --bg-secondary: #0E121E;     /* Card & Surface Base */
+  --bg-tertiary: #141828;      /* Elevated Surfaces / Input Fields / Table Head */
+  --bg-hover: #1A2035;         /* Row & Card Hover */
   
   /* Borders */
   --border-primary: rgba(99, 102, 241, 0.3);
-  --border-secondary: rgba(255, 255, 255, 0.07);
+  --border-secondary: #1E2538;
   --border-hover: rgba(255, 255, 255, 0.15);
   
   /* Typography Colors */

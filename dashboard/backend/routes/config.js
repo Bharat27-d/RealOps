@@ -129,10 +129,21 @@ router.get('/general', isAdmin, async (req, res) => {
     const settingsDoc = await collections.settings.doc('general').get();
     
     if (settingsDoc.exists) {
-      res.json(settingsDoc.data());
+      const data = settingsDoc.data();
+      // Ensure all expected fields have defaults
+      res.json({
+        eventReminderChannelId: null,
+        eventReminderRoleIds: [],
+        weeklyAnnouncementChannelId: null,
+        weeklyAnnouncementRoleIds: [],
+        ...data
+      });
     } else {
       res.json({
-        eventReminderChannelId: null
+        eventReminderChannelId: null,
+        eventReminderRoleIds: [],
+        weeklyAnnouncementChannelId: null,
+        weeklyAnnouncementRoleIds: []
       });
     }
   } catch (error) {
