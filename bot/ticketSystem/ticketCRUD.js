@@ -185,12 +185,14 @@ async function closeTicketConfirmed(interaction) {
             ticketData.transcriptGenerated = new Date().toISOString();
         } catch (transcriptError) {
             console.error('Error generating HTML transcript:', transcriptError);
-            try {
-                const messages = await channel.messages.fetch({ limit: 100 });
-                ticketData.transcript = messages.filter(m => !m.author.bot || m.content).sort((a, b) => a.createdTimestamp - b.createdTimestamp)
-                    .map(m => ({ author: m.author.tag, authorId: m.author.id, message: m.content || '[Embed/Attachment]', timestamp: m.createdAt.toISOString() }));
-            } catch (e) { console.error('Fallback transcript error:', e); }
         }
+
+        // Always generate text fallback transcript in case HTML is too large for Firestore
+        try {
+            const messages = await channel.messages.fetch({ limit: 100 });
+            ticketData.transcript = messages.filter(m => !m.author.bot || m.content).sort((a, b) => a.createdTimestamp - b.createdTimestamp)
+                .map(m => ({ author: m.author.tag, authorId: m.author.id, message: m.content || '[Embed/Attachment]', timestamp: m.createdAt.toISOString() }));
+        } catch (e) { console.error('Fallback transcript error:', e); }
 
         const updatedTicketData = { ...ticketData, closed: true, status: 'closed', closedAt: new Date(), closedBy: user.id };
         activeTickets.set(channel.id, updatedTicketData);

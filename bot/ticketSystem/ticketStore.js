@@ -28,6 +28,12 @@ function serializeTicket(ticket) {
     if (data.createdAt instanceof Date) data.createdAt = data.createdAt.toISOString();
     if (data.closedAt instanceof Date) data.closedAt = data.closedAt.toISOString();
     if (data.reopenedAt instanceof Date) data.reopenedAt = data.reopenedAt.toISOString();
+    
+    // Firestore max document size is 1MB. Strip large transcripts to prevent crash loop.
+    if (data.transcriptHtml && data.transcriptHtml.length > 850000) {
+        delete data.transcriptHtml;
+    }
+    
     return data;
 }
 
@@ -37,6 +43,12 @@ function deserializeTicket(data) {
     if (data.closedAt) data.closedAt = new Date(data.closedAt);
     if (data.reopenedAt) data.reopenedAt = new Date(data.reopenedAt);
     if (!data.channelId && data._channelId) data.channelId = data._channelId;
+    
+    // Strip large transcripts loaded from cache to recover from crash loops
+    if (data.transcriptHtml && data.transcriptHtml.length > 850000) {
+        delete data.transcriptHtml;
+    }
+    
     return data;
 }
 

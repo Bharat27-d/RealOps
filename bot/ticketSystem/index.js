@@ -53,8 +53,10 @@ function setupTicketSystem(client) {
         console.warn('⚠️ Firebase not configured — tickets will only save locally');
     }
 
-    // ── On ready: sync from Firestore, validate, rebuild ──
-    client.once('ready', async () => {
+    // ── Init: sync from Firestore, validate, rebuild ──
+    // Note: setupTicketSystem is called from inside the 'ready' handler in index.js,
+    // so the client is already ready at this point. Run init logic directly.
+    (async () => {
         console.log(`Bot is ready. Current date (UTC): ${formatDateUTC(new Date())}`);
 
         // Sync tickets from Firestore (migrates JSON → Firestore on first run)
@@ -76,7 +78,7 @@ function setupTicketSystem(client) {
         }
         if (removedCount > 0) await saveActiveTickets(activeTickets);
         console.log(`✅ Loaded ${activeTickets.size} active tickets (removed ${removedCount} invalid entries)`);
-    });
+    })().catch(err => console.error('Error during ticket system init:', err));
 
     // ── Main interaction router ──
     client.on(Events.InteractionCreate, (interaction) => {

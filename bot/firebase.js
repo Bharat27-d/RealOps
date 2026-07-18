@@ -19,8 +19,7 @@ if (!process.env.FIREBASE_PROJECT_ID || !process.env.FIREBASE_PRIVATE_KEY || !pr
     };
 
     app = admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount),
-      databaseURL: "https://realops-777-default-rtdb.europe-west1.firebasedatabase.app"
+      credential: admin.credential.cert(serviceAccount)
     }, 'bot-instance');
   }
 

@@ -18,12 +18,10 @@ const serviceAccount = {
 };
 
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: process.env.FIREBASE_DATABASE_URL || `https://realops-777-default-rtdb.europe-west1.firebasedatabase.app`
+  credential: admin.credential.cert(serviceAccount)
 });
 
 const db = admin.firestore();
-const realtimeDb = admin.database();
 
 // Collections
 const collections = {
@@ -47,12 +45,4 @@ const collections = {
   commandOverrides: db.collection('commandOverrides')
 };
 
-// Realtime Database references (if you want to use both)
-const realtimeRefs = {
-  tickets: realtimeDb.ref('tickets'),
-  events: realtimeDb.ref('events'),
-  staff: realtimeDb.ref('staff'),
-  // Add more as needed
-};
-
-module.exports = { admin, db, realtimeDb, collections, realtimeRefs };
+module.exports = { admin, db, collections };
