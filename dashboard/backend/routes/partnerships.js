@@ -139,6 +139,27 @@ router.post('/announce-quick', isStaff, async (req, res) => {
   }
 });
 
+// Update full partnership data
+router.put('/:id', isStaff, async (req, res) => {
+  try {
+    const updateData = {
+      ...req.body,
+      updatedAt: new Date().toISOString(),
+      updatedBy: req.user.id
+    };
+    
+    // Remove fields that shouldn't be overridden directly if passed
+    delete updateData.id;
+    
+    await collections.partnerships.doc(req.params.id).update(updateData);
+    cache.invalidate('partnerships:*');
+    cache.invalidate('public:partnerships');
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Delete partnership
 router.delete('/:id', isStaff, async (req, res) => {
   try {

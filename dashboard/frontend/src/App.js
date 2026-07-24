@@ -10,6 +10,7 @@ import Dashboard from './pages/Dashboard';
 import Events from './pages/Events';
 import Tickets from './pages/Tickets';
 import Staff from './pages/Staff';
+import Recruitment from './pages/Recruitment';
 import Embeds from './pages/Embeds';
 import Panels from './pages/Panels';
 import Analytics from './pages/Analytics';
@@ -73,6 +74,7 @@ function App() {
             <Route path="/events" element={<Events />} />
             <Route path="/tickets" element={<Tickets />} />
             <Route path="/staff" element={<Staff />} />
+            <Route path="/recruitment" element={<Recruitment />} />
             <Route path="/embeds" element={<Embeds />} />
             <Route path="/panels" element={<Panels />} />
             <Route path="/analytics" element={<Analytics />} />

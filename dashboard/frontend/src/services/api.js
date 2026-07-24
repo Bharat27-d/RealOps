@@ -108,7 +108,16 @@ export const partnerships = {
   sendTerms: (id, data) => api.post(`/api/partnerships/${id}/send-terms`, data),
   announce: (id, channelId) => api.post(`/api/partnerships/${id}/announce`, { channelId }),
   announceQuick: (channelId, embedData, content) => api.post('/api/partnerships/announce-quick', { channelId, embedData, content }),
+  update: (id, data) => api.put(`/api/partnerships/${id}`, data),
   delete: (id) => api.delete(`/api/partnerships/${id}`)
+};
+
+// Recruitment endpoints
+export const recruitment = {
+  getAll: () => api.get('/api/recruitment'),
+  create: (data) => api.post('/api/recruitment', data),
+  update: (id, data) => api.put(`/api/recruitment/${id}`, data),
+  delete: (id) => api.delete(`/api/recruitment/${id}`)
 };
 
 // Feedback endpoints

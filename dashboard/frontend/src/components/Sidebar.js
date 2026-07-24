@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { 
   FaHome, FaCalendar, FaTicketAlt, FaUsers, 
   FaPalette, FaLayerGroup, FaChartBar, FaSignOutAlt,
-  FaHandshake, FaBook, FaTerminal, FaUserShield, FaBullhorn, FaCog, FaCircle
+  FaHandshake, FaBook, FaTerminal, FaUserShield, FaBullhorn, FaCog, FaCircle, FaBriefcase
 } from 'react-icons/fa';
 
 function Sidebar({ user, onLogout }) {
@@ -55,6 +55,11 @@ function Sidebar({ user, onLogout }) {
           <li>
             <NavLink to="/staff">
               <FaUsers /> <span>Staff Roster</span>
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to="/recruitment">
+              <FaBriefcase /> <span>Recruitment</span>
             </NavLink>
           </li>
           <li>

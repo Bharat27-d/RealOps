@@ -1,746 +1,640 @@
 {
-  "1389180755607027815": {
-    "channelId": "1389180755607027815",
-    "userId": "1374743667775901757",
-    "type": "joinTeam",
-    "createdAt": "2025-06-30T09:48:22.292Z",
+  "1504591814768988351": {
+    "createdAt": "2026-05-14T21:10:44.873Z",
+    "transcript": [],
     "formData": {
-      "position": "Jnr Planner",
-      "experience": "I am currently doing convoy planning for me and I hope to expand my experience here.",
-      "whyChoose": "I am motivated, about organizing events in a realistic and professional way. I have experience participating in TMP events and would love to support the team with planning and structure. I'm a team player, I learn quickly, and I'm always looking to improve things where possible.",
-      "timeCommitment": "I can dedicate around 6–10 hours per week, mainly during evenings and weekends. I'm flexible and can adapt based on project deadlines or event requirements.",
-      "aboutYourself": "I'm an active member of the TruckersMP community and have a passion for Convoy's. I enjoy teamwork and take pride in contributing to well run, realistic events. I'm responsible, communicative, and open to feedback. Outside of TMP, I’m organized and used to handling schedules and responsibilities, which I believe will be valuable in this role. I’m excited to learn from the team and help make every operation a success.",
-      "submittedAt": "2025-06-30 09:48:21",
-      "timestamp": 1751276901
-    }
-  },
-  "1389637127574261810": {
-    "channelId": "1389637127574261810",
-    "userId": "401425845933178882",
-    "type": "bookUs",
-    "createdAt": "2025-07-01T16:01:49.951Z",
-    "formData": {
-      "discordName": "Yiğit Yılmaz #ccuti",
       "vtcRole": "Founder",
-      "eventLink": "https://truckersmp.com/events/29344-eternal%7C-winter-convoy2025",
-      "eventId": "29344",
-      "submittedAt": "2025-07-01T16:01:49.023Z",
-      "timestamp": 1751385709
-    }
-  },
-  "1391093493123776722": {
-    "channelId": "1391093493123776722",
-    "userId": "1193854275726622753",
+      "eventId": "35707",
+      "eventStartAt": "2026-11-14 18:00:00",
+      "daysUntilEvent": 184,
+      "eventMeetupTs": 1794675600,
+      "eventStartTs": 1794679200,
+      "submittedAt": "2026-05-14T21:10:42.174Z",
+      "eventMeetupAt": "2026-11-14 17:00:00",
+      "discordName": "gtlegion",
+      "eventLink": "https://truckersmp.com/events/35707-vtc-gtlegion4th-anniversary",
+      "timestamp": 1778793042
+    },
     "type": "bookUs",
-    "createdAt": "2025-07-05T16:28:54.207Z",
-    "formData": {
-      "discordName": "starcem - [SCM]Empresive",
-      "vtcRole": "CEO",
-      "eventLink": "https://truckersmp.com/events/29587-partners-on-the-road%E2%80%93-birthday-edition",
-      "eventId": "29587",
-      "submittedAt": "2025-07-05T16:28:53.539Z",
-      "timestamp": 1751732933
-    }
+    "userId": "719501741829390424",
+    "channelId": "1504591814768988351",
+    "username": "gtlegion"
   },
-  "1391829021636952189": {
-    "channelId": "1391829021636952189",
-    "userId": "1226121015440965636",
-    "type": "joinTeam",
-    "createdAt": "2025-07-07T17:11:38.035Z",
+  "1506331198203367637": {
+    "createdAt": "2026-05-19T16:22:24.721Z",
+    "transcript": [],
     "formData": {
-      "position": "Real-Ops Staff or Media Team",
-      "experience": "we organized a convoy at a smaller company Czech Republic called Temní Jezdci",
-      "whyChoose": "I'm trustworthy and happy to cooperate",
-      "timeCommitment": "I don't know about 50 hours",
-      "aboutYourself": "My name is Luke! and I'm 15 years old, I'm driving for Pean Logistics I've been playing euro truck simulator for a little over 1year and some months on top of that, in that time I've found a lot of experience and on top of that.\nAnd I've got over 1,320 hours of un-driven time on ETS 2.",
-      "submittedAt": "2025-07-07 17:11:37",
-      "timestamp": 1751908297
-    }
-  },
-  "1394417477110464562": {
-    "channelId": "1394417477110464562",
-    "userId": "382916052218281984",
-    "type": "bookUs",
-    "createdAt": "2025-07-14T20:37:13.890Z",
-    "formData": {
-      "discordName": "smoudus",
-      "vtcRole": "Chief Executive Officer",
-      "eventLink": "https://truckersmp.com/events/29727 <- Not public yet",
-      "eventId": "29727",
-      "submittedAt": "2025-07-14T20:37:13.206Z",
-      "timestamp": 1752525433
-    }
-  },
-  "1396041924686647406": {
-    "channelId": "1396041924686647406",
-    "userId": "316274099955433477",
-    "type": "bookUs",
-    "createdAt": "2025-07-19T08:12:12.553Z",
-    "formData": {
-      "discordName": "semihkutluk",
       "vtcRole": "Founder",
-      "eventLink": "https://truckersmp.com/events/25417",
-      "eventId": "25417",
-      "submittedAt": "2025-07-19T08:12:11.355Z",
-      "timestamp": 1752912731
-    }
-  },
-  "1398262522762493952": {
-    "channelId": "1398262522762493952",
-    "userId": "827629891809312819",
+      "eventId": "35190",
+      "eventStartAt": "2026-10-05 18:00:00",
+      "daysUntilEvent": 140,
+      "eventMeetupTs": 1791219600,
+      "eventStartTs": 1791223200,
+      "submittedAt": "2026-05-19T16:22:23.390Z",
+      "eventMeetupAt": "2026-10-05 17:00:00",
+      "discordName": "whitE.png",
+      "eventLink": "https://truckersmp.com/events/35190-ponc-logistics%E2%80%9Csoul-of-anatolia%E2%80%9D-mc#38",
+      "timestamp": 1779207743
+    },
     "type": "bookUs",
-    "createdAt": "2025-07-25T11:16:04.190Z",
-    "formData": {
-      "discordName": "dani318",
-      "vtcRole": "event leader",
-      "eventLink": "tmp page not up yet, in prosses of being made",
-      "eventId": null,
-      "submittedAt": "2025-07-25T11:16:03.583Z",
-      "timestamp": 1753442163
-    }
+    "userId": "759361662175674380",
+    "channelId": "1506331198203367637",
+    "username": "white0020"
   },
-  "1398383657642754049": {
-    "channelId": "1398383657642754049",
-    "userId": "827629891809312819",
+  "1506695211093463210": {
+    "createdAt": "2026-05-20T16:28:52.393Z",
+    "transcript": [],
+    "formData": {
+      "vtcRole": "Owner",
+      "eventId": "35655",
+      "eventStartAt": "2026-11-15 18:00:00",
+      "daysUntilEvent": 180,
+      "eventMeetupTs": 1794762000,
+      "eventStartTs": 1794765600,
+      "submittedAt": "2026-05-20T16:28:50.979Z",
+      "eventMeetupAt": "2026-11-15 17:00:00",
+      "discordName": "Mascotte149",
+      "eventLink": "https://truckersmp.com/events/35655",
+      "timestamp": 1779294530
+    },
     "type": "bookUs",
-    "createdAt": "2025-07-25T19:17:24.992Z",
-    "formData": {
-      "discordName": "dani318",
-      "vtcRole": "event leader",
-      "eventLink": "no tmp page just yet",
-      "eventId": null,
-      "submittedAt": "2025-07-25T19:17:24.283Z",
-      "timestamp": 1753471044
-    }
+    "userId": "742426835828342875",
+    "channelId": "1506695211093463210",
+    "username": "mascotte149"
   },
-  "1398392083555025058": {
-    "channelId": "1398392083555025058",
+  "1506709530166169760": {
+    "createdAt": "2026-05-20T17:25:46.020Z",
+    "transcript": [],
+    "formData": {
+      "vtcRole": "Founder",
+      "eventId": "34727",
+      "eventStartAt": "2026-10-28 19:00:00",
+      "daysUntilEvent": 162,
+      "eventMeetupTs": 1793210400,
+      "eventStartTs": 1793214000,
+      "submittedAt": "2026-05-20T17:25:44.947Z",
+      "eventMeetupAt": "2026-10-28 18:00:00",
+      "discordName": "Moonlight Express (_ashleyyy_)",
+      "eventLink": "https://truckersmp.com/events/34727-%E2%9C%A8%F0%9F%8E%89moonlight-express%7C1-year-anniversary%F0%9F%8E%89%E2%9C%A8",
+      "timestamp": 1779297944
+    },
+    "type": "bookUs",
+    "userId": "291354776044830720",
+    "channelId": "1506709530166169760",
+    "username": "_ashleyyy_"
+  },
+  "1510025649023352944": {
+    "createdAt": "2026-05-29T21:02:50.541Z",
+    "transcript": [],
+    "formData": {
+      "vtcRole": "Founder",
+      "eventId": "35990",
+      "eventStartAt": "2026-11-29 19:00:00",
+      "daysUntilEvent": 184,
+      "eventMeetupTs": 1795975200,
+      "eventStartTs": 1795978800,
+      "submittedAt": "2026-05-29T21:02:49.122Z",
+      "eventMeetupAt": "2026-11-29 18:00:00",
+      "discordName": "itsPeanutttt",
+      "eventLink": "https://truckersmp.com/events/35990",
+      "timestamp": 1780088569
+    },
+    "type": "bookUs",
+    "userId": "208757218013609985",
+    "channelId": "1510025649023352944",
+    "username": "itspeanutttt"
+  },
+  "1510424112642658534": {
+    "createdAt": "2026-05-30T23:26:11.518Z",
+    "transcript": [],
+    "formData": {
+      "vtcRole": "Co Founder",
+      "eventId": "34526",
+      "eventStartAt": "2026-09-16 18:00:00",
+      "daysUntilEvent": 109,
+      "eventMeetupTs": 1789578000,
+      "eventStartTs": 1789581600,
+      "submittedAt": "2026-05-30T23:26:10.507Z",
+      "eventMeetupAt": "2026-09-16 17:00:00",
+      "discordName": "bekir_3169",
+      "eventLink": "https://truckersmp.com/events/34526-orvion-convoy-control-opening-convoy",
+      "timestamp": 1780183570
+    },
+    "type": "bookUs",
+    "userId": "804002125474562058",
+    "channelId": "1510424112642658534",
+    "username": "bekir_3169"
+  },
+  "1514412698803245088": {
+    "createdAt": "2026-06-10T23:35:24.552Z",
+    "transcript": [],
+    "formData": {
+      "vtcRole": "Manager VTC",
+      "eventId": "36139",
+      "eventStartAt": "2026-12-05 20:30:00",
+      "daysUntilEvent": 178,
+      "eventMeetupTs": 1796500800,
+      "eventStartTs": 1796502600,
+      "submittedAt": "2026-06-10T23:35:23.469Z",
+      "eventMeetupAt": "2026-12-05 20:00:00",
+      "discordName": "maury79",
+      "eventLink": "https://truckersmp.com/events/36139",
+      "timestamp": 1781134523
+    },
+    "type": "bookUs",
+    "userId": "1077632941154373715",
+    "channelId": "1514412698803245088",
+    "username": "maury79"
+  },
+  "1515300933175738521": {
+    "createdAt": "2026-06-13T10:24:56.255Z",
+    "transcript": [],
+    "formData": {
+      "vtcRole": "Owner",
+      "eventId": "36218",
+      "eventStartAt": "2026-12-11 18:00:00",
+      "daysUntilEvent": 182,
+      "eventMeetupTs": 1797008400,
+      "eventStartTs": 1797012000,
+      "submittedAt": "2026-06-13T10:24:54.865Z",
+      "eventMeetupAt": "2026-12-11 17:00:00",
+      "discordName": "snow_player_de",
+      "eventLink": "https://truckersmp.com/events/36218",
+      "timestamp": 1781346294
+    },
+    "type": "bookUs",
+    "userId": "711654951306264606",
+    "channelId": "1515300933175738521",
+    "username": "snow_player_de"
+  },
+  "1515301286642188298": {
+    "createdAt": "2026-06-13T10:26:20.430Z",
+    "transcript": [],
+    "formData": {
+      "vtcRole": "Founder",
+      "eventId": "36227",
+      "eventStartAt": "2026-12-12 19:00:00",
+      "daysUntilEvent": 183,
+      "eventMeetupTs": 1797098400,
+      "eventStartTs": 1797102000,
+      "submittedAt": "2026-06-13T10:26:19.324Z",
+      "eventMeetupAt": "2026-12-12 18:00:00",
+      "discordName": "ZackHere",
+      "eventLink": "https://truckersmp.com/events/36227-%E2%9C%A8-premium-events-version#3%E2%9C%A8",
+      "timestamp": 1781346379
+    },
+    "type": "bookUs",
     "userId": "392444887233986560",
-    "type": "bookUs",
-    "createdAt": "2025-07-25T19:50:53.934Z",
-    "formData": {
-      "discordName": "ZackHere_",
-      "vtcRole": "Senior Event Manager",
-      "eventLink": "https://truckersmp.com/events/29778-hazmat-works-with-pean-logistics",
-      "eventId": "29778",
-      "submittedAt": "2025-07-25T19:50:53.235Z",
-      "timestamp": 1753473053
-    }
+    "channelId": "1515301286642188298",
+    "username": "zackhere_"
   },
-  "1398392852379205682": {
-    "channelId": "1398392852379205682",
-    "userId": "392444887233986560",
-    "type": "bookUs",
-    "createdAt": "2025-07-25T19:53:57.198Z",
+  "1515603985891983473": {
+    "createdAt": "2026-06-14T06:29:09.570Z",
+    "transcript": [],
     "formData": {
-      "discordName": "ZackHere_",
-      "vtcRole": "Senior Event Manager",
-      "eventLink": "Pean's February Event",
-      "eventId": null,
-      "submittedAt": "2025-07-25T19:53:56.613Z",
-      "timestamp": 1753473236
-    }
-  },
-  "1398393112153428190": {
-    "channelId": "1398393112153428190",
-    "userId": "392444887233986560",
+      "vtcRole": "Project Founder",
+      "eventId": "36230",
+      "eventStartAt": "2026-12-13 16:00:00",
+      "daysUntilEvent": 183,
+      "eventMeetupTs": 1797174000,
+      "eventStartTs": 1797177600,
+      "submittedAt": "2026-06-14T06:29:08.441Z",
+      "eventMeetupAt": "2026-12-13 15:00:00",
+      "discordName": "FamousPerson",
+      "eventLink": "https://truckersmp.com/events/36230",
+      "timestamp": 1781418548
+    },
     "type": "bookUs",
-    "createdAt": "2025-07-25T19:54:59.136Z",
-    "formData": {
-      "discordName": "ZackHere_",
-      "vtcRole": "Senior Event Manager",
-      "eventLink": "Pean and GTLegion's Event on 18th Feb 2025",
-      "eventId": "18",
-      "submittedAt": "2025-07-25T19:54:58.524Z",
-      "timestamp": 1753473298
-    }
-  },
-  "1400088574342201449": {
-    "channelId": "1400088574342201449",
-    "userId": "307179363164487681",
-    "type": "bookUs",
-    "createdAt": "2025-07-30T12:12:08.779Z",
-    "formData": {
-      "discordName": "Zaimoğlu",
-      "vtcRole": "Anatolia Logistics",
-      "eventLink": "https://truckersmp.com/events/30012-anatolia-logistics-monthly-convoy#20",
-      "eventId": "30012",
-      "submittedAt": "2025-07-30T12:12:08.177Z",
-      "timestamp": 1753877528
-    }
-  },
-  "1401175752073810045": {
-    "channelId": "1401175752073810045",
-    "userId": "483343773225451540",
-    "type": "bookUs",
-    "createdAt": "2025-08-02T12:12:12.266Z",
-    "formData": {
-      "discordName": "james4235",
-      "vtcRole": "Project Coordinator",
-      "eventLink": ".",
-      "eventId": null,
-      "submittedAt": "2025-08-02T12:12:11.579Z",
-      "timestamp": 1754136731
-    }
-  },
-  "1402189555003818044": {
-    "channelId": "1402189555003818044",
-    "userId": "745662238379081728",
-    "type": "bookUs",
-    "createdAt": "2025-08-05T07:20:41.684Z",
-    "formData": {
-      "discordName": "Judge_Eugen",
-      "vtcRole": "CEO",
-      "eventLink": "https://truckersmp.com/events/29528-%F0%9F%8D%AB-chocolate--our-time-for-winter-special%E2%98%83%25EF%25B8%258F",
-      "eventId": "29528",
-      "submittedAt": "2025-08-05T07:20:40.944Z",
-      "timestamp": 1754378440
-    }
-  },
-  "1403028872731033722": {
-    "channelId": "1403028872731033722",
-    "userId": "307179363164487681",
-    "type": "bookUs",
-    "createdAt": "2025-08-07T14:55:50.788Z",
-    "formData": {
-      "discordName": "Zaimoğlu",
-      "vtcRole": "Event Manager",
-      "eventLink": "https://truckersmp.com/events/30228",
-      "eventId": "30228",
-      "submittedAt": "2025-08-07T14:55:49.896Z",
-      "timestamp": 1754578549
-    }
-  },
-  "1404558180024979466": {
-    "channelId": "1404558180024979466",
-    "userId": "824213018044530700",
-    "type": "bookUs",
-    "createdAt": "2025-08-11T20:12:45.891Z",
-    "formData": {
-      "discordName": "Mihawkylz",
-      "vtcRole": "Founder",
-      "eventLink": "https://truckersmp.com/events/30308-frostline-with-turkishline",
-      "eventId": "30308",
-      "submittedAt": "2025-08-11T20:12:45.215Z",
-      "timestamp": 1754943165
-    }
-  },
-  "1408322807191834666": {
-    "channelId": "1408322807191834666",
-    "userId": "200000272200630272",
-    "type": "bookUs",
-    "createdAt": "2025-08-22T05:32:03.062Z",
-    "formData": {
-      "discordName": "Ghøst.",
-      "vtcRole": "United Convoys - Convoy Control Supervisor",
-      "eventLink": "Still in progress.",
-      "eventId": null,
-      "submittedAt": "2025-08-22T05:32:02.271Z",
-      "timestamp": 1755840722
-    }
-  },
-  "1414673029417668628": {
-    "channelId": "1414673029417668628",
-    "userId": "985589677094494358",
-    "type": "bookUs",
-    "createdAt": "2025-09-08T18:05:33.882Z",
-    "formData": {
-      "discordName": "itsberkechan",
-      "vtcRole": "CO-Founder",
-      "eventLink": "https://truckersmp.com/events/30790",
-      "eventId": "30790",
-      "submittedAt": "2025-09-08T18:05:33.190Z",
-      "timestamp": 1757354733
-    }
-  },
-  "1415020203921772554": {
-    "channelId": "1415020203921772554",
-    "userId": "307179363164487681",
-    "type": "bookUs",
-    "createdAt": "2025-09-09T17:05:06.697Z",
-    "formData": {
-      "discordName": "Zaimoğlu",
-      "vtcRole": "Event Mangaer",
-      "eventLink": "https://truckersmp.com/events/30821-anatolia-logistics&-pean-logi%CC%87sti%CC%87cs-partnership-convoy",
-      "eventId": "30821",
-      "submittedAt": "2025-09-09T17:05:05.981Z",
-      "timestamp": 1757437505
-    }
-  },
-  "1417371083342090342": {
-    "channelId": "1417371083342090342",
-    "userId": "1199972336120647730",
-    "type": "bookUs",
-    "createdAt": "2025-09-16T04:46:40.150Z",
-    "formData": {
-      "discordName": "ray_0317",
-      "vtcRole": "Founder",
-      "eventLink": "https://truckersmp.com/events/30916",
-      "eventId": "30916",
-      "submittedAt": "2025-09-16T04:46:39.570Z",
-      "timestamp": 1757997999
-    }
-  },
-  "1417555328811401226": {
-    "channelId": "1417555328811401226",
     "userId": "373538279540391956",
-    "type": "bookUs",
-    "createdAt": "2025-09-16T16:58:49.205Z",
-    "formData": {
-      "discordName": "FamousPesron",
-      "vtcRole": "VTC Founder / CEO",
-      "eventLink": "https://truckersmp.com/events/27176",
-      "eventId": "27176",
-      "submittedAt": "2025-09-16T16:58:46.926Z",
-      "timestamp": 1758041926
-    }
+    "channelId": "1515603985891983473",
+    "username": "famousperson"
   },
-  "1420524132097069177": {
-    "channelId": "1420524132097069177",
-    "userId": "719501741829390424",
-    "type": "bookUs",
-    "createdAt": "2025-09-24T21:35:45.709Z",
+  "1515604067831779358": {
+    "createdAt": "2026-06-14T06:29:31.159Z",
+    "transcript": [],
     "formData": {
+      "vtcRole": "Project Founder",
+      "eventId": "36256",
+      "eventStartAt": "2026-12-06 16:00:00",
+      "daysUntilEvent": 176,
+      "eventMeetupTs": 1796569200,
+      "eventStartTs": 1796572800,
+      "submittedAt": "2026-06-14T06:29:27.935Z",
+      "eventMeetupAt": "2026-12-06 15:00:00",
+      "discordName": "FamousPerson",
+      "eventLink": "https://truckersmp.com/events/36256",
+      "timestamp": 1781418567
+    },
+    "type": "bookUs",
+    "userId": "373538279540391956",
+    "channelId": "1515604067831779358",
+    "username": "famousperson"
+  },
+  "1516481615788773499": {
+    "createdAt": "2026-06-16T16:36:32.831Z",
+    "transcript": [],
+    "formData": {
+      "vtcRole": "Founder",
+      "eventId": "33594",
+      "eventStartAt": "2026-07-27 18:00:00",
+      "daysUntilEvent": 42,
+      "eventMeetupTs": 1785171600,
+      "eventStartTs": 1785175200,
+      "submittedAt": "2026-06-16T16:36:31.535Z",
+      "eventMeetupAt": "2026-07-27 17:00:00",
+      "discordName": "omeryahya44",
+      "eventLink": "https://truckersmp.com/events/33594-novalines-july-convoy",
+      "timestamp": 1781627791
+    },
+    "type": "bookUs",
+    "userId": "1276243636320866388",
+    "channelId": "1516481615788773499",
+    "username": "omeryahya44"
+  },
+  "1517278045403222210": {
+    "createdAt": "2026-06-18T21:21:16.507Z",
+    "transcript": [],
+    "formData": {
+      "vtcRole": "Founder",
+      "eventId": "36342",
+      "eventStartAt": "2026-12-18 18:00:00",
+      "daysUntilEvent": 183,
+      "eventMeetupTs": 1797613200,
+      "eventStartTs": 1797616800,
+      "submittedAt": "2026-06-18T21:21:15.079Z",
+      "eventMeetupAt": "2026-12-18 17:00:00",
       "discordName": "gtlegion",
-      "vtcRole": "Founder",
-      "eventLink": "https://truckersmp.com/events/29939-open-convoy-vtc-gtlegion%7C-january",
-      "eventId": "29939",
-      "submittedAt": "2025-09-24T21:35:44.940Z",
-      "timestamp": 1758749744
-    }
-  },
-  "1420524214397702256": {
-    "channelId": "1420524214397702256",
+      "eventLink": "https://truckersmp.com/events/36342",
+      "timestamp": 1781817675
+    },
+    "type": "bookUs",
     "userId": "719501741829390424",
+    "channelId": "1517278045403222210",
+    "username": "gtlegion"
+  },
+  "1517645791697834207": {
+    "createdAt": "2026-06-19T21:42:33.912Z",
+    "transcript": [],
+    "formData": {
+      "vtcRole": "CEO",
+      "eventId": "36332",
+      "eventStartAt": "2026-12-19 20:30:00",
+      "daysUntilEvent": 183,
+      "eventMeetupTs": 1797708600,
+      "eventStartTs": 1797712200,
+      "submittedAt": "2026-06-19T21:42:32.664Z",
+      "eventMeetupAt": "2026-12-19 19:30:00",
+      "discordName": "Fury_Nitro",
+      "eventLink": "https://truckersmp.com/events/36332-%F0%9F%8E%84-ffb-christmas-convoy2026",
+      "timestamp": 1781905352
+    },
     "type": "bookUs",
-    "createdAt": "2025-09-24T21:36:05.334Z",
-    "formData": {
-      "discordName": "gtlegion",
-      "vtcRole": "Founder",
-      "eventLink": "https://truckersmp.com/events/30941-winter-convoy-vtc-gtlegion%7Cfebruary",
-      "eventId": "30941",
-      "submittedAt": "2025-09-24T21:36:04.528Z",
-      "timestamp": 1758749764
-    }
-  },
-  "1420524286535274636": {
-    "channelId": "1420524286535274636",
-    "userId": "719501741829390424",
-    "type": "bookUs",
-    "createdAt": "2025-09-24T21:36:22.301Z",
-    "formData": {
-      "discordName": "gtlegion",
-      "vtcRole": "Founder",
-      "eventLink": "https://truckersmp.com/events/30942-first-spring-convoy-vtc-gtlegion2026%7C-march",
-      "eventId": "30942",
-      "submittedAt": "2025-09-24T21:36:21.718Z",
-      "timestamp": 1758749781
-    }
-  },
-  "1422919292684337194": {
-    "channelId": "1422919292684337194",
-    "userId": "882390043707187221",
-    "type": "bookUs",
-    "createdAt": "2025-10-01T12:13:16.540Z",
-    "formData": {
-      "discordName": "mr.menoitios",
-      "vtcRole": "owner",
-      "eventLink": "https://truckersmp.com/events/30782",
-      "eventId": "30782",
-      "submittedAt": "2025-10-01T12:13:15.718Z",
-      "timestamp": 1759320795
-    }
-  },
-  "1423672799205130250": {
-    "channelId": "1423672799205130250",
-    "userId": "882390043707187221",
-    "type": "bookUs",
-    "createdAt": "2025-10-03T14:07:26.553Z",
-    "formData": {
-      "discordName": "mr.menoitios",
-      "vtcRole": "owner",
-      "eventLink": "https://truckersmp.com/events/28071",
-      "eventId": "28071",
-      "submittedAt": "2025-10-03T14:07:25.605Z",
-      "timestamp": 1759500445
-    }
-  },
-  "1423692791678242931": {
-    "channelId": "1423692791678242931",
-    "userId": "742426835828342875",
-    "type": "bookUs",
-    "createdAt": "2025-10-03T15:26:52.914Z",
-    "formData": {
-      "discordName": "Zackhere",
-      "vtcRole": "Event Manager",
-      "eventLink": "https://truckersmp.com/events/31280",
-      "eventId": "31280",
-      "submittedAt": "2025-10-03T15:26:52.263Z",
-      "timestamp": 1759505212
-    }
-  },
-  "1423726884814065776": {
-    "channelId": "1423726884814065776",
-    "userId": "660328170372726805",
-    "type": "founders",
-    "createdAt": "2025-10-03T17:42:21.113Z",
-    "formData": {
-      "discordName": "Antho the owl",
-      "inquiryDetails": "I heard from a friend you never collaborate on events with a team which is not your partner. Maybe it's not fully right I dont know ^^\n\nI would just know if it's the situation, and by the same would enter in contact with you, as (apparently) a VTC which asked CC services to our community (OCSC Event), asked also a real ops situations to your services.\n\nSo I would enter in contact with you about it, in order to see if there is a collaboration coming, and if yes, how it will works.\n\nThanks to you in advance for your help in this ticket.\n\nSincerely,\nAntho, OCSC Event Founder",
-      "submittedAt": "2025-10-03T17:42:20.387Z"
-    }
-  },
-  "1424013197882429492": {
-    "channelId": "1424013197882429492",
-    "userId": "742426835828342875",
-    "type": "bookUs",
-    "createdAt": "2025-10-04T12:40:03.656Z",
-    "formData": {
-      "discordName": "GTLegion",
-      "vtcRole": "Founder",
-      "eventLink": "https://truckersmp.com/events/31300",
-      "eventId": "31300",
-      "submittedAt": "2025-10-04T12:40:03.023Z",
-      "timestamp": 1759581603
-    }
-  },
-  "1424329184418861077": {
-    "channelId": "1424329184418861077",
-    "userId": "1116020734276423773",
-    "type": "bookUs",
-    "createdAt": "2025-10-05T09:35:40.720Z",
-    "formData": {
-      "discordName": "John snow",
-      "vtcRole": "Founder",
-      "eventLink": "#  **1st Year Anniversary - NextGen Convoy Control ** \n\n🎉 Invitation to **“1st Year Anniversary - NextGen Convoy Control”** ✨\n\nWe’re thrilled to invite your VTC to celebrate a major milestone with us — NextGen Convoy Control’s 1st Anniversary!  🥳\n\n📅 **Date:** Sunday, 12th April 2026\n⏰ **Meetup:** 15:30 UTC | 21:00 IST\n🚦 **Departure:** 16:30 UTC | 22:00 IST\n\n🏙️ **Departure City:** Montpellier (Slots)\n🏁 **Destination:** Civaux (Nucleon)\n🗺️ **DLC Required:** Vive la France!\n▶️ [Event Page](https://truckersmp.com/events/31337-1st-year-anniversary-nextgen-convoy-control)\n\n📞 **Contact Us:**\n# [Slot Booking](https://discord.com/invite/WNj8hJQhw7)\nFor slot booking or event queries, reach out to our event coordinators via Discord.\n\n🚚 Let’s roll together and celebrate this milestone — the NextGen way! 💫\n\n**See you on the road!**\n\nKind Regards,\nNextGen CC\nEvent Team",
-      "eventId": "31337",
-      "submittedAt": "2025-10-05T09:35:39.938Z",
-      "timestamp": 1759656939
-    }
-  },
-  "1425358167889678459": {
-    "channelId": "1425358167889678459",
-    "userId": "867388078640332830",
-    "type": "bookUs",
-    "createdAt": "2025-10-08T05:44:29.450Z",
-    "formData": {
-      "discordName": "JAGDEEP SINGH",
-      "vtcRole": "Event Manager",
-      "eventLink": "https://truckersmp.com/events/30259-season-of-renewal-by-indian-group",
-      "eventId": "30259",
-      "submittedAt": "2025-10-08T05:44:28.842Z",
-      "timestamp": 1759902268
-    }
-  },
-  "1427069007290433608": {
-    "channelId": "1427069007290433608",
-    "userId": "1420520961672871947",
-    "type": "bookUs",
-    "createdAt": "2025-10-12T23:02:45.272Z",
-    "formData": {
-      "discordName": "thund3RRRR",
-      "vtcRole": "Event Manager",
-      "eventLink": "https://truckersmp.com/events/31087",
-      "eventId": "31087",
-      "submittedAt": "2025-10-12T23:02:43.558Z",
-      "timestamp": 1760310163,
-      "eventStartAt": "2026-02-06 19:00:00",
-      "eventMeetupAt": "2026-02-06 18:00:00",
-      "eventStartTs": 1770404400,
-      "eventMeetupTs": 1770400800,
-      "daysUntilEvent": 117
-    }
-  },
-  "1431956923070152724": {
-    "channelId": "1431956923070152724",
-    "userId": "827629891809312819",
-    "type": "bookUs",
-    "createdAt": "2025-10-26T10:45:35.275Z",
-    "formData": {
-      "discordName": "Dani318",
-      "vtcRole": "Event Leader",
-      "eventLink": "https://truckersmp.com/events/31569-liminal-april-convoy",
-      "eventId": "31569",
-      "submittedAt": "2025-10-26T10:45:33.774Z",
-      "timestamp": 1761475533,
-      "eventStartAt": "2026-04-08 18:00:00",
-      "eventMeetupAt": "2026-04-08 17:00:00",
-      "eventStartTs": 1775671200,
-      "eventMeetupTs": 1775667600,
-      "daysUntilEvent": 165
-    }
-  },
-  "1432513554707382392": {
-    "channelId": "1432513554707382392",
-    "userId": "748162102421749873",
-    "type": "bookUs",
-    "createdAt": "2025-10-27T23:37:26.544Z",
-    "formData": {
-      "discordName": "_rohith_74",
-      "vtcRole": "Events Team",
-      "eventLink": "https://truckersmp.com/events/31718-tamil-pasanga-x-legacy-transport%5Bltvtc%5D-friendship-convoy",
-      "eventId": "31718",
-      "submittedAt": "2025-10-27T23:37:24.898Z",
-      "timestamp": 1761608244,
-      "eventStartAt": "2026-04-25 15:00:00",
-      "eventMeetupAt": "2026-04-25 14:00:00",
-      "eventStartTs": 1777129200,
-      "eventMeetupTs": 1777125600,
-      "daysUntilEvent": 180
-    }
-  },
-  "1433189160415662090": {
-    "channelId": "1433189160415662090",
-    "userId": "972116416302055484",
-    "type": "bookUs",
-    "createdAt": "2025-10-29T20:22:03.563Z",
-    "formData": {
-      "discordName": "https://discord.gg/BcbknNV3GP",
-      "vtcRole": "Ukraine Community Logistics",
-      "eventLink": "https://truckersmp.com/events/31723-convoy-on-the2nd-anniversary-of-ukraine-community-logistics",
-      "eventId": "31723",
-      "submittedAt": "2025-10-29T20:22:01.871Z",
-      "timestamp": 1761769321,
-      "eventStartAt": "2026-04-27 19:00:00",
-      "eventMeetupAt": "2026-04-27 18:00:00",
-      "eventStartTs": 1777316400,
-      "eventMeetupTs": 1777312800,
-      "daysUntilEvent": 180
-    }
-  },
-  "1433756463486210201": {
-    "channelId": "1433756463486210201",
-    "userId": "1089438490523078687",
-    "type": "bookUs",
-    "createdAt": "2025-10-31T09:56:19.229Z",
-    "formData": {
-      "discordName": "Phoenix",
-      "vtcRole": "Super CC Founder",
-      "eventLink": "https://truckersmp.com/events/30957",
-      "eventId": "30957",
-      "submittedAt": "2025-10-31T09:56:18.111Z",
-      "timestamp": 1761904578,
-      "eventStartAt": "2026-04-29 12:30:00",
-      "eventMeetupAt": "2026-04-29 11:30:00",
-      "eventStartTs": 1777465800,
-      "eventMeetupTs": 1777462200,
-      "daysUntilEvent": 181
-    }
-  },
-  "1434467978006761482": {
-    "channelId": "1434467978006761482",
-    "userId": "392444887233986560",
-    "type": "bookUs",
-    "createdAt": "2025-11-02T09:03:37.470Z",
-    "formData": {
-      "discordName": "ZackHere_",
-      "vtcRole": "Senior Event Manager",
-      "eventLink": "https://truckersmp.com/events/31760-going-to-greece-with-pean-logistics",
-      "eventId": "31760",
-      "submittedAt": "2025-11-02T09:03:35.737Z",
-      "timestamp": 1762074215,
-      "eventStartAt": "2026-04-26 19:00:00",
-      "eventMeetupAt": "2026-04-26 18:00:00",
-      "eventStartTs": 1777230000,
-      "eventMeetupTs": 1777226400,
-      "daysUntilEvent": 176
-    }
-  },
-  "1437090590373445633": {
-    "channelId": "1437090590373445633",
-    "userId": "783725489142497320",
-    "type": "bookUs",
-    "createdAt": "2025-11-09T14:44:57.105Z",
-    "formData": {
-      "discordName": "aliensucr",
-      "vtcRole": "Founder",
-      "eventLink": "https://truckersmp.com/events/31978",
-      "eventId": "31978",
-      "submittedAt": "2025-11-09T14:44:55.055Z",
-      "timestamp": 1762699495,
-      "eventStartAt": "2026-05-08 18:00:00",
-      "eventMeetupAt": "2026-05-08 17:00:00",
-      "eventStartTs": 1778263200,
-      "eventMeetupTs": 1778259600,
-      "daysUntilEvent": 181
-    }
-  },
-  "1437382045033828423": {
-    "channelId": "1437382045033828423",
-    "userId": "867388078640332830",
-    "type": "bookUs",
-    "createdAt": "2025-11-10T10:03:05.109Z",
-    "formData": {
-      "discordName": "Jagdeep Singh",
-      "vtcRole": "Senior Event Manager",
-      "eventLink": "https://truckersmp.com/events/30260-together-we-take-u-turn-with-indian-group",
-      "eventId": "30260",
-      "submittedAt": "2025-11-10T10:03:03.914Z",
-      "timestamp": 1762768983,
-      "eventStartAt": "2026-05-09 17:00:00",
-      "eventMeetupAt": "2026-05-09 16:00:00",
-      "eventStartTs": 1778346000,
-      "eventMeetupTs": 1778342400,
-      "daysUntilEvent": 181
-    }
-  },
-  "1437568150047817859": {
-    "channelId": "1437568150047817859",
-    "userId": "208630023626817536",
-    "type": "bookUs",
-    "createdAt": "2025-11-10T22:22:35.960Z",
-    "formData": {
-      "discordName": "RSL | Domi",
-      "vtcRole": "Founder",
-      "eventLink": "https://truckersmp.com/events/29807",
-      "eventId": "29807",
-      "submittedAt": "2025-11-10T22:22:35.050Z",
-      "timestamp": 1762813355,
-      "eventStartAt": "2026-01-30 19:00:00",
-      "eventMeetupAt": "2026-01-30 18:00:00",
-      "eventStartTs": 1769799600,
-      "eventMeetupTs": 1769796000,
-      "daysUntilEvent": 81
-    }
-  },
-  "1437993204451643503": {
-    "channelId": "1437993204451643503",
-    "userId": "1121288411081343066",
-    "type": "bookUs",
-    "createdAt": "2025-11-12T02:31:36.955Z",
-    "formData": {
-      "discordName": "Chirag",
-      "vtcRole": "Event Manager",
-      "eventLink": "https://truckersmp.com/events/31749-nexus-transport2nd-anniversary-convoy",
-      "eventId": "31749",
-      "submittedAt": "2025-11-12T02:31:35.208Z",
-      "timestamp": 1762914695,
-      "eventStartAt": "2026-02-23 13:30:00",
-      "eventMeetupAt": "2026-02-23 12:30:00",
-      "eventStartTs": 1771853400,
-      "eventMeetupTs": 1771849800,
-      "daysUntilEvent": 104
-    }
-  },
-  "1439528337209819208": {
-    "channelId": "1439528337209819208",
-    "userId": "656200425023733798",
-    "type": "joinTeam",
-    "createdAt": "2025-11-16T08:11:41.184Z",
-    "formData": {
-      "position": "Junior Planner",
-      "truckermpId": "2226091",
-      "experience": "Sadly no experience but I am interested to learn from other people and understand the role better.",
-      "whyChoose": "I believe that I can perform this tasks with effective when given the chance. Planning out event have always been a interest of mine and trying to understand and learn from what other people experience would push me into excel in this role.",
-      "timeCommitment": "Depending on the day but normally I have a lot of time after 16:00 GMT+1",
-      "submittedAt": "2025-11-16 08:11:39",
-      "timestamp": 1763280699
-    }
-  },
-  "1439937371670970438": {
-    "channelId": "1439937371670970438",
     "userId": "349304046332411905",
-    "type": "bookUs",
-    "createdAt": "2025-11-17T11:17:02.450Z",
-    "formData": {
-      "discordName": "Icaria Logistic Company",
-      "vtcRole": "C.E.O.",
-      "eventLink": "https://truckersmp.com/events/31828-icaria-logistic-company2nd-anniversary",
-      "eventId": "31828",
-      "submittedAt": "2025-11-17T11:17:01.307Z",
-      "timestamp": 1763378221,
-      "eventStartAt": "2026-05-09 19:30:00",
-      "eventMeetupAt": "2026-05-09 18:30:00",
-      "eventStartTs": 1778355000,
-      "eventMeetupTs": 1778351400,
-      "daysUntilEvent": 174
-    }
+    "channelId": "1517645791697834207",
+    "username": "fury_n2o"
   },
-  "1440045155171176609": {
-    "channelId": "1440045155171176609",
-    "userId": "604303072998719509",
-    "type": "bookUs",
-    "createdAt": "2025-11-17T18:25:20.163Z",
+  "1518159047872745572": {
+    "createdAt": "2026-06-21T07:42:03.749Z",
+    "transcript": [],
     "formData": {
-      "discordName": "Boofi_Softie",
-      "vtcRole": "Managing Director",
-      "eventLink": "https://truckersmp.com/events/32097",
-      "eventId": "32097",
-      "submittedAt": "2025-11-17T18:25:18.802Z",
-      "timestamp": 1763403918,
-      "eventStartAt": "2026-05-09 13:00:00",
-      "eventMeetupAt": "2026-05-09 12:00:00",
-      "eventStartTs": 1778331600,
-      "eventMeetupTs": 1778328000,
-      "daysUntilEvent": 173
-    }
-  },
-  "1454827301156945942": {
-    "channelId": "1454827301156945942",
-    "userId": "1148318409126318100",
-    "username": "mopsigamingg",
-    "type": "joinTeam",
-    "createdAt": "2025-12-28T13:24:19.727Z",
-    "formData": {
-      "position": "Real Ops Staff Member",
-      "truckermpId": "5399957",
-      "experience": "I am since 6 Months Member of the FoxLog Real Ops & since 2 weeks i got promoted to Real Ops Planner of the FLR",
-      "whyChoose": "Because i'm very motivated and want to help out in the Team with the Events",
-      "timeCommitment": "About 4 hours in the week or more. Mostly on Weekend",
-      "submittedAt": "2025-12-28 13:24:17",
-      "timestamp": 1766928257
+      "vtcRole": "CCS & EP",
+      "eventId": "35761",
+      "eventStartAt": "2026-11-16 18:00:00",
+      "daysUntilEvent": 149,
+      "eventMeetupTs": 1794848400,
+      "eventStartTs": 1794852000,
+      "submittedAt": "2026-06-21T07:42:02.502Z",
+      "eventMeetupAt": "2026-11-16 17:00:00",
+      "discordName": "ik1znw",
+      "eventLink": "https://truckersmp.com/events/35761",
+      "timestamp": 1782027722
     },
-    "transcript": []
+    "type": "bookUs",
+    "userId": "774565147217625099",
+    "channelId": "1518159047872745572",
+    "username": "ik1znw"
   },
-  "1454889171066949857": {
-    "channelId": "1454889171066949857",
-    "userId": "896822840563736668",
-    "username": "zhapatlela",
+  "1518658639446151251": {
+    "createdAt": "2026-06-22T16:47:15.705Z",
+    "transcript": [],
+    "formData": {
+      "partnershipReason": "I am requesting a partnership with The Real Ops Group to grow alongside a team that has a strong focus on teamwork and making every event successful through flawless communication. A partnership would be an amazing opportunity for Echo Convoy Control to expand, while allowing us to support each other whenever large-scale events are taking place.\n\nFurthermore, joining forces will help alleviate the growing pressure from VTCs looking for reliable Convoy Control groups to manage their hosted events. By working together, we can combine our strengths, come closer as a community, and ensure high-quality execution for every convoy.\n\nThank you for considering our partnership request. We look forward to the possibility of working together.\n\nBest regards,\nTheWolf\nEcho Convoy Control - Founder",
+      "vtcName": "Echo Convoy Control (No TMP VTC page currently)",
+      "submittedAt": "2026-06-22T16:47:14.708Z",
+      "discordName": "TheWolf"
+    },
+    "type": "partnership",
+    "userId": "1086235243268276355",
+    "channelId": "1518658639446151251",
+    "username": "thewolf0257"
+  },
+  "1520093324386504815": {
+    "createdAt": "2026-06-26T15:48:11.238Z",
+    "transcript": [],
+    "formData": {
+      "vtcRole": "Event Planner",
+      "eventId": "36447",
+      "eventStartAt": "2026-10-30 19:00:00",
+      "daysUntilEvent": 127,
+      "eventMeetupTs": 1793383200,
+      "eventStartTs": 1793386800,
+      "submittedAt": "2026-06-26T15:48:10.050Z",
+      "eventMeetupAt": "2026-10-30 18:00:00",
+      "discordName": "ik1znw",
+      "eventLink": "https://truckersmp.com/events/36447",
+      "timestamp": 1782488890
+    },
+    "type": "bookUs",
+    "userId": "774565147217625099",
+    "channelId": "1520093324386504815",
+    "username": "ik1znw"
+  },
+  "1522170498534871060": {
+    "createdAt": "2026-07-02T09:22:08.263Z",
+    "transcript": [],
+    "formData": {
+      "vtcRole": "Senior Management",
+      "eventId": "34746",
+      "eventStartAt": "2026-09-27 13:00:00",
+      "daysUntilEvent": 88,
+      "eventMeetupTs": 1790510400,
+      "eventStartTs": 1790514000,
+      "submittedAt": "2026-07-02T09:22:06.835Z",
+      "eventMeetupAt": "2026-09-27 12:00:00",
+      "discordName": "Phoenix",
+      "eventLink": "https://truckersmp.com/events/34746",
+      "timestamp": 1782984126
+    },
+    "type": "bookUs",
+    "userId": "1089438490523078687",
+    "channelId": "1522170498534871060",
+    "username": "phoenixtmp_0531"
+  },
+  "1522328515922366545": {
+    "createdAt": "2026-07-02T19:50:02.618Z",
+    "transcript": [],
+    "formData": {
+      "vtcRole": "EM",
+      "eventId": "36541",
+      "eventStartAt": "2027-01-02 18:00:00",
+      "daysUntilEvent": 184,
+      "eventMeetupTs": 1798909200,
+      "eventStartTs": 1798912800,
+      "submittedAt": "2026-07-02T19:50:01.221Z",
+      "eventMeetupAt": "2027-01-02 17:00:00",
+      "discordName": "Toth",
+      "eventLink": "https://truckersmp.com/events/36541",
+      "timestamp": 1783021801
+    },
+    "type": "bookUs",
+    "userId": "690227159297556635",
+    "channelId": "1522328515922366545",
+    "username": "toth."
+  },
+  "1522426998922809454": {
+    "createdAt": "2026-07-03T02:21:24.364Z",
+    "transcript": [],
+    "formData": {
+      "helpDescription": "Seb",
+      "submittedAt": "2026-07-03T02:21:21.592Z",
+      "discordName": "Itspeanutttt"
+    },
     "type": "support",
-    "createdAt": "2025-12-28T17:30:09.262Z",
-    "formData": {
-      "discordName": "Zhapatlela",
-      "helpDescription": "Hey guys! Due to some time issues, I’ll be stepping out of the Convoy Control group. Had a great time with you all keep rolling safe",
-      "submittedAt": "2025-12-28T17:30:08.144Z"
-    },
-    "transcript": []
+    "userId": "208757218013609985",
+    "channelId": "1522426998922809454",
+    "username": "itspeanutttt"
   },
-  "1454936485701750846": {
-    "channelId": "1454936485701750846",
-    "userId": "1196799963242438767",
-    "username": "v1per_o",
-    "type": "joinTeam",
-    "createdAt": "2025-12-28T20:38:10.199Z",
+  "1524202882155548744": {
+    "createdAt": "2026-07-07T23:58:06.227Z",
+    "transcript": [],
     "formData": {
-      "position": "Media Team",
-      "truckermpId": "6006239",
-      "experience": "I have been in enough VTC’s within TMP to have a value of my work, some of them are Ghost Express, Northern Express, At The Mile Logistics, Line of Energy are some of the VTC’s I have contributed and am contributing to currently, I have been taking pictures besides that normally in ETS and other simulation games.",
-      "whyChoose": "I'm interested in applying for this position within the media team for the Real Ops Group as I believe I am fit with my valuable skills and creative mindset I believe I stand a good chance due to my work and creative way of working, I always try to do a great job within my work I present and try to do it even better the next time and always try to improve as much as possible. I like to do my work on time and never try to extend a period a job has to be done.",
-      "timeCommitment": "I have enough time to dedicate to this position. My only possible issue would be to have to commit to being online at very specific times (e.g. attend events) because sometimes my IRL schedule etc.",
-      "submittedAt": "2025-12-28 20:38:09",
-      "timestamp": 1766954289
+      "partnershipReason": "I’m requesting a partnership with The Real-Ops Group, because I would like to collaborate on larger convoys that may require more event staff, and to handle bigger player counts better. Another reason is building relationships with other groups/communities, encouraging a more connected TruckersMP community instead of competing for members, which what partnerships aren’t about, and just create more enjoyable experiences for participants",
+      "vtcName": "Central Convoy Control",
+      "submittedAt": "2026-07-07T23:58:05.206Z",
+      "discordName": "@tropicalnxt"
     },
-    "transcript": []
+    "type": "partnership",
+    "userId": "1029092384912461984",
+    "channelId": "1524202882155548744",
+    "username": "tropicalnxt"
   },
-  "1502979607706734662": {
-    "channelId": "1502979607706734662",
-    "userId": "792729365825454124",
-    "username": "bharat_27",
+  "1524513219404890333": {
+    "createdAt": "2026-07-08T20:31:16.367Z",
+    "transcript": [],
+    "formData": {
+      "vtcRole": "Founder",
+      "eventId": "36669",
+      "eventStartAt": "2027-01-08 18:00:00",
+      "daysUntilEvent": 184,
+      "eventMeetupTs": 1799427600,
+      "eventStartTs": 1799431200,
+      "submittedAt": "2026-07-08T20:31:15.006Z",
+      "eventMeetupAt": "2027-01-08 17:00:00",
+      "discordName": "Toth",
+      "eventLink": "https://truckersmp.com/events/36669",
+      "timestamp": 1783542675
+    },
     "type": "bookUs",
-    "createdAt": "2026-05-10T10:24:22.410Z",
+    "userId": "690227159297556635",
+    "channelId": "1524513219404890333",
+    "username": "toth."
+  },
+  "1524870025448652871": {
+    "createdAt": "2026-07-09T20:09:05.490Z",
+    "transcript": [],
     "formData": {
-      "discordName": "adsasda",
-      "vtcRole": "asdasda",
-      "eventLink": "https://truckersmp.com/events/33973-nva-group%7C-monthly-convoy#8",
-      "eventId": "33973",
-      "submittedAt": "2026-05-10T10:24:20.229Z",
-      "timestamp": 1778408660,
-      "eventStartAt": "2026-08-19 18:00:00",
-      "eventMeetupAt": "2026-08-19 17:00:00",
-      "eventStartTs": 1787142600,
-      "eventMeetupTs": 1787139000,
-      "daysUntilEvent": 102
+      "vtcRole": "Founder",
+      "eventId": "36682",
+      "eventStartAt": "2027-01-09 18:00:00",
+      "daysUntilEvent": 184,
+      "eventMeetupTs": 1799514000,
+      "eventStartTs": 1799517600,
+      "submittedAt": "2026-07-09T20:09:04.330Z",
+      "eventMeetupAt": "2027-01-09 17:00:00",
+      "discordName": "gtlegion",
+      "eventLink": "https://truckersmp.com/events/36682",
+      "timestamp": 1783627744
     },
-    "transcript": []
+    "type": "bookUs",
+    "userId": "719501741829390424",
+    "channelId": "1524870025448652871",
+    "username": "gtlegion"
+  },
+  "1524895676947759165": {
+    "createdAt": "2026-07-09T21:51:01.271Z",
+    "transcript": [],
+    "formData": {
+      "partnershipReason": "because we want an expert team that we can trust to handle this for our convoys",
+      "vtcName": "RePublic OF WonderfulKillers",
+      "submittedAt": "2026-07-09T21:51:00.247Z",
+      "discordName": "nicqsizaccent"
+    },
+    "type": "partnership",
+    "userId": "320862617285427201",
+    "channelId": "1524895676947759165",
+    "username": "nicqsizaccent"
+  },
+  "1525016731226079332": {
+    "createdAt": "2026-07-10T05:52:02.847Z",
+    "transcript": [],
+    "formData": {
+      "vtcRole": "Founder",
+      "eventId": "36097",
+      "eventStartAt": "2027-01-09 18:00:00",
+      "daysUntilEvent": 184,
+      "eventMeetupTs": 1799514000,
+      "eventStartTs": 1799517600,
+      "submittedAt": "2026-07-10T05:52:01.783Z",
+      "eventMeetupAt": "2027-01-09 17:00:00",
+      "discordName": "omeryahya44",
+      "eventLink": "https://truckersmp.com/events/36097-novalines1st-anniversary-convoy",
+      "timestamp": 1783662721
+    },
+    "type": "bookUs",
+    "userId": "1276243636320866388",
+    "channelId": "1525016731226079332",
+    "username": "omeryahya44"
+  },
+  "1525181583814955058": {
+    "createdAt": "2026-07-10T16:47:06.866Z",
+    "transcript": [],
+    "formData": {
+      "vtcRole": "Owner",
+      "eventId": "36612",
+      "eventStartAt": "2027-01-05 18:00:00",
+      "daysUntilEvent": 180,
+      "eventMeetupTs": 1799168400,
+      "eventStartTs": 1799172000,
+      "submittedAt": "2026-07-10T16:47:05.486Z",
+      "eventMeetupAt": "2027-01-05 17:00:00",
+      "discordName": "Only Group #Her zaman",
+      "eventLink": "https://truckersmp.com/events/36612-only-group-opening-convoy",
+      "timestamp": 1783702025
+    },
+    "type": "bookUs",
+    "userId": "1173109882036162621",
+    "channelId": "1525181583814955058",
+    "username": "idris23123"
+  },
+  "1527299857084317696": {
+    "createdAt": "2026-07-16T13:04:22.711Z",
+    "transcript": [],
+    "formData": {
+      "vtcRole": "Senior Event Manager",
+      "eventId": "36816",
+      "eventStartAt": "2027-01-16 17:30:00",
+      "daysUntilEvent": 185,
+      "eventMeetupTs": 1800117000,
+      "eventStartTs": 1800120600,
+      "submittedAt": "2026-07-16T13:04:21.119Z",
+      "eventMeetupAt": "2027-01-16 16:30:00",
+      "discordName": "Karthik",
+      "eventLink": "https://truckersmp.com/events/36816-truckershub4th-anniversary-convoy",
+      "timestamp": 1784207061
+    },
+    "type": "bookUs",
+    "userId": "893077864134627358",
+    "channelId": "1527299857084317696",
+    "username": "karthiknair176"
+  },
+  "1527601677115592704": {
+    "createdAt": "2026-07-17T09:03:42.025Z",
+    "transcript": [],
+    "formData": {
+      "vtcRole": "Founder",
+      "eventId": "36826",
+      "eventStartAt": "2026-12-16 18:00:00",
+      "daysUntilEvent": 153,
+      "eventMeetupTs": 1797440400,
+      "eventStartTs": 1797444000,
+      "submittedAt": "2026-07-17T09:03:40.914Z",
+      "eventMeetupAt": "2026-12-16 17:00:00",
+      "discordName": "mihawkylz",
+      "eventLink": "https://truckersmp.com/events/36826",
+      "timestamp": 1784279020
+    },
+    "type": "bookUs",
+    "userId": "824213018044530700",
+    "channelId": "1527601677115592704",
+    "username": "mihawkylz"
+  },
+  "1528156844147871744": {
+    "createdAt": "2026-07-18T21:49:44.224Z",
+    "transcript": [],
+    "formData": {
+      "partnershipReason": "We are approaching you with a partnership proposal because we want professional real-ops to be carried out at THE ORIGINAL team’s events. We know how you operate and we appreciate it, which is why we would like you to carry out real-ops at our events as our partners.",
+      "vtcName": "THE ORIGINAL",
+      "submittedAt": "2026-07-18T21:49:43.171Z",
+      "discordName": "mr.menoitios"
+    },
+    "type": "partnership",
+    "userId": "882390043707187221",
+    "channelId": "1528156844147871744",
+    "username": "mr.menoitios"
+  },
+  "1528756985107845160": {
+    "createdAt": "2026-07-20T13:34:28.961Z",
+    "transcript": [],
+    "formData": {
+      "whyChoose": "I believe you should choose me because I am going to be dedicated to the server and being staff here.",
+      "truckermpId": "1302721463832416306",
+      "position": "Team Member",
+      "timeCommitment": "Well, I am mostly available on weekends (Friday to Sunday) however due to school currently being closed for two months I am available everyday.",
+      "experience": "I am currently event staff within Elite Convoys.",
+      "submittedAt": "2026-07-20 13:34:27",
+      "timestamp": 1784554467
+    },
+    "type": "joinTeam",
+    "userId": "1302721463832416306",
+    "channelId": "1528756985107845160",
+    "username": "scrxwz."
+  },
+  "1529158708251070474": {
+    "createdAt": "2026-07-21T16:10:47.149Z",
+    "transcript": [],
+    "formData": {
+      "whyChoose": "I have prior experience and knowledge",
+      "truckermpId": "6196725",
+      "position": "Team member",
+      "timeCommitment": "As much as possible",
+      "experience": "I have experience from TCCR NeedCC and United Convoys",
+      "submittedAt": "2026-07-21 16:10:46",
+      "timestamp": 1784650246
+    },
+    "type": "joinTeam",
+    "userId": "1147706444070785135",
+    "channelId": "1529158708251070474",
+    "username": "pinkpikachu0012"
+  },
+  "1529883631961505872": {
+    "createdAt": "2026-07-23T16:11:22.442Z",
+    "transcript": [],
+    "formData": {
+      "whyChoose": "I am calm, reliable, and professional. I take instructions well, communicate respectfully, and always put the success of the event first. I want to help create enjoyable and realistic operations for the community, and I will represent Real Ops with a positive attitude.",
+      "truckermpId": "5948472",
+      "position": "Team Member",
+      "timeCommitment": "5-7 hours weekly",
+      "experience": "I have experience taking part in convoys and understand the basics of Convoy Control. I’m always looking to improve and gain more experience.",
+      "submittedAt": "2026-07-23 16:11:21",
+      "timestamp": 1784823081
+    },
+    "type": "joinTeam",
+    "userId": "988173815068635277",
+    "channelId": "1529883631961505872",
+    "username": "imigm."
+  },
+  "1529969158454902857": {
+    "createdAt": "2026-07-23T21:51:13.615Z",
+    "transcript": [],
+    "formData": {
+      "partnershipReason": "Hello The Real Ops Group Team,\n\nI hope you're doing well.\n\nI'm reaching out on behalf of our community because we would like to establish a partnership with The Real Ops Group. We've been following your events and community, and we believe a partnership would be beneficial for both of our communities.\n\nWe are interested in supporting each other's events, sharing announcements, and building a strong relationship between our communities.\n\nIf you're interested, we'd be happy to discuss the details further.\n\nThank you for your time, and we look forward to hearing from you.\n\nBest regards,\n[Founder Hamza 19]\n[Royal Highway]",
+      "vtcName": "Royal Highway",
+      "submittedAt": "2026-07-23T21:51:12.521Z",
+      "discordName": "ayarmach1ne"
+    },
+    "type": "partnership",
+    "userId": "789584623465660436",
+    "channelId": "1529969158454902857",
+    "username": "ayarmach1ne"
   }
 }

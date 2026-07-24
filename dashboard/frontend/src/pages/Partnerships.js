@@ -10,6 +10,8 @@ function Partnerships() {
   const [loading, setLoading] = useState(true);
   const [selectedPartnership, setSelectedPartnership] = useState(null);
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, partnershipId: null });
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editData, setEditData] = useState({ id: null, logo: '' });
 
   const [termsData, setTermsData] = useState({
     method: 'dm',
@@ -21,6 +23,7 @@ function Partnerships() {
   const [quickAnnounceData, setQuickAnnounceData] = useState({
     partnerName: '',
     partnerLink: '',
+    logo: '',
     announcementChannelId: '1291127154188222544',
     roleToTag: '1291120505763401759'
   });
@@ -108,6 +111,7 @@ function Partnerships() {
         name: `Partnership with ${quickAnnounceData.partnerName}`,
         serverName: quickAnnounceData.partnerName,
         serverInvite: quickAnnounceData.partnerLink,
+        logo: quickAnnounceData.logo || null,
         type: 'cross-promotion',
         status: 'active',
         announcedAt: new Date().toISOString(),
@@ -120,6 +124,7 @@ function Partnerships() {
       setQuickAnnounceData({
         partnerName: '',
         partnerLink: '',
+        logo: '',
         announcementChannelId: '1291127154188222544',
         roleToTag: '1291120505763401759'
       });
@@ -131,6 +136,22 @@ function Partnerships() {
 
   const handleDelete = (id) => {
     setConfirmDialog({ isOpen: true, partnershipId: id });
+  };
+
+  const handleEditClick = (partnership) => {
+    setEditData({ id: partnership.id, logo: partnership.logo || '' });
+    setShowEditModal(true);
+  };
+
+  const handleEditSubmit = async () => {
+    try {
+      await partnerships.update(editData.id, { logo: editData.logo });
+      toast.success('Partnership updated successfully!');
+      setShowEditModal(false);
+      fetchPartnerships();
+    } catch (error) {
+      toast.error('Failed to update partnership');
+    }
   };
 
   const confirmDelete = async () => {
@@ -192,6 +213,17 @@ function Partnerships() {
                       value={quickAnnounceData.partnerLink}
                       onChange={(e) => setQuickAnnounceData({ ...quickAnnounceData, partnerLink: e.target.value })}
                       placeholder="https://discord.gg/... or any URL"
+                      className="form-input"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Partner Logo URL (Optional)</label>
+                    <input
+                      type="text"
+                      value={quickAnnounceData.logo}
+                      onChange={(e) => setQuickAnnounceData({ ...quickAnnounceData, logo: e.target.value })}
+                      placeholder="Image URL for the website (e.g. https://i.imgur.com/...)"
                       className="form-input"
                     />
                   </div>
@@ -339,6 +371,9 @@ function Partnerships() {
                       <button className="btn btn-outline" style={{ padding: '6px 12px', fontSize: '12px' }} onClick={() => handleAnnounce(partnership.id)}>
                         <FaBullhorn /> Announce
                       </button>
+                      <button className="btn btn-outline" style={{ padding: '6px 12px', fontSize: '12px' }} onClick={() => handleEditClick(partnership)}>
+                        Edit
+                      </button>
                       <button className="btn btn-danger" style={{ padding: '6px 12px', fontSize: '12px' }} onClick={() => handleDelete(partnership.id)}>
                         Delete
                       </button>
@@ -428,6 +463,38 @@ function Partnerships() {
           </div>
         )}
       </div>
+
+      {/* Edit Modal */}
+      {showEditModal && (
+        <div className="modal-overlay" onClick={() => setShowEditModal(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '500px' }}>
+            <div className="modal-header">
+              <h3>Edit Partnership</h3>
+              <button className="modal-close" onClick={() => setShowEditModal(false)}>×</button>
+            </div>
+            <div className="modal-body">
+              <div className="form-group">
+                <label className="form-label">Partner Logo URL</label>
+                <input
+                  type="text"
+                  value={editData.logo}
+                  onChange={(e) => setEditData({ ...editData, logo: e.target.value })}
+                  placeholder="https://... (Image URL)"
+                  className="form-input"
+                />
+              </div>
+              <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
+                <button className="btn" style={{ flex: 1 }} onClick={handleEditSubmit}>
+                  Save Changes
+                </button>
+                <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setShowEditModal(false)}>
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <ConfirmDialog
         isOpen={confirmDialog.isOpen}

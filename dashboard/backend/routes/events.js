@@ -19,41 +19,55 @@ router.get('/', isStaff, async (req, res) => {
     const snapshot = await collections.events.orderBy('date', 'desc').limit(250).get();
     const events = [];
     const now = new Date();
-    const deletedEvents = [];
-    
+    let updatedCount = 0;
+    let archivedCount = 0;
+
     snapshot.forEach(doc => {
       const eventData = doc.data();
-      
-      // Auto-delete calendar events 1 day after the event date
+
+      // Don't return archived events to the dashboard UI
+      if (eventData.archived) {
+        return;
+      }
+
+      // Auto-update calendar events
       if (eventData.type === 'calendar_event' && eventData.date) {
         const eventDate = new Date(eventData.date);
         const today = new Date();
-        
+
         // Set both to midnight for day comparison
         eventDate.setHours(0, 0, 0, 0);
         today.setHours(0, 0, 0, 0);
-        
+
         // Calculate difference in days
         const daysDifference = Math.floor((today - eventDate) / (1000 * 60 * 60 * 24));
-        
-        // Delete if more than 1 day has passed since the event
-        if (daysDifference > 1) {
-          collections.events.doc(doc.id).delete();
-          deletedEvents.push(doc.id);
+
+        // Auto-complete if date has passed and still scheduled
+        if (daysDifference > 0 && eventData.status === 'scheduled') {
+          collections.events.doc(doc.id).update({ status: 'completed' });
+          eventData.status = 'completed';
+          updatedCount++;
+        }
+
+        // Auto-archive if more than 30 days have passed
+        if (daysDifference > 30) {
+          collections.events.doc(doc.id).update({ archived: true });
+          archivedCount++;
           return; // Don't add to events list
         }
       }
-      
+
       events.push({ id: doc.id, ...eventData });
     });
-    
-    if (deletedEvents.length > 0) {
-      console.log(`Auto-deleted ${deletedEvents.length} past calendar events`);
+
+    if (updatedCount > 0 || archivedCount > 0) {
+      console.log(`Auto-completed ${updatedCount} events. Auto-archived ${archivedCount} events.`);
+      cache.invalidate('analytics:*');
     }
-    
+
     // Cache for 30 seconds
     cache.set(cacheKey, events, CACHE_TTL.SHORT);
-    
+
     res.json(events);
   } catch (error) {
     // Handle quota exceeded
@@ -134,7 +148,7 @@ router.post('/', isStaff, async (req, res) => {
         const eventDateTime = new Date(`${eventData.date}T${eventData.time}`);
         const reminderMinutes = parseInt(reminderTime) || 30; // Default 30 minutes
         const reminderDelay = eventDateTime.getTime() - (reminderMinutes * 60 * 1000) - Date.now();
-        
+
         if (reminderDelay > 0) {
           reminderScheduler.scheduleReminder(docRef.id, reminderDelay);
           console.log(`Scheduled reminder for calendar event ${docRef.id} in ${Math.round(reminderDelay / 1000 / 60)} minutes`);
@@ -158,11 +172,11 @@ router.post('/', isStaff, async (req, res) => {
       // If scheduled, save and schedule
       if (scheduleTime) {
         const docRef = await collections.events.add(fullEventData);
-        
+
         // Schedule the announcement
         const scheduleDate = new Date(scheduleTime);
         const delay = scheduleDate.getTime() - Date.now();
-        
+
         if (delay > 0) {
           setTimeout(async () => {
             await sendEventAnnouncement(docRef.id);
@@ -173,7 +187,7 @@ router.post('/', isStaff, async (req, res) => {
         if (reminder && reminderTime && eventData.date && eventData.time) {
           const eventDateTime = new Date(`${eventData.date}T${eventData.time}`);
           const reminderDelay = eventDateTime.getTime() - (parseInt(reminderTime) * 60 * 1000) - Date.now();
-          
+
           if (reminderDelay > 0) {
             setTimeout(async () => {
               await sendEventReminder(docRef.id);
@@ -205,20 +219,20 @@ router.post('/', isStaff, async (req, res) => {
           { name: 'Server', value: tmp.server?.name || 'N/A', inline: true },
           { name: 'Game', value: tmp.game || 'N/A', inline: true }
         ];
-        
+
         if (tmp.departure?.city) embedData.fields.push({ name: 'Departure', value: tmp.departure.city, inline: true });
         if (tmp.arrive?.city) embedData.fields.push({ name: 'Arrival', value: tmp.arrive.city, inline: true });
-        
+
         // Use Discord timestamps for meetup and start times
         if (tmp.meetup_at) {
           // TruckerMP returns UTC time, ensure it's parsed as UTC
           const utcDate = tmp.meetup_at.includes('Z') ? tmp.meetup_at : tmp.meetup_at.replace(' ', 'T') + 'Z';
           const unix = Math.floor(new Date(utcDate).getTime() / 1000);
           console.log('Meetup timestamp:', tmp.meetup_at, '-> UTC:', utcDate, '-> Unix:', unix);
-          embedData.fields.push({ 
-            name: 'Meetup Time', 
-            value: `<t:${unix}:F> (<t:${unix}:d>)`, 
-            inline: false 
+          embedData.fields.push({
+            name: 'Meetup Time',
+            value: `<t:${unix}:F> (<t:${unix}:d>)`,
+            inline: false
           });
         }
         if (tmp.start_at) {
@@ -226,15 +240,15 @@ router.post('/', isStaff, async (req, res) => {
           const utcDate = tmp.start_at.includes('Z') ? tmp.start_at : tmp.start_at.replace(' ', 'T') + 'Z';
           const unix = Math.floor(new Date(utcDate).getTime() / 1000);
           console.log('Start timestamp:', tmp.start_at, '-> UTC:', utcDate, '-> Unix:', unix);
-          embedData.fields.push({ 
-            name: 'Start Time', 
-            value: `<t:${unix}:F> (<t:${unix}:d>)`, 
-            inline: false 
+          embedData.fields.push({
+            name: 'Start Time',
+            value: `<t:${unix}:F> (<t:${unix}:d>)`,
+            inline: false
           });
         }
 
         embedData.fields.push({ name: 'Event Link', value: `[View on TruckerMP](https://truckersmp.com/events/${tmp.id})` });
-        
+
         if (eventData.spreadsheetLink) {
           embedData.fields.push({ name: 'Spreadsheet Link', value: `[Open Sheet](${eventData.spreadsheetLink})` });
         }
@@ -248,10 +262,10 @@ router.post('/', isStaff, async (req, res) => {
         const eventDateTime = new Date(`${eventData.date}T${eventData.time}`);
         const unix = Math.floor(eventDateTime.getTime() / 1000);
         embedData.fields = [
-          { 
-            name: '📅 Event Time', 
-            value: `<t:${unix}:F> (<t:${unix}:R>)`, 
-            inline: false 
+          {
+            name: '📅 Event Time',
+            value: `<t:${unix}:F> (<t:${unix}:R>)`,
+            inline: false
           }
         ];
       }
@@ -263,7 +277,7 @@ router.post('/', isStaff, async (req, res) => {
       }
 
       const result = await botManager.sendEmbed(eventData.channelId, embedData, content);
-      
+
       const docRef = await collections.events.add({
         ...fullEventData,
         messageId: result.messageId
@@ -317,7 +331,7 @@ async function sendEventAnnouncement(eventId) {
     }
 
     const result = await botManager.sendEmbed(event.channelId, embedData);
-    
+
     await collections.events.doc(eventId).update({
       status: 'sent',
       sentAt: new Date().toISOString(),
@@ -380,8 +394,8 @@ router.delete('/:id', isStaff, async (req, res) => {
   try {
     // Cancel reminder if it exists
     reminderScheduler.cancelReminder(req.params.id);
-    
-    await collections.events.doc(req.params.id).delete();
+
+    await collections.events.doc(req.params.id).update({ archived: true });
     // Invalidate events cache
     cache.invalidate('events:*');
     cache.invalidate('analytics:*');
@@ -415,7 +429,7 @@ router.post('/:id/announce', isStaff, async (req, res) => {
     };
 
     const result = await botManager.sendEmbed(channelId, embedData);
-    
+
     await collections.events.doc(req.params.id).update({
       announcedAt: new Date().toISOString(),
       announcementMessageId: result.messageId
@@ -461,7 +475,7 @@ router.post('/forum-config', isStaff, async (req, res) => {
 router.post('/create-forum', isStaff, async (req, res) => {
   try {
     const { forumId, title, message } = req.body;
-    
+
     const result = await botManager.createForumThread(forumId, title, message);
     res.json(result);
   } catch (error) {
@@ -474,7 +488,7 @@ router.get('/truckersmp/:eventId', isStaff, async (req, res) => {
   try {
     const { eventId } = req.params;
     const axios = require('axios');
-    
+
     const response = await axios.get(`https://api.truckersmp.com/v2/events/${eventId}`);
     res.json(response.data);
   } catch (error) {

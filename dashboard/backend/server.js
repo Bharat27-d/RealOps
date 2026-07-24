@@ -158,6 +158,9 @@ app.post('/auth/change-password', authLimiter, isAuthenticated, async (req, res)
   }
 });
 
+// Public API Routes (no authentication required — for the public website)
+app.use('/api/public', require('./routes/public'));
+
 // API Routes
 app.use('/api/events', require('./routes/events'));
 app.use('/api/tickets', require('./routes/tickets'));
@@ -167,6 +170,7 @@ app.use('/api/panels', require('./routes/panels'));
 app.use('/api/discord', require('./routes/discord'));
 app.use('/api/analytics', require('./routes/analytics'));
 app.use('/api/partnerships', require('./routes/partnerships'));
+app.use('/api/recruitment', require('./routes/recruitment'));
 app.use('/api/feedback', require('./routes/feedback'));
 app.use('/api/roles', require('./routes/roles'));
 app.use('/api/bot', require('./routes/bot'));
