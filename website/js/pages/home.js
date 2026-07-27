@@ -23,7 +23,7 @@ const HomePage = {
         <section class="header-glow-bg" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; min-height: 614px; gap: 24px; margin-top: 40px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; padding: 4px 16px; border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(15, 15, 15, 0.5); backdrop-filter: blur(12px); margin-bottom: 16px;">
             <div class="status-beacon"></div>
-            <span style="font-family: var(--font-mono); font-size: 13px; color: var(--color-primary); letter-spacing: 0.1em; text-transform: uppercase;">Premier Convoy Control Team</span>
+            <span style="font-family: var(--font-mono); font-size: 13px; color: var(--color-primary); letter-spacing: 0.1em; text-transform: uppercase;">Premier Real Operation Team</span>
           </div>
           
           <h1 class="glow-text" style="font-size: clamp(40px, 6vw, 64px); font-weight: 600; line-height: 1.1; letter-spacing: -0.04em; color: var(--color-text); max-width: 900px; margin: 0 auto;">
@@ -31,7 +31,7 @@ const HomePage = {
           </h1>
           
           <p style="font-size: 16px; color: var(--color-text-secondary); max-width: 600px; margin: 16px auto 0; line-height: 1.6;">
-            The premier Convoy Control team in the TruckersMP community, ensuring your events run smoothly, safely, and professionally.
+            The premier Real Operation team in the TruckersMP community, ensuring your events run smoothly, safely, and professionally.
           </p>
           
           <div style="display: flex; flex-wrap: wrap; gap: 16px; margin-top: 40px; justify-content: center;">
