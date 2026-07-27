@@ -1,6 +1,6 @@
 // ============================================================
 // RealOps — Main Application
-// Hash-based SPA Router, Scroll Animations, Counter Animations
+// History API SPA Router, Scroll Animations, Counter Animations
 // ============================================================
 
 const App = {
@@ -23,9 +23,20 @@ const App = {
 
   // ── Initialize ──
   async init() {
-    // Set up the router
-    window.addEventListener('hashchange', () => this.handleRoute());
-    window.addEventListener('load', () => this.handleRoute());
+    // Set up the router (History API)
+    window.addEventListener('popstate', () => this.handleRoute());
+
+    // Intercept all internal link clicks for SPA navigation
+    document.addEventListener('click', (e) => {
+      const anchor = e.target.closest('a');
+      if (!anchor) return;
+      const href = anchor.getAttribute('href');
+      if (!href || href.startsWith('http') || href.startsWith('//') || href.startsWith('mailto:') || anchor.hasAttribute('target')) return;
+      if (this.routes[href]) {
+        e.preventDefault();
+        this.navigateTo(href);
+      }
+    });
 
     // Set up navbar scroll effect
     this.initNavScroll();
@@ -56,18 +67,30 @@ const App = {
     }
   },
 
+  // ── Navigate (pushState) ──
+  navigateTo(path) {
+    if (path === this.currentRoute) {
+      window.scrollTo(0, 0);
+      return;
+    }
+    window.history.pushState(null, '', path);
+    this.handleRoute();
+    window.scrollTo(0, 0);
+  },
+
   // ── Router ──
   async handleRoute() {
-    const hash = window.location.hash.slice(1) || '/';
-    const route = this.routes[hash];
+    const path = window.location.pathname || '/';
+    const route = this.routes[path];
 
     if (!route) {
       // Redirect unknown routes to home
-      window.location.hash = '#/';
+      window.history.replaceState(null, '', '/');
+      this.handleRoute();
       return;
     }
 
-    this.currentRoute = hash;
+    this.currentRoute = path;
 
     // Update page title
     document.title = route.title;
@@ -115,7 +138,7 @@ const App = {
             <h3 class="empty-state-title">Something went wrong</h3>
             <p class="empty-state-desc">We couldn't load this page. Please try refreshing.</p>
             <div style="margin-top:var(--space-6);">
-              <a href="#/" class="btn btn-primary">Go Home</a>
+              <a href="/" class="btn btn-primary">Go Home</a>
             </div>
           </div>
         `;
@@ -129,10 +152,10 @@ const App = {
   },
 
   // ── Active Nav Link ──
-  updateActiveNav(hash) {
+  updateActiveNav(path) {
     document.querySelectorAll('.nav-link').forEach(link => {
       const href = link.getAttribute('href');
-      if (href === `#${hash}`) {
+      if (href === path) {
         link.classList.add('active');
         link.setAttribute('aria-current', 'page');
       } else {

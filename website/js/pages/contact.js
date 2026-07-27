@@ -107,7 +107,7 @@ const ContactPage = {
                 </div>
                 <h3 style="font-size: 20px; font-weight: 500; color: var(--color-text); margin-bottom: 12px;">Join the Team</h3>
                 <p style="font-size: 14px; color: var(--color-text-secondary); line-height: 1.6; flex-grow: 1;">Want to become a RealOps team member? Check our recruitment page for open positions.</p>
-                <a href="#/recruitment" class="glass-button-secondary" style="margin-top: 24px; padding: 8px 16px; font-size: 14px; text-decoration: none;" onclick="window.scrollTo(0,0)">View Openings</a>
+                <a href="/recruitment" class="glass-button-secondary" style="margin-top: 24px; padding: 8px 16px; font-size: 14px; text-decoration: none;" onclick="window.scrollTo(0,0)">View Openings</a>
               </div>
             </div>
           </div>
