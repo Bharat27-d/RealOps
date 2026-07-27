@@ -45,6 +45,15 @@ const App = {
 
     const apiLinks = document.querySelectorAll('a[href="http://localhost:3001/api/public/partnerships"], a[href="https://api.realopsevents.com/api/public/partnerships"]');
     apiLinks.forEach(link => { link.href = API.getApiUrl() + '/partnerships'; });
+
+    // Register Service Worker for offline PWA support
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(err => {
+          console.warn('Service Worker registration failed:', err);
+        });
+      });
+    }
   },
 
   // ── Router ──

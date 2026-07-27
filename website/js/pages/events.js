@@ -27,7 +27,7 @@ const EventsPage = {
                 ${events.map((event, i) => `
                   <div class="bento-card ambient-shadow event-card reveal reveal-delay-${(i % 6) + 1}" data-status="${(event.status || 'scheduled').toLowerCase()}" style="padding: 24px; display: flex; flex-direction: column;">
                     ${event.image
-                      ? `<img class="event-card-banner" src="${App.escapeHtml(event.image)}" alt="${App.escapeHtml(event.title)}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" style="border-radius: 8px; margin-bottom: 16px;">
+                      ? `<img class="event-card-banner" src="${App.escapeHtml(event.image)}" alt="${App.escapeHtml(event.title)}" loading="lazy" data-fallback="${App.escapeHtml(event.map || '')}" onerror="if(this.getAttribute('data-fallback') && this.src !== this.getAttribute('data-fallback')) { this.src = this.getAttribute('data-fallback'); } else { this.style.display='none';this.nextElementSibling.style.display='flex'; }" style="border-radius: 8px; margin-bottom: 16px;">
                          <div class="event-card-banner-placeholder" style="display:none; border-radius: 8px; margin-bottom: 16px;">🚛</div>`
                       : `<div class="event-card-banner-placeholder" style="border-radius: 8px; margin-bottom: 16px;">🚛</div>`
                     }
