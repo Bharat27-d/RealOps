@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { partnerships, discord } from '../services/api';
 import { toast } from 'react-toastify';
-import { FaHandshake, FaBullhorn } from 'react-icons/fa';
+import { FaHandshake, FaBullhorn, FaPlus } from 'react-icons/fa';
 import ConfirmDialog from '../components/ConfirmDialog';
 
 function Partnerships() {
@@ -19,11 +19,18 @@ function Partnerships() {
     includeEmbed: true
   });
 
-  const [showQuickAnnounce, setShowQuickAnnounce] = useState(false);
-  const [quickAnnounceData, setQuickAnnounceData] = useState({
+  // Add Partnership modal state
+  const [showAddPartnership, setShowAddPartnership] = useState(false);
+  const [addPartnershipData, setAddPartnershipData] = useState({
     partnerName: '',
     partnerLink: '',
     logo: '',
+  });
+
+  // Announce modal state (separate from add)
+  const [showAnnounceModal, setShowAnnounceModal] = useState(false);
+  const [announceTarget, setAnnounceTarget] = useState(null); // partnership object to announce
+  const [announceData, setAnnounceData] = useState({
     announcementChannelId: '1291127154188222544',
     roleToTag: '1291120505763401759'
   });
@@ -75,59 +82,77 @@ function Partnerships() {
     }
   };
 
-  const handleAnnounce = async (id) => {
-    const channelId = window.prompt('Enter Channel ID for announcement:');
-    if (channelId) {
-      try {
-        await partnerships.announce(id, channelId);
-        toast.success('Partnership announced successfully!');
-      } catch (error) {
-        toast.error('Failed to announce partnership');
-      }
+  // Add partnership without announcing
+  const handleAddPartnership = async () => {
+    if (!addPartnershipData.partnerName || !addPartnershipData.partnerLink) {
+      toast.error('Please fill in Partner Name and Invite Link');
+      return;
+    }
+
+    try {
+      await partnerships.create({
+        name: `Partnership with ${addPartnershipData.partnerName}`,
+        serverName: addPartnershipData.partnerName,
+        serverInvite: addPartnershipData.partnerLink,
+        logo: addPartnershipData.logo || null,
+        type: 'cross-promotion',
+        status: 'active',
+      });
+
+      toast.success('Partnership added successfully!');
+      setShowAddPartnership(false);
+      setAddPartnershipData({
+        partnerName: '',
+        partnerLink: '',
+        logo: '',
+      });
+      fetchPartnerships();
+    } catch (error) {
+      toast.error('Failed to add partnership: ' + (error.response?.data?.error || error.message));
     }
   };
 
-  const handleQuickAnnounce = async () => {
-    if (!quickAnnounceData.partnerName || !quickAnnounceData.partnerLink || !quickAnnounceData.announcementChannelId) {
-      toast.error('Please fill in all fields');
+  // Open announce modal for a specific partnership
+  const handleOpenAnnounce = (partnership) => {
+    setAnnounceTarget(partnership);
+    setAnnounceData({
+      announcementChannelId: '1291127154188222544',
+      roleToTag: '1291120505763401759'
+    });
+    setShowAnnounceModal(true);
+  };
+
+  // Send the announcement for a partnership
+  const handleAnnounce = async () => {
+    if (!announceData.announcementChannelId) {
+      toast.error('Please select an announcement channel');
       return;
     }
 
     try {
       const embedData = {
         title: 'Partnership Announcement',
-        description: `We are excited to announce that we have a new Partnership with [${quickAnnounceData.partnerName}](${quickAnnounceData.partnerLink})🎉🎉🎉`,
+        description: `We are excited to announce that we have a new Partnership with [${announceTarget.serverName || announceTarget.name}](${announceTarget.serverInvite})🎉🎉🎉`,
         color: '#6366F1',
         thumbnail: 'https://cdn.discordapp.com/attachments/1291127061434716282/1321518479803801651/image.png?ex=677094d8&is=676f4358&hm=8cd9c1e4f5e5e91d0c6b23b5e9f4d9e8e8f8e8f8e8f8e8f8e8f8e8f8e8f8&',
         image: 'https://i.postimg.cc/rwWZ5RZh/new-partnership.png',
         timestamp: true
       };
 
-      const content = quickAnnounceData.roleToTag ? `<@&${quickAnnounceData.roleToTag}>` : '';
+      const content = announceData.roleToTag ? `<@&${announceData.roleToTag}>` : '';
 
-      const result = await partnerships.announceQuick(quickAnnounceData.announcementChannelId, embedData, content);
-      
-      await partnerships.create({
-        name: `Partnership with ${quickAnnounceData.partnerName}`,
-        serverName: quickAnnounceData.partnerName,
-        serverInvite: quickAnnounceData.partnerLink,
-        logo: quickAnnounceData.logo || null,
-        type: 'cross-promotion',
-        status: 'active',
+      const result = await partnerships.announceQuick(announceData.announcementChannelId, embedData, content);
+
+      // Update the partnership record with announcement info
+      await partnerships.update(announceTarget.id, {
         announcedAt: new Date().toISOString(),
-        announcementChannelId: quickAnnounceData.announcementChannelId,
-        announcementMessageId: result.messageId
+        announcementChannelId: announceData.announcementChannelId,
+        announcementMessageId: result.data?.messageId || result.messageId
       });
-      
+
       toast.success('Partnership announced successfully!');
-      setShowQuickAnnounce(false);
-      setQuickAnnounceData({
-        partnerName: '',
-        partnerLink: '',
-        logo: '',
-        announcementChannelId: '1291127154188222544',
-        roleToTag: '1291120505763401759'
-      });
+      setShowAnnounceModal(false);
+      setAnnounceTarget(null);
       fetchPartnerships();
     } catch (error) {
       toast.error('Failed to announce partnership: ' + (error.response?.data?.error || error.message));
@@ -177,62 +202,117 @@ function Partnerships() {
             <FaHandshake /> Community Partnerships
           </h1>
         </div>
-        <button className="btn" onClick={() => setShowQuickAnnounce(true)} style={{ padding: '10px 20px', fontSize: '14px', fontWeight: '600' }}>
-          <FaBullhorn /> Announce Partnership
+        <button className="btn" onClick={() => setShowAddPartnership(true)} style={{ padding: '10px 20px', fontSize: '14px', fontWeight: '600' }}>
+          <FaPlus /> Add Partnership
         </button>
       </div>
 
-      {showQuickAnnounce && (
-        <div className="modal-overlay" onClick={() => setShowQuickAnnounce(false)}>
+      {/* Add Partnership Modal (No Announcement) */}
+      {showAddPartnership && (
+        <div className="modal-overlay" onClick={() => setShowAddPartnership(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '550px', width: '95%', maxHeight: '90vh', overflowY: 'auto' }}>
+            <div className="modal-header">
+              <h3>
+                <FaPlus /> Add New Partnership
+              </h3>
+              <button className="modal-close" onClick={() => setShowAddPartnership(false)}>×</button>
+            </div>
+            <div className="modal-body">
+              <div className="form-group">
+                <label className="form-label">Partner Name *</label>
+                <input
+                  type="text"
+                  value={addPartnershipData.partnerName}
+                  onChange={(e) => setAddPartnershipData({ ...addPartnershipData, partnerName: e.target.value })}
+                  placeholder="Enter partner name (e.g., Liminal Logistics)"
+                  className="form-input"
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Partner Invite Link *</label>
+                <input
+                  type="text"
+                  value={addPartnershipData.partnerLink}
+                  onChange={(e) => setAddPartnershipData({ ...addPartnershipData, partnerLink: e.target.value })}
+                  placeholder="https://discord.gg/... or any URL"
+                  className="form-input"
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Partner Logo URL (Optional)</label>
+                <input
+                  type="text"
+                  value={addPartnershipData.logo}
+                  onChange={(e) => setAddPartnershipData({ ...addPartnershipData, logo: e.target.value })}
+                  placeholder="Image URL for the website (e.g. https://i.imgur.com/...)"
+                  className="form-input"
+                />
+              </div>
+
+              <div style={{ 
+                padding: '12px 16px', 
+                background: 'var(--bg-tertiary)', 
+                borderRadius: '10px', 
+                border: '1px solid var(--border-secondary)',
+                marginTop: '8px',
+                marginBottom: '8px'
+              }}>
+                <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
+                  💡 This will only <strong style={{ color: 'var(--text-primary)' }}>save</strong> the partnership to your records. No Discord announcement will be sent. You can announce it later from the partnership card.
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+                <button className="btn" style={{ flex: 1 }} onClick={handleAddPartnership}>
+                  <FaPlus /> Add Partnership
+                </button>
+                <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setShowAddPartnership(false)}>
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Announce Partnership Modal (Separate) */}
+      {showAnnounceModal && announceTarget && (
+        <div className="modal-overlay" onClick={() => { setShowAnnounceModal(false); setAnnounceTarget(null); }}>
           <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '1050px', width: '95%', maxHeight: '90vh', overflowY: 'auto' }}>
             <div className="modal-header">
               <h3>
-                <FaBullhorn /> Quick Partnership Announcement
+                <FaBullhorn /> Announce Partnership
               </h3>
-              <button className="modal-close" onClick={() => setShowQuickAnnounce(false)}>×</button>
+              <button className="modal-close" onClick={() => { setShowAnnounceModal(false); setAnnounceTarget(null); }}>×</button>
             </div>
             <div className="modal-body">
               <div className="grid grid-2" style={{ gap: '32px' }}>
                 {/* Left Column - Form Fields */}
                 <div>
-                  <div className="form-group">
-                    <label className="form-label">Partner Name *</label>
-                    <input
-                      type="text"
-                      value={quickAnnounceData.partnerName}
-                      onChange={(e) => setQuickAnnounceData({ ...quickAnnounceData, partnerName: e.target.value })}
-                      placeholder="Enter partner name (e.g., Liminal Logistics)"
-                      className="form-input"
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">Partner Invite Link *</label>
-                    <input
-                      type="text"
-                      value={quickAnnounceData.partnerLink}
-                      onChange={(e) => setQuickAnnounceData({ ...quickAnnounceData, partnerLink: e.target.value })}
-                      placeholder="https://discord.gg/... or any URL"
-                      className="form-input"
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">Partner Logo URL (Optional)</label>
-                    <input
-                      type="text"
-                      value={quickAnnounceData.logo}
-                      onChange={(e) => setQuickAnnounceData({ ...quickAnnounceData, logo: e.target.value })}
-                      placeholder="Image URL for the website (e.g. https://i.imgur.com/...)"
-                      className="form-input"
-                    />
+                  <div style={{ 
+                    padding: '14px 16px', 
+                    background: 'var(--bg-tertiary)', 
+                    borderRadius: '10px', 
+                    border: '1px solid var(--border-secondary)',
+                    marginBottom: '20px'
+                  }}>
+                    <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
+                      📢 Announcing partnership with <strong style={{ color: 'var(--primary)' }}>{announceTarget.serverName || announceTarget.name}</strong>
+                    </p>
+                    {announceTarget.serverInvite && (
+                      <p style={{ margin: '6px 0 0 0', fontSize: '12px', color: 'var(--text-tertiary)', fontFamily: 'monospace' }}>
+                        🔗 {announceTarget.serverInvite}
+                      </p>
+                    )}
                   </div>
 
                   <div className="form-group">
                     <label className="form-label">Announcement Destination Channel *</label>
                     <select
-                      value={quickAnnounceData.announcementChannelId}
-                      onChange={(e) => setQuickAnnounceData({ ...quickAnnounceData, announcementChannelId: e.target.value })}
+                      value={announceData.announcementChannelId}
+                      onChange={(e) => setAnnounceData({ ...announceData, announcementChannelId: e.target.value })}
                       className="form-select"
                     >
                       <option value="">Select Channel</option>
@@ -245,8 +325,8 @@ function Partnerships() {
                   <div className="form-group">
                     <label className="form-label">Tag Alert Role (Optional)</label>
                     <select
-                      value={quickAnnounceData.roleToTag}
-                      onChange={(e) => setQuickAnnounceData({ ...quickAnnounceData, roleToTag: e.target.value })}
+                      value={announceData.roleToTag}
+                      onChange={(e) => setAnnounceData({ ...announceData, roleToTag: e.target.value })}
                       className="form-select"
                     >
                       <option value="">No role tag</option>
@@ -257,10 +337,10 @@ function Partnerships() {
                   </div>
 
                   <div style={{ display: 'flex', gap: '12px', marginTop: '28px' }}>
-                    <button className="btn" style={{ flex: 1 }} onClick={handleQuickAnnounce}>
+                    <button className="btn" style={{ flex: 1 }} onClick={handleAnnounce}>
                       <FaBullhorn /> Broadcast Announcement
                     </button>
-                    <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setShowQuickAnnounce(false)}>
+                    <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => { setShowAnnounceModal(false); setAnnounceTarget(null); }}>
                       Cancel
                     </button>
                   </div>
@@ -296,13 +376,13 @@ function Partnerships() {
                       <p style={{ color: 'var(--text-secondary)', margin: 0, fontSize: '14px', lineHeight: '1.6' }}>
                         We are excited to announce that we have a new Partnership with{' '}
                         <span style={{ color: 'var(--primary)', fontWeight: '700', fontSize: '15px' }}>
-                          {quickAnnounceData.partnerName || '[Partner Name]'}
+                          {announceTarget.serverName || announceTarget.name || '[Partner Name]'}
                         </span>
                         {' '}🎉🎉🎉
                       </p>
-                      {quickAnnounceData.partnerLink && (
+                      {announceTarget.serverInvite && (
                         <p style={{ color: 'var(--text-tertiary)', margin: '12px 0 0 0', fontSize: '13px', fontFamily: 'monospace' }}>
-                          🔗 {quickAnnounceData.partnerLink}
+                          🔗 {announceTarget.serverInvite}
                         </p>
                       )}
                       <img 
@@ -338,7 +418,7 @@ function Partnerships() {
               No Community Partnerships Yet
             </p>
             <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: 0 }}>
-              Click "Announce Partnership" to register and broadcast your first partnership
+              Click "Add Partnership" to register your first partnership
             </p>
           </div>
         ) : (
@@ -363,14 +443,27 @@ function Partnerships() {
                       <h3 style={{ margin: '0 0 6px 0', color: 'var(--text-primary)', fontSize: '18px', fontWeight: '700' }}>
                         {partnership.name}
                       </h3>
-                      <span className="badge badge-primary" style={{ fontSize: '12px' }}>
-                        {partnership.serverName || 'Partner'}
-                      </span>
+                      <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
+                        <span className="badge badge-primary" style={{ fontSize: '12px' }}>
+                          {partnership.serverName || 'Partner'}
+                        </span>
+                        {partnership.announcedAt ? (
+                          <span className="badge" style={{ fontSize: '11px', background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
+                            ✓ Announced
+                          </span>
+                        ) : (
+                          <span className="badge" style={{ fontSize: '11px', background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
+                            Not Announced
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <div style={{ display: 'flex', gap: '8px' }}>
-                      <button className="btn btn-outline" style={{ padding: '6px 12px', fontSize: '12px' }} onClick={() => handleAnnounce(partnership.id)}>
-                        <FaBullhorn /> Announce
-                      </button>
+                      {!partnership.announcedAt && (
+                        <button className="btn btn-outline" style={{ padding: '6px 12px', fontSize: '12px' }} onClick={() => handleOpenAnnounce(partnership)}>
+                          <FaBullhorn /> Announce
+                        </button>
+                      )}
                       <button className="btn btn-outline" style={{ padding: '6px 12px', fontSize: '12px' }} onClick={() => handleEditClick(partnership)}>
                         Edit
                       </button>
@@ -405,9 +498,16 @@ function Partnerships() {
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '12px', borderTop: '1px solid var(--border-secondary)', marginTop: '12px' }}>
-                  <span style={{ color: 'var(--text-tertiary)', fontSize: '12px' }}>
-                    Created: {partnership.createdAt ? new Date(partnership.createdAt).toLocaleDateString() : 'Recent'}
-                  </span>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                    <span style={{ color: 'var(--text-tertiary)', fontSize: '12px' }}>
+                      Created: {partnership.createdAt ? new Date(partnership.createdAt).toLocaleDateString() : 'Recent'}
+                    </span>
+                    {partnership.announcedAt && (
+                      <span style={{ color: 'var(--text-tertiary)', fontSize: '11px' }}>
+                        Announced: {new Date(partnership.announcedAt).toLocaleDateString()}
+                      </span>
+                    )}
+                  </div>
                   <button className="btn btn-outline" style={{ padding: '4px 10px', fontSize: '11px' }} onClick={() => setSelectedPartnership(selectedPartnership === partnership.id ? null : partnership.id)}>
                     {selectedPartnership === partnership.id ? 'Hide Terms' : 'Send Terms'}
                   </button>
