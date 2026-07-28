@@ -230,27 +230,6 @@
     "channelId": "1515604067831779358",
     "username": "famousperson"
   },
-  "1516481615788773499": {
-    "createdAt": "2026-06-16T16:36:32.831Z",
-    "transcript": [],
-    "formData": {
-      "vtcRole": "Founder",
-      "eventId": "33594",
-      "eventStartAt": "2026-07-27 18:00:00",
-      "daysUntilEvent": 42,
-      "eventMeetupTs": 1785171600,
-      "eventStartTs": 1785175200,
-      "submittedAt": "2026-06-16T16:36:31.535Z",
-      "eventMeetupAt": "2026-07-27 17:00:00",
-      "discordName": "omeryahya44",
-      "eventLink": "https://truckersmp.com/events/33594-novalines-july-convoy",
-      "timestamp": 1781627791
-    },
-    "type": "bookUs",
-    "userId": "1276243636320866388",
-    "channelId": "1516481615788773499",
-    "username": "omeryahya44"
-  },
   "1517278045403222210": {
     "createdAt": "2026-06-18T21:21:16.507Z",
     "transcript": [],
@@ -572,57 +551,6 @@
     "channelId": "1528156844147871744",
     "username": "mr.menoitios"
   },
-  "1528756985107845160": {
-    "createdAt": "2026-07-20T13:34:28.961Z",
-    "transcript": [],
-    "formData": {
-      "whyChoose": "I believe you should choose me because I am going to be dedicated to the server and being staff here.",
-      "truckermpId": "1302721463832416306",
-      "position": "Team Member",
-      "timeCommitment": "Well, I am mostly available on weekends (Friday to Sunday) however due to school currently being closed for two months I am available everyday.",
-      "experience": "I am currently event staff within Elite Convoys.",
-      "submittedAt": "2026-07-20 13:34:27",
-      "timestamp": 1784554467
-    },
-    "type": "joinTeam",
-    "userId": "1302721463832416306",
-    "channelId": "1528756985107845160",
-    "username": "scrxwz."
-  },
-  "1529158708251070474": {
-    "createdAt": "2026-07-21T16:10:47.149Z",
-    "transcript": [],
-    "formData": {
-      "whyChoose": "I have prior experience and knowledge",
-      "truckermpId": "6196725",
-      "position": "Team member",
-      "timeCommitment": "As much as possible",
-      "experience": "I have experience from TCCR NeedCC and United Convoys",
-      "submittedAt": "2026-07-21 16:10:46",
-      "timestamp": 1784650246
-    },
-    "type": "joinTeam",
-    "userId": "1147706444070785135",
-    "channelId": "1529158708251070474",
-    "username": "pinkpikachu0012"
-  },
-  "1529883631961505872": {
-    "createdAt": "2026-07-23T16:11:22.442Z",
-    "transcript": [],
-    "formData": {
-      "whyChoose": "I am calm, reliable, and professional. I take instructions well, communicate respectfully, and always put the success of the event first. I want to help create enjoyable and realistic operations for the community, and I will represent Real Ops with a positive attitude.",
-      "truckermpId": "5948472",
-      "position": "Team Member",
-      "timeCommitment": "5-7 hours weekly",
-      "experience": "I have experience taking part in convoys and understand the basics of Convoy Control. I’m always looking to improve and gain more experience.",
-      "submittedAt": "2026-07-23 16:11:21",
-      "timestamp": 1784823081
-    },
-    "type": "joinTeam",
-    "userId": "988173815068635277",
-    "channelId": "1529883631961505872",
-    "username": "imigm."
-  },
   "1529969158454902857": {
     "createdAt": "2026-07-23T21:51:13.615Z",
     "transcript": [],
@@ -636,5 +564,123 @@
     "userId": "789584623465660436",
     "channelId": "1529969158454902857",
     "username": "ayarmach1ne"
+  },
+  "1530161178062618714": {
+    "createdAt": "2026-07-24T10:34:14.636Z",
+    "transcript": [],
+    "formData": {
+      "vtcRole": "Founder",
+      "eventId": "36941",
+      "eventStartAt": "2027-01-23 18:00:00",
+      "daysUntilEvent": 184,
+      "eventMeetupTs": 1800723600,
+      "eventStartTs": 1800727200,
+      "submittedAt": "2026-07-24T10:34:13.239Z",
+      "eventMeetupAt": "2027-01-23 17:00:00",
+      "discordName": "montra",
+      "eventLink": "https://truckersmp.com/events/36941",
+      "timestamp": 1784889253
+    },
+    "type": "bookUs",
+    "userId": "783725489142497320",
+    "channelId": "1530161178062618714",
+    "username": "aliensucr"
+  },
+  "1530183817888006264": {
+    "createdAt": "2026-07-24T12:04:12.481Z",
+    "transcript": [],
+    "formData": {
+      "vtcRole": "Founder",
+      "eventId": "36897",
+      "eventStartAt": "2027-01-22 19:00:00",
+      "daysUntilEvent": 183,
+      "eventMeetupTs": 1800640800,
+      "eventStartTs": 1800644400,
+      "submittedAt": "2026-07-24T12:04:11.213Z",
+      "eventMeetupAt": "2027-01-22 18:00:00",
+      "discordName": "ZackHere",
+      "eventLink": "https://truckersmp.com/events/36897-%E2%9C%A8-premium-events-version#4%E2%9C%A8",
+      "timestamp": 1784894651
+    },
+    "type": "bookUs",
+    "userId": "392444887233986560",
+    "channelId": "1530183817888006264",
+    "username": "zackhere_"
+  },
+  "1531016655113551974": {
+    "createdAt": "2026-07-26T19:13:36.206Z",
+    "transcript": [],
+    "formData": {
+      "vtcRole": "Managing Director",
+      "eventId": "36939",
+      "eventStartAt": "2027-01-26 13:00:00",
+      "daysUntilEvent": 184,
+      "eventMeetupTs": 1800964800,
+      "eventStartTs": 1800968400,
+      "submittedAt": "2026-07-26T19:13:35.051Z",
+      "eventMeetupAt": "2027-01-26 12:00:00",
+      "discordName": "boofi_Softie",
+      "eventLink": "https://truckersmp.com/events/36939",
+      "timestamp": 1785093215
+    },
+    "type": "bookUs",
+    "userId": "604303072998719509",
+    "channelId": "1531016655113551974",
+    "username": "boofi_softie"
+  },
+  "1531123364100571198": {
+    "createdAt": "2026-07-27T02:17:37.625Z",
+    "transcript": [],
+    "formData": {
+      "vtcRole": "Event Manager",
+      "eventId": "36902",
+      "eventStartAt": "2027-01-26 16:00:00",
+      "daysUntilEvent": 184,
+      "eventMeetupTs": 1800975600,
+      "eventStartTs": 1800979200,
+      "submittedAt": "2026-07-27T02:17:36.353Z",
+      "eventMeetupAt": "2027-01-26 15:00:00",
+      "discordName": "Pramani",
+      "eventLink": "https://truckersmp.com/events/36902",
+      "timestamp": 1785118656
+    },
+    "type": "bookUs",
+    "userId": "1036194016942886912",
+    "channelId": "1531123364100571198",
+    "username": "pramani"
+  },
+  "1531546303329341440": {
+    "createdAt": "2026-07-28T06:18:14.151Z",
+    "transcript": [],
+    "formData": {
+      "whyChoose": "Cause I can move with my team teams relationship is my primary",
+      "truckermpId": "6290031",
+      "position": "Team member",
+      "timeCommitment": "I can dedicate 20 hours a week if im in house",
+      "experience": "I don't have",
+      "submittedAt": "2026-07-28 06:18:13",
+      "timestamp": 1785219493
+    },
+    "type": "joinTeam",
+    "userId": "1480266601885335694",
+    "channelId": "1531546303329341440",
+    "username": "seb_af24"
+  },
+  "1531620624533950524": {
+    "createdAt": "2026-07-28T11:13:33.692Z",
+    "transcript": [],
+    "formData": {
+      "whyChoose": "Willing to help as long I'm not currently busy.",
+      "truckermpId": "5971695",
+      "position": "Real Ops",
+      "timeCommitment": "Currently, time might not be a issue due to it feeling a little slow but I can attend at least a couple a month. \n\nJust will need to work out a schedule to balance my CC work as well.",
+      "experience": "I have experience with loading saves, disabling DLC's that are required for the profile. \n\nBut also been at United, Elite and other CC groups currently. \n\nIf there is any training I'm open to it if so.",
+      "submittedAt": "2026-07-28 11:13:32",
+      "timestamp": 1785237212
+    },
+    "type": "joinTeam",
+    "userId": "1384237943388114946",
+    "channelId": "1531620624533950524",
+    "username": "theshiftets"
   }
 }

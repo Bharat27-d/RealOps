@@ -1,4 +1,4 @@
-const CACHE_NAME = 'realops-cache-v1';
+const CACHE_NAME = 'realops-cache-v2';
 
 // Assets to cache on install for offline viewing
 const urlsToCache = [

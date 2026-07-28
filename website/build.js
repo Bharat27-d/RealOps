@@ -57,7 +57,7 @@ const scriptRegex = /<script src="js\/.*?\.js"><\/script>\n/g;
 html = html.replace(scriptRegex, '');
 
 // Inject the bundled JS before closing body
-html = html.replace('</body>', '  <script src="bundle.min.js"></script>\n</body>');
+html = html.replace('</body>', '  <script src="bundle.min.js?v=" + Date.now()></script>\n</body>');
 
 fs.writeFileSync(path.join(distDir, 'index.html'), html);
 

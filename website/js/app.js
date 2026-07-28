@@ -96,7 +96,7 @@ const App = {
     document.title = route.title;
 
     // Update active nav link
-    this.updateActiveNav(hash);
+    this.updateActiveNav(path);
 
     // Show loading state
     const content = document.getElementById('app-content');
