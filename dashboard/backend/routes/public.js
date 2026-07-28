@@ -128,14 +128,12 @@ router.get('/staff', async (req, res) => {
       const position = staffRoles[0] || 'Team Member';
        
       let department = 'General';
-      if (position.includes('Manager') && !position.includes('Event')) department = 'Management';
-      if (position.includes('Founder')) department = 'Management';
-      if (position.includes('Planner') || position.includes('Event')) department = 'Events';
-      if (position.includes('Support')) department = 'Support';
-      if (position.includes('Developer')) department = 'Development';
-      if (position.includes('HR') || position.includes('Human')) department = 'Human Resources';
-      if (position.includes('Media')) department = 'Media';
-      if (position.includes('Design')) department = 'Media';
+      if (position.includes('Media') || position.includes('Design')) department = 'Media';
+      else if (position.includes('Planner') || position.includes('Event')) department = 'Events';
+      else if (position.includes('Support')) department = 'Support';
+      else if (position.includes('Developer')) department = 'Development';
+      else if (position.includes('HR') || position.includes('Human')) department = 'Human Resources';
+      else if (position.includes('Founder') || position.includes('Manager')) department = 'Management';
        
       return {
         id: member.id,
