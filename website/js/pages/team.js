@@ -7,14 +7,14 @@ const TeamPage = {
     const staff = await API.getStaff();
 
     // Extract unique departments for filter
-    const departments = ['All', ...new Set((staff || []).map(s => s.department).filter(Boolean))];
+    const departments = ['All', ...new Set((staff || []).flatMap(s => s.departments || [s.department]).filter(Boolean))];
 
     const managementTeam = [];
     const teamMembers = [];
     
     (staff || []).forEach(member => {
         const position = (member.position || '').toLowerCase();
-        const isManagement = position === 'founder' || position === 'project manager';
+        const isManagement = position === 'project manager';
         if (isManagement) {
             managementTeam.push(member);
         } else {
@@ -22,8 +22,10 @@ const TeamPage = {
         }
     });
 
-    const renderMemberCard = (member, i) => `
-      <div class="bento-card ambient-shadow reveal reveal-delay-${(i % 6) + 1}" data-department="${App.escapeHtml(member.department || 'General')}" style="padding: 24px; display: flex; flex-direction: column; align-items: center; text-align: center;">
+    const renderMemberCard = (member, i) => {
+      const memberDepts = member.departments || [member.department || 'General'];
+      return `
+      <div class="bento-card ambient-shadow reveal reveal-delay-${(i % 6) + 1}" data-departments="${App.escapeHtml(memberDepts.join(','))}" style="padding: 24px; display: flex; flex-direction: column; align-items: center; text-align: center;">
         ${member.avatar
           ? `<img class="staff-avatar" src="${App.escapeHtml(member.avatar)}" alt="${App.escapeHtml(member.name)}" loading="lazy" style="width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--color-border); margin-bottom: 16px;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
              <div class="staff-avatar-placeholder" style="display:none; width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--color-border); margin-bottom: 16px; align-items: center; justify-content: center; font-size: 24px;">${(member.name || '?').charAt(0).toUpperCase()}</div>`
@@ -31,7 +33,7 @@ const TeamPage = {
         }
         <h3 class="staff-name" style="font-size: 20px; font-weight: 500; color: var(--color-text); margin-bottom: 4px;">${App.escapeHtml(member.name)}</h3>
         <p class="staff-position" style="font-size: 14px; color: var(--color-text-secondary); margin-bottom: 12px;">${App.escapeHtml(member.position || 'Team Member')}</p>
-        <span class="staff-department" style="font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-primary); background: rgba(255, 107, 53, 0.1); padding: 4px 8px; border-radius: 4px; margin-bottom: 16px;">${App.escapeHtml(member.department)}</span>
+        <span class="staff-department" style="font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-primary); background: rgba(255, 107, 53, 0.1); padding: 4px 8px; border-radius: 4px; margin-bottom: 16px;">${App.escapeHtml(memberDepts.join(', '))}</span>
 
         ${member.roles && member.roles.length > 0 ? `
           <div class="staff-roles" style="display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin-bottom: 16px;">
@@ -44,6 +46,7 @@ const TeamPage = {
 
       </div>
     `;
+    };
 
     return `
       <!-- Main Canvas for Obsidian Prime -->
@@ -108,7 +111,7 @@ const TeamPage = {
 
   initFilters() {
     const filterBtns = document.querySelectorAll('#team-filters .filter-btn');
-    const cards = document.querySelectorAll('.bento-card[data-department]');
+    const cards = document.querySelectorAll('.bento-card[data-departments]');
 
     filterBtns.forEach(btn => {
       btn.addEventListener('click', () => {
@@ -123,7 +126,8 @@ const TeamPage = {
 
         const filter = btn.dataset.filter;
         cards.forEach(card => {
-          if (filter === 'all' || card.dataset.department === filter) {
+          const cardDepts = (card.dataset.departments || '').split(',');
+          if (filter === 'all' || cardDepts.includes(filter)) {
             card.style.display = '';
           } else {
             card.style.display = 'none';
