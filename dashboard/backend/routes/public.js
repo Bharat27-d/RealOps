@@ -21,7 +21,7 @@ const ROLE_NAMES = {
   '1296422181806542898': 'Media Manager',
   '1291123331591831632': 'Design Manager',
   '1344406747955200081': 'Senior Support Manager',
-  '1296423697711894528': 'Manager',
+  '1296423697711894528': 'Media Team',
   '1291818052744253612': 'Planner',
   '1386691716945543240': 'Developer',
   '1345496957082406972': 'Junior Planner',
@@ -148,6 +148,7 @@ router.get('/staff', async (req, res) => {
         joinDate: member.joinedAt
       };
     });
+
 
     cache.set(cacheKey, staffList, PUBLIC_CACHE_TTL);
     res.json(staffList);

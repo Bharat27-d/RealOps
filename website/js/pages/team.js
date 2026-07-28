@@ -13,17 +13,12 @@ const TeamPage = {
     const teamMembers = [];
     
     (staff || []).forEach(member => {
-        let isTeamMemberRole = false;
-        if (member.roles && Array.isArray(member.roles)) {
-             isTeamMemberRole = member.roles.some(r => {
-                 const roleName = typeof r === 'string' ? r : r.name;
-                 return roleName === 'Team Member';
-             });
-        }
-        if (isTeamMemberRole) {
-            teamMembers.push(member);
-        } else {
+        const position = (member.position || '').toLowerCase();
+        const isManagement = position === 'founder' || position === 'project manager';
+        if (isManagement) {
             managementTeam.push(member);
+        } else {
+            teamMembers.push(member);
         }
     });
 
