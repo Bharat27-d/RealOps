@@ -29,7 +29,7 @@ const ROLE_NAMES = {
   '1296422181806542898': 'Media Manager',
   '1291123331591831632': 'Design Manager',
   '1344406747955200081': 'Senior Support Manager',
-  '1296423697711894528': 'Manager',
+  '1296423697711894528': 'Media Team',
   '1291818052744253612': 'Planner',
   '1386691716945543240': 'Developer',
   '1345496957082406972': 'Junior Planner',
@@ -328,7 +328,7 @@ function Staff() {
               <option value="1296422181806542898">Media Manager</option>
               <option value="1291123331591831632">Design Manager</option>
               <option value="1344406747955200081">Senior Support Manager</option>
-              <option value="1296423697711894528">Manager</option>
+              <option value="1296423697711894528">Media Team</option>
               <option value="1291818052744253612">Planner</option>
               <option value="1345496957082406972">Junior Planner</option>
               <option value="1291394387888177193">Support Staff</option>
