@@ -127,23 +127,20 @@ router.get('/staff', async (req, res) => {
            
       const position = staffRoles[0] || 'Team Member';
        
-      const departments = new Set();
-      staffRoles.forEach(roleName => {
-        if (roleName.includes('Media') || roleName.includes('Design')) departments.add('Media');
-        else if (roleName.includes('Planner') || roleName.includes('Event')) departments.add('Events');
-        else if (roleName.includes('Support')) departments.add('Support');
-        else if (roleName.includes('Developer')) departments.add('Development');
-        else if (roleName.includes('HR') || roleName.includes('Human')) departments.add('Human Resources');
-        else if (roleName.includes('Founder') || roleName.includes('Manager')) departments.add('Management');
-      });
-      if (departments.size === 0) departments.add('General');
+      let department = 'General';
+      if (position.includes('Media') || position.includes('Design')) department = 'Media';
+      else if (position.includes('Planner') || position.includes('Event')) department = 'Events';
+      else if (position.includes('Support')) department = 'Support';
+      else if (position.includes('Developer')) department = 'Development';
+      else if (position.includes('HR') || position.includes('Human')) department = 'Human Resources';
+      else if (position.includes('Founder') || position.includes('Manager')) department = 'Management';
        
       return {
         id: member.id,
         name: member.nickname || member.username,
         avatar: member.avatar,
         position: position,
-        departments: Array.from(departments),
+        department: department,
         roles: staffRoles,
         status: 'active',
         joinDate: member.joinedAt
