@@ -6,24 +6,40 @@ const TeamPage = {
   async render() {
     const staff = await API.getStaff();
 
-    // Extract unique departments for filter
-    const departments = ['All', ...new Set((staff || []).map(s => s.department).filter(Boolean))];
+    // Map role names to departments
+    const getDepartmentForRole = (roleName) => {
+      const r = (roleName || '').toLowerCase();
+      if (['founder', 'co-founder', 'developer', 'project manager', 'snr event manager', 'partner manager', 'event manager', 'snr support manager'].includes(r)) return 'Management';
+      if (['media manager', 'social media manager'].includes(r)) return 'Media';
+      if (['hr department'].includes(r)) return 'Human Resources';
+      if (['support staff'].includes(r)) return 'Support';
+      if (['event supervisor', 'planner', 'junior planner'].includes(r)) return 'Events';
+      if (['media team'].includes(r)) return 'Media';
+      return 'General';
+    };
+
+    const managementRoles = ['founder', 'co-founder', 'developer', 'project manager', 'snr event manager', 'partner manager', 'event manager', 'snr support manager'];
 
     const managementTeam = [];
     const teamMembers = [];
+    const allDepartments = new Set();
     
     (staff || []).forEach(member => {
-        const position = (member.position || '').toLowerCase();
-        const isManagement = position === 'founder' || position === 'co-founder' || 
-                            position === 'developer' || position === 'project manager' || 
-                            position === 'snr event manager' || position === 'partner manager' || 
-                            position === 'event manager' || position === 'snr support manager';
-        if (isManagement) {
-            managementTeam.push(member);
-        } else {
-            teamMembers.push(member);
-        }
+        const roles = member.roles && member.roles.length > 0 ? member.roles : [member.position || 'Team Member'];
+        roles.forEach(role => {
+            const roleName = typeof role === 'string' ? role : (role.name || String(role));
+            const dept = getDepartmentForRole(roleName);
+            allDepartments.add(dept);
+            const entry = { ...member, position: roleName, department: dept };
+            if (managementRoles.includes(roleName.toLowerCase())) {
+                managementTeam.push(entry);
+            } else {
+                teamMembers.push(entry);
+            }
+        });
     });
+
+    const departments = ['All', ...allDepartments];
 
     const renderMemberCard = (member, i) => `
       <div class="bento-card ambient-shadow reveal reveal-delay-${(i % 6) + 1}" data-department="${App.escapeHtml(member.department || 'General')}" style="padding: 24px; display: flex; flex-direction: column; align-items: center; text-align: center;">
