@@ -37,6 +37,16 @@ const TeamPage = {
             const entry = { ...member, position: roleName, department: dept };
             if (managementRoles.includes(roleName.toLowerCase())) {
                 managementTeam.push(entry);
+            } else if (developmentRoles.includes(roleName.toLowerCase())) {
+                managementTeam.push(entry);
+            } else if (mediaRoles.includes(roleName.toLowerCase())) {
+                managementTeam.push(entry);
+            } else if (hrRoles.includes(roleName.toLowerCase())) {
+                managementTeam.push(entry);
+            } else if (supportRoles.includes(roleName.toLowerCase())) {
+                managementTeam.push(entry);
+            } else if (eventsRoles.includes(roleName.toLowerCase())) {
+                managementTeam.push(entry);
             } else {
                 teamMembers.push(entry);
             }
