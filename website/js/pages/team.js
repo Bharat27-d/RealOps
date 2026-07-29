@@ -14,7 +14,10 @@ const TeamPage = {
     
     (staff || []).forEach(member => {
         const position = (member.position || '').toLowerCase();
-        const isManagement = position === 'founder' || position === 'project manager';
+        const isManagement = position === 'founder' || position === 'co-founder' || 
+                            position === 'developer' || position === 'project manager' || 
+                            position === 'snr event manager' || position === 'partner manager' || 
+                            position === 'event manager' || position === 'snr support manager';
         if (isManagement) {
             managementTeam.push(member);
         } else {

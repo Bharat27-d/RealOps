@@ -5,28 +5,41 @@ const { cache, CACHE_TTL } = require('../cache');
 const botManager = require('../discordManager');
 
 const STAFF_ROLE_IDS = [
-  '1291116832308068448', '1291144543630262292', '1386691716945543240',
-  '1292896422949163120', '1300834129780150272', '1291121579207692430',
-  '1296422181806542898', '1291123331591831632', '1344406747955200081',
-  '1296423697711894528', '1291818052744253612', '1345496957082406972',
-  '1291394387888177193', '1291122540864864348'
+  '1291116832308068448', // Founder
+  '1291139504786378823', // Co-Founder
+  '1386691716945543240', // Developer
+  '1291144543630262292', // Project Manager
+  '1488997119162318970', // Snr Event Manager
+  '1300834129780150272', // Partner Manager
+  '1291121579207692430', // Event Manager
+  '1344406747955200081', // Snr Support Manager
+  '1296422181806542898', // Media Manager
+  '1291123331591831632', // Social Media Manager
+  '1292896422949163120', // HR Department
+  '1291394387888177193', // Support Staff
+  '1291122540864864348', // Event Supervisor
+  '1291818052744253612', // Planner
+  '1345496957082406972', // Junior Planner
+  '1296423697711894528'  // Media Team
 ];
 
 const ROLE_NAMES = {
   '1291116832308068448': 'Founder',
-  '1291144543630262292': 'Project Manager',
-  '1292896422949163120': 'Human Resources Team',
-  '1300834129780150272': 'Partnership Manager',
-  '1291121579207692430': 'Event Manager',
-  '1296422181806542898': 'Media Manager',
-  '1291123331591831632': 'Design Manager',
-  '1344406747955200081': 'Senior Support Manager',
-  '1296423697711894528': 'Media Team',
-  '1291818052744253612': 'Planner',
+  '1291139504786378823': 'Co-Founder',
   '1386691716945543240': 'Developer',
-  '1345496957082406972': 'Junior Planner',
+  '1291144543630262292': 'Project Manager',
+  '1488997119162318970': 'Snr Event Manager',
+  '1300834129780150272': 'Partner Manager',
+  '1291121579207692430': 'Event Manager',
+  '1344406747955200081': 'Snr Support Manager',
+  '1296422181806542898': 'Media Manager',
+  '1291123331591831632': 'Social Media Manager',
+  '1292896422949163120': 'HR Department',
   '1291394387888177193': 'Support Staff',
-  '1291122540864864348': 'Event Staff'
+  '1291122540864864348': 'Event Supervisor',
+  '1291818052744253612': 'Planner',
+  '1345496957082406972': 'Junior Planner',
+  '1296423697711894528': 'Media Team'
 };
 
 // ============================================================
@@ -128,12 +141,13 @@ router.get('/staff', async (req, res) => {
       const position = staffRoles[0] || 'Team Member';
        
       let department = 'General';
-      if (position.includes('Media') || position.includes('Design')) department = 'Media';
-      else if (position.includes('Planner') || position.includes('Event')) department = 'Events';
-      else if (position.includes('Support')) department = 'Support';
-      else if (position.includes('Developer')) department = 'Development';
+      if (position.includes('Founder') || position.includes('Co-Founder') || position.includes('Developer') || position.includes('Project Manager')) department = 'Management';
+      else if (position.includes('Snr Event') || position.includes('Partner') || position.includes('Event Manager') || position.includes('Snr Support')) department = 'Management';
+      else if (position.includes('Media Manager') || position.includes('Social Media')) department = 'Media';
       else if (position.includes('HR') || position.includes('Human')) department = 'Human Resources';
-      else if (position.includes('Founder') || position.includes('Manager')) department = 'Management';
+      else if (position.includes('Support Staff')) department = 'Support';
+      else if (position.includes('Event Supervisor') || position.includes('Planner')) department = 'Events';
+      else if (position.includes('Media Team')) department = 'Media';
        
       return {
         id: member.id,
