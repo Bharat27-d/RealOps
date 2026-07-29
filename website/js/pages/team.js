@@ -9,7 +9,8 @@ const TeamPage = {
     // Map role names to departments
     const getDepartmentForRole = (roleName) => {
       const r = (roleName || '').toLowerCase();
-      if (['founder', 'co-founder', 'developer', 'project manager', 'snr event manager', 'partner manager', 'event manager', 'snr support manager'].includes(r)) return 'Management';
+      if (['founder', 'co-founder','project manager', 'snr event manager', 'partner manager', 'event manager', 'snr support manager'].includes(r)) return 'Management';
+      if(['developer'].includes(r)) return 'Development';
       if (['media manager', 'social media manager'].includes(r)) return 'Media';
       if (['hr department'].includes(r)) return 'Human Resources';
       if (['support staff'].includes(r)) return 'Support';
@@ -17,9 +18,12 @@ const TeamPage = {
       if (['media team'].includes(r)) return 'Media';
       return 'General';
     };
-
-    const managementRoles = ['founder', 'co-founder', 'developer', 'project manager', 'snr event manager', 'partner manager', 'event manager', 'snr support manager'];
-
+    const managementRoles = ['founder', 'co-founder', 'project manager', 'snr event manager', 'partner manager', 'event manager', 'snr support manager'];
+    const developmentRoles = ['developer'];
+    const mediaRoles = ['media manager', 'social media manager', 'media team'];
+    const hrRoles = ['hr department'];
+    const supportRoles = ['support staff'];
+    const eventsRoles = ['event supervisor', 'planner', 'junior planner'];
     const managementTeam = [];
     const teamMembers = [];
     const allDepartments = new Set();
