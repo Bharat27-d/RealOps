@@ -26,7 +26,7 @@
 
 ## Overview
 
-**RealOps** is a full-stack platform built for one of the leading Convoy Control teams in the [TruckersMP](https://truckersmp.com) community. It combines a feature-rich **Discord bot**, an **admin dashboard**, and a **public-facing website** into a single unified system — all backed by **Firebase** for real-time data synchronisation.
+**RealOps** is a full-stack platform built for one of the leading Convoy Control teams in the [TruckersMP](https://truckersmp.com) community. It combines a feature-rich **Discord bot**, an **admin dashboard**, and a **public-facing website** into a single unified system — all backed by **Firebase Firestore** for real-time data synchronisation.
 
 ---
 
@@ -117,162 +117,7 @@ RealOps/
 
 ---
 
-## Prerequisites
-
-- **Node.js** v16 or higher
-- **npm** v8+
-- **Discord Bot** application with OAuth2 configured
-- **Firebase** project with Firestore enabled
-- **PM2** (production) or **multiple terminals** (development)
-
----
-
-## Getting Started
-
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/Bharat27-d/RealOps.git
-cd RealOps
-```
-
-### 2. Firebase Setup
-
-1. Go to [Firebase Console](https://console.firebase.google.com/) → create a new project
-2. Enable **Firestore Database**
-3. Go to **Project Settings → Service Accounts** → generate a new private key
-4. Note your `project_id`, `private_key`, and `client_email`
-
-### 3. Discord Setup
-
-1. Go to [Discord Developer Portal](https://discord.com/developers/applications)
-2. Create a new application (or use existing)
-3. Copy your **Bot Token**, **Client ID**, and **Client Secret**
-4. Add OAuth2 Redirect URL: `http://localhost:3001/auth/discord/callback`
-5. Enable **Privileged Gateway Intents**: Server Members, Message Content
-
-### 4. Environment Configuration
-
-Create `.env` files in the following locations using the templates below:
-
-**`bot/.env`**
-```env
-BOT_TOKEN=your_bot_token
-CLIENT_ID=your_client_id
-GUILD_ID=your_guild_id
-
-FIREBASE_PROJECT_ID=your_project_id
-FIREBASE_PRIVATE_KEY="your_private_key"
-FIREBASE_CLIENT_EMAIL=your_client_email
-```
-
-**`dashboard/backend/.env`**
-```env
-DISCORD_BOT_TOKEN=your_bot_token
-DISCORD_CLIENT_ID=your_client_id
-DISCORD_CLIENT_SECRET=your_client_secret
-DISCORD_GUILD_ID=your_guild_id
-DISCORD_CALLBACK_URL=http://localhost:3001/auth/discord/callback
-
-FIREBASE_PROJECT_ID=your_project_id
-FIREBASE_PRIVATE_KEY="your_private_key"
-FIREBASE_CLIENT_EMAIL=your_client_email
-
-PORT=3001
-SESSION_SECRET=generate_a_random_string
-FRONTEND_URL=http://localhost:3000
-ADMIN_USER_IDS=your_discord_user_id
-```
-
-**`dashboard/frontend/.env`**
-```env
-REACT_APP_API_URL=http://localhost:3001
-REACT_APP_DISCORD_CLIENT_ID=your_client_id
-```
-
-### 5. Install Dependencies
-
-```bash
-# Bot
-cd bot && npm install && cd ..
-
-# Dashboard Backend
-cd dashboard/backend && npm install && cd ../..
-
-# Dashboard Frontend
-cd dashboard/frontend && npm install && cd ../..
-
-# Website (optional — only if you need to build)
-cd website && npm install && cd ..
-```
-
-### 6. Run Locally
-
-**Option A — Use the launcher script (Windows):**
-```powershell
-start_all.bat
-```
-
-**Option B — Run each service manually:**
-
-```bash
-# Terminal 1 — Bot
-cd bot && node index.js
-
-# Terminal 2 — Dashboard Backend
-cd dashboard/backend && node server.js
-
-# Terminal 3 — Dashboard Frontend
-cd dashboard/frontend && npm start
-
-# Terminal 4 — Website (optional)
-npx -y serve ./website -l 5500
-```
-
-| Service | URL |
-|---|---|
-| Public Website | http://localhost:5500 |
-| Dashboard | http://localhost:3000 |
-| Backend API | http://localhost:3001 |
-| Bot Health Check | http://localhost:3002/health |
-
----
-
-## Production Deployment
-
-### PM2
-
-```bash
-pm2 start ecosystem.config.js
-pm2 save
-pm2 startup
-```
-
-### Nginx
-
-Copy the included `nginx.conf` to `/etc/nginx/sites-available/realops` and configure your domains:
-
-| Domain | Service |
-|---|---|
-| `realops.cc` | Public website (static files) |
-| `dashboard.realops.cc` | Dashboard frontend + API proxy |
-
-Enable SSL with Let's Encrypt — see the commented SSL blocks in `nginx.conf`.
-
-### Frontend Build
-
-```bash
-cd dashboard/frontend
-npm run build
-```
-
-Deploy the `build/` folder to your server or static hosting.
-
----
-
 ## Firestore Collections
-
-The following collections are automatically created and managed:
 
 | Collection | Purpose |
 |---|---|
@@ -294,48 +139,11 @@ The following collections are automatically created and managed:
 
 ## Security
 
-- 🔐 **Discord OAuth2** authentication for dashboard access
-- 🛡️ **Session-based** auth with secure cookie handling
-- 👥 **Role-based access control** — admin-only endpoints
-- 🔒 **Firebase Admin SDK** — server-side only, no client credentials exposed
-- ⚡ **Rate limiting** on API endpoints
-- 📁 **`.env` files** excluded from version control
-
----
-
-## Troubleshooting
-
-<details>
-<summary><strong>Bot won't connect</strong></summary>
-
-- Verify `BOT_TOKEN` in `.env`
-- Ensure the bot is invited to your server with correct permissions
-- Check that all Privileged Gateway Intents are enabled in the Developer Portal
-</details>
-
-<details>
-<summary><strong>Firebase errors</strong></summary>
-
-- Double-check `FIREBASE_PROJECT_ID`, `FIREBASE_PRIVATE_KEY`, and `FIREBASE_CLIENT_EMAIL`
-- Ensure Firestore is enabled (not just Realtime Database)
-- Verify service account has Editor permissions
-</details>
-
-<details>
-<summary><strong>OAuth / Login issues</strong></summary>
-
-- The redirect URL must match **exactly** — `http://localhost:3001/auth/discord/callback`
-- Verify `CLIENT_ID` and `CLIENT_SECRET`
-- The user must be a member of the configured guild
-</details>
-
-<details>
-<summary><strong>Dashboard API not reachable</strong></summary>
-
-- Ensure the backend is running on port 3001
-- Check `REACT_APP_API_URL` in the frontend `.env`
-- Look for CORS errors in the browser console
-</details>
+- 🔐 Discord OAuth2 authentication for dashboard access
+- 🛡️ Session-based auth with secure cookie handling
+- 👥 Role-based access control with admin-only endpoints
+- 🔒 Firebase Admin SDK — server-side only, no client credentials exposed
+- ⚡ Rate limiting on API endpoints
 
 ---
 
