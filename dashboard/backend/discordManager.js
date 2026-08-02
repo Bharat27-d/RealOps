@@ -55,10 +55,12 @@ class DiscordBotManager {
       ]
     });
 
-    this.client.login(token);
-
-    this.client.once('clientReady', () => {
+    this.client.once('ready', () => {
       console.log(`✅ Bot logged in as ${this.client.user.tag}`);
+    });
+
+    this.client.login(token).catch(err => {
+      console.error('❌ Failed to login Discord client in dashboard:', err.message);
     });
   }
 
@@ -190,6 +192,11 @@ class DiscordBotManager {
   // Get guild members (staff only) with caching to prevent rate limits
   async getGuildMembers(roleIds = []) {
     try {
+      if (!this.client || !this.client.isReady()) {
+        console.log('Discord client not ready. Returning cached or empty members.');
+        return this.getCached('members') || [];
+      }
+      
       // Check cache first
       let allMembers = this.getCached('members');
       
@@ -282,6 +289,11 @@ class DiscordBotManager {
   // Get channel list with caching (text channels only)
   async getChannels() {
     try {
+      if (!this.client || !this.client.isReady()) {
+        console.log('Discord client not ready. Returning cached or empty channels.');
+        return this.getCached('channels') || [];
+      }
+
       // Check cache first
       let channelList = this.getCached('channels');
       
@@ -319,6 +331,11 @@ class DiscordBotManager {
   // Get categories (category channels)
   async getCategories() {
     try {
+      if (!this.client || !this.client.isReady()) {
+        console.log('Discord client not ready. Returning empty categories.');
+        return [];
+      }
+
       console.log('Fetching categories from Discord API...');
       const guild = await this.client.guilds.fetch(process.env.DISCORD_GUILD_ID);
       const channels = await guild.channels.fetch();
@@ -343,6 +360,11 @@ class DiscordBotManager {
   // Get roles with caching
   async getRoles() {
     try {
+      if (!this.client || !this.client.isReady()) {
+        console.log('Discord client not ready. Returning cached or empty roles.');
+        return this.getCached('roles') || [];
+      }
+
       // Check cache first
       let roleList = this.getCached('roles');
       
@@ -378,6 +400,11 @@ class DiscordBotManager {
   // Get count of members with a specific role
   async getMembersWithRoleCount(roleId) {
     try {
+      if (!this.client || !this.client.isReady()) {
+        console.log('Discord client not ready. Returning 0 for role count.');
+        return 0;
+      }
+
       // Check cache first to prevent rate limiting
       const cacheKey = `roleCount_${roleId}`;
       if (!this.cache[cacheKey]) {

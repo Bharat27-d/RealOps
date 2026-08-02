@@ -19,9 +19,29 @@ module.exports = {
         .setRequired(true)
     )
     .addStringOption(option =>
-      option.setName('documentlink')
-        .setDescription('The link to the document')
-        .setRequired(true)
+      option.setName('documentlink1')
+        .setDescription('The first document link')
+        .setRequired(false)
+    )
+    .addStringOption(option =>
+      option.setName('documentlink2')
+        .setDescription('The second document link')
+        .setRequired(false)
+    )
+    .addStringOption(option =>
+      option.setName('documentlink3')
+        .setDescription('The third document link')
+        .setRequired(false)
+    )
+    .addStringOption(option =>
+      option.setName('documentlink4')
+        .setDescription('The fourth document link')
+        .setRequired(false)
+    )
+    .addStringOption(option =>
+      option.setName('documentlink5')
+        .setDescription('The fifth document link')
+        .setRequired(false)
     )
     .addStringOption(option =>
       option.setName('eventlink')
@@ -37,23 +57,38 @@ module.exports = {
       }
 
       const user = interaction.options.getUser('user');
-      const documentLink = interaction.options.getString('documentlink');
       const eventLink = interaction.options.getString('eventlink');
+      
+      const docs = [];
+      for (let i = 1; i <= 5; i++) {
+        const link = interaction.options.getString(`documentlink${i}`);
+        if (link) docs.push(link);
+      }
 
       if (!user) {
         return await interaction.editReply({ content: 'User not found.' });
-      }
-      if (!documentLink) {
-        return await interaction.editReply({ content: 'Please provide a document link.' });
       }
       if (!eventLink) {
         return await interaction.editReply({ content: 'Please provide an event link.' });
       }
 
       const defaultTitle = 'Your Real Ops Event Document & Feedback Instructions';
-      const dynamicDescription = `Thank you for requesting our services for your event, please find below the link for your document.
+      const docsList = docs.length > 0
+        ? docs.map((doc, index) => `**Document ${index + 1}:** [Click here to view](${doc})`).join('\n')
+        : '**Documents:** None provided';
 
-**Document Link:** [Click here to view your document](${documentLink})
+      let ticketDocs = '';
+      if (docs.length === 1) {
+          ticketDocs = `[HERE](${docs[0]}) is the link to our document`;
+      } else if (docs.length > 1) {
+          ticketDocs = `Here are the links to our documents: ${docs.map((d, i) => `[Doc ${i + 1}](${d})`).join(' ')}`;
+      }
+
+      const ticketText = `we wish to request real ops for our event TMP link ${eventLink} ${ticketDocs}`.trim();
+
+      const dynamicDescription = `Thank you for requesting our services for your event, please find below the links for your documents.
+
+${docsList}
 
 **Event Link:** ${eventLink}
 
@@ -63,7 +98,7 @@ As you already have your event server, you will need to follow these steps to re
 2. Please paste the below text into the ticket:
 
 \`\`\`
-we wish to request real ops for our event TMP link ${eventLink} [HERE](${documentLink}) is the link to our document
+${ticketText}
 \`\`\`
 `;
 
