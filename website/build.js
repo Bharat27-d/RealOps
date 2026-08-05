@@ -60,6 +60,13 @@ html = html.replace(scriptRegex, '');
 html = html.replace('</body>', '  <script src="bundle.min.js?v=" + Date.now()></script>\n</body>');
 
 fs.writeFileSync(path.join(distDir, 'index.html'), html);
+fs.writeFileSync(path.join(distDir, '404.html'), html);
+
+// Generate static route fallback HTML files for clean direct URL access
+const routes = ['about', 'events', 'team', 'stats', 'recruitment', 'contact', 'privacy', 'guidelines', 'legal'];
+for (const route of routes) {
+    fs.writeFileSync(path.join(distDir, `${route}.html`), html);
+}
 
 // Copy static assets
 const copyRecursiveSync = (src, dest) => {

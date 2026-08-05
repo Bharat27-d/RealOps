@@ -1,50 +1,45 @@
+// ============================================================
 // RealOps — Community Guidelines Page
+// ============================================================
 
 const GuidelinesPage = {
   render: () => {
     return `
-      <div class="page-transition">
-        <!-- Header -->
-        <header class="hero" style="min-height: 40vh; display: flex; align-items: center; justify-content: center; text-align: center; background: linear-gradient(to bottom, rgba(5,5,5,0.8), var(--color-bg)), url('assets/hero-bg.jpg') center/cover; padding-top: 80px;">
-          <div class="container">
-            <h1 class="hero-title" style="font-size: 48px; margin-bottom: 16px;">Community <span style="color: var(--color-primary);">Guidelines</span></h1>
-            <p class="hero-subtitle" style="font-size: 18px; color: var(--color-text-secondary); max-width: 600px; margin: 0 auto;">
-              The rules and expectations for members of the RealOps community.
-            </p>
-          </div>
-        </header>
+      <div class="container" style="padding-top: 130px; padding-bottom: 80px;">
+        
+        <div style="text-align: center; margin-bottom: 48px;" class="reveal">
+          <h1 style="font-size: clamp(36px, 5vw, 56px); font-weight: 800; color: #ffffff;">
+            Community <span class="gradient-text-orange">Guidelines</span>
+          </h1>
+          <p style="font-size: 16px; color: var(--color-text-secondary); max-width: 600px; margin: 12px auto 0; line-height: 1.6;">
+            Professional standards required for all participants, Virtual Trucking Companies, and escort pilots.
+          </p>
+        </div>
 
-        <!-- Content -->
-        <section class="section" style="padding-top: 40px; padding-bottom: 80px;">
-          <div class="container" style="max-width: 800px; margin: 0 auto;">
-            <div class="glass-panel" style="padding: 40px; text-align: left;">
-              
-              <h2 style="font-size: 24px; color: var(--color-primary); margin-bottom: 16px; border-bottom: 1px solid var(--color-border); padding-bottom: 8px;">1. Respect and Professionalism</h2>
-              <p style="font-size: 16px; color: var(--color-text-secondary); line-height: 1.7; margin-bottom: 24px;">
-                Treat all members of the community, staff, and external event participants with respect. Harassment, hate speech, toxicity, and discrimination of any kind are strictly prohibited and will result in immediate removal from our services.
-              </p>
+        <div class="bento-card reveal" style="max-width: 840px; margin: 0 auto; padding: 48px;">
+          <h2 style="font-size: 22px; color: var(--color-primary); margin-bottom: 12px;">1. Respect & Radio Discipline</h2>
+          <p style="font-size: 15px; color: var(--color-text-secondary); line-height: 1.7; margin-bottom: 32px;">
+            All members and event attendees must treat staff and drivers with mutual respect. Voice channels must maintain clear radio discipline during active convoy operations.
+          </p>
 
-              <h2 style="font-size: 24px; color: var(--color-primary); margin-bottom: 16px; border-bottom: 1px solid var(--color-border); padding-bottom: 8px;">2. Event Conduct</h2>
-              <p style="font-size: 16px; color: var(--color-text-secondary); line-height: 1.7; margin-bottom: 24px;">
-                When participating in or controlling a convoy, you must follow the directions of the designated event managers. Trolling, reckless driving, or any behavior that intentionally disrupts an event violates our core principles.
-              </p>
+          <h2 style="font-size: 22px; color: var(--color-primary); margin-bottom: 12px;">2. Escort Convoy Conduct</h2>
+          <p style="font-size: 15px; color: var(--color-text-secondary); line-height: 1.7; margin-bottom: 32px;">
+            Drivers must follow Lead Escort speed locks and pilot junction clearances. Reckless driving, intentional ramming, or overtaking pilot cars is strictly prohibited.
+          </p>
 
-              <h2 style="font-size: 24px; color: var(--color-primary); margin-bottom: 16px; border-bottom: 1px solid var(--color-border); padding-bottom: 8px;">3. Discord Server Rules</h2>
-              <ul style="font-size: 16px; color: var(--color-text-secondary); line-height: 1.7; margin-bottom: 24px; padding-left: 20px;">
-                <li style="margin-bottom: 8px;">No spamming or self-promotion outside of designated channels.</li>
-                <li style="margin-bottom: 8px;">Keep conversations in the appropriate channels.</li>
-                <li style="margin-bottom: 8px;">Listen to and comply with instructions given by RealOps Staff.</li>
-                <li style="margin-bottom: 8px;">NSFW (Not Safe For Work) content is strictly forbidden.</li>
-              </ul>
+          <h2 style="font-size: 22px; color: var(--color-primary); margin-bottom: 12px;">3. Discord Rules</h2>
+          <ul style="font-size: 15px; color: var(--color-text-secondary); line-height: 1.7; margin-bottom: 32px; padding-left: 20px;">
+            <li style="margin-bottom: 8px;">No spamming or unsolicited DMs to staff members.</li>
+            <li style="margin-bottom: 8px;">Use designated channels for support tickets and event media.</li>
+            <li style="margin-bottom: 8px;">Follow instructions from Event Supervisors and Founders.</li>
+          </ul>
 
-              <h2 style="font-size: 24px; color: var(--color-primary); margin-bottom: 16px; border-bottom: 1px solid var(--color-border); padding-bottom: 8px;">4. Consequence of Violations</h2>
-              <p style="font-size: 16px; color: var(--color-text-secondary); line-height: 1.7; margin-bottom: 0;">
-                Failure to adhere to these guidelines may result in a warning, a temporary suspension, or a permanent ban from the RealOps community and services. Our management team reserves the right to evaluate incidents on a case-by-case basis.
-              </p>
-              
-            </div>
-          </div>
-        </section>
+          <h2 style="font-size: 22px; color: var(--color-primary); margin-bottom: 12px;">4. Policy Enforcement</h2>
+          <p style="font-size: 15px; color: var(--color-text-secondary); line-height: 1.7;">
+            Violations may result in warnings, event disqualification, or permanent bans from RealOps convoy channels.
+          </p>
+        </div>
+
       </div>
     `;
   }
