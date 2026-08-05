@@ -1,11 +1,11 @@
 {
-  "name": "RealOps Real Operation",
+  "name": "RealOps Convoy Control",
   "short_name": "RealOps",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#050505",
   "theme_color": "#051424",
-  "description": "Professional Real Operation for the TruckersMP community.",
+  "description": "Professional Convoy Control for the TruckersMP community.",
   "icons": [
     {
       "src": "assets/logo.png",

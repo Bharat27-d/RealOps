@@ -6,7 +6,7 @@
 const App = {
   // ── Route definitions ──
   routes: {
-    '/': { page: () => HomePage, title: 'RealOps — Professional Real Operation', afterRender: null },
+    '/': { page: () => HomePage, title: 'RealOps — Professional Convoy Control', afterRender: null },
     '/about': { page: () => AboutPage, title: 'About — RealOps', afterRender: null },
     '/events': { page: () => EventsPage, title: 'Events — RealOps', afterRender: () => EventsPage.initFilters() },
     '/team': { page: () => TeamPage, title: 'Team — RealOps', afterRender: () => TeamPage.initFilters() },
@@ -44,12 +44,6 @@ const App = {
     // Set up mobile nav
     this.initMobileNav();
 
-    // Set up background audio player
-    this.initAudioPlayer();
-
-    // Set up floating back-to-top button
-    this.initScrollTop();
-
     // Initial route
     await this.handleRoute();
 
@@ -86,27 +80,14 @@ const App = {
 
   // ── Router ──
   async handleRoute() {
-    let path = window.location.pathname || '/';
-
-    // Normalize path (.html removal or index.html handling)
-    if (path.endsWith('/index.html')) path = '/';
-    else path = path.replace(/\.html$/, '');
-
-    // Check hash-based fallback if pathname is root
-    if (path === '/' && window.location.hash) {
-      const hashPath = window.location.hash.replace(/^#\/?/, '/');
-      if (this.routes[hashPath]) {
-        path = hashPath;
-      }
-    }
-
-    let route = this.routes[path];
+    const path = window.location.pathname || '/';
+    const route = this.routes[path];
 
     if (!route) {
-      // Fallback to home route if invalid path
-      path = '/';
-      route = this.routes['/'];
+      // Redirect unknown routes to home
       window.history.replaceState(null, '', '/');
+      this.handleRoute();
+      return;
     }
 
     this.currentRoute = path;
@@ -184,26 +165,16 @@ const App = {
     });
   },
 
-  // ── Navbar Scroll & Scroll Progress Line ──
+  // ── Navbar Scroll Effect ──
   initNavScroll() {
     const navbar = document.querySelector('.navbar');
-    const progressBar = document.getElementById('scroll-progress-bar');
+    if (!navbar) return;
 
     const onScroll = () => {
-      const scrollTop = window.scrollY || document.documentElement.scrollTop;
-      const docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-      const scrollPercent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
-
-      if (progressBar) {
-        progressBar.style.width = `${scrollPercent}%`;
-      }
-
-      if (navbar) {
-        if (scrollTop > 20) {
-          navbar.classList.add('scrolled');
-        } else {
-          navbar.classList.remove('scrolled');
-        }
+      if (window.scrollY > 20) {
+        navbar.classList.add('scrolled');
+      } else {
+        navbar.classList.remove('scrolled');
       }
     };
 
@@ -251,117 +222,8 @@ const App = {
     document.body.style.overflow = '';
   },
 
-  // ── Background Audio Player Engine ──
-  bgAudio: null,
-  isAudioPlaying: false,
-  currentTrackIndex: 0,
-  tracks: [
-    { title: 'Amber Skies — VXLLAIN', url: 'assets/audio/amber-skies.mp3' },
-    { title: 'waves — MoonlightFM', url: 'assets/audio/waves.mp3' },
-    { title: 'slow dance — MoonlightFM', url: 'assets/audio/slow-dance.mp3' },
-    { title: 'Solaris — Ixst child', url: 'assets/audio/solaris.mp3' }
-  ],
-
-  initAudioPlayer() {
-    const dockContainer = document.getElementById('audio-dock-container');
-    const dockToggle = document.getElementById('audio-dock-toggle');
-    const toggleIcon = document.getElementById('dock-toggle-icon');
-    const dockTrack = document.getElementById('audio-dock-track');
-    const prevDockBtn = document.getElementById('audio-prev-btn');
-    const playPauseDockBtn = document.getElementById('audio-play-pause-btn');
-    const playDockIcon = document.getElementById('audio-play-icon');
-    const nextDockBtn = document.getElementById('audio-next-dock-btn');
-    const volumeSlider = document.getElementById('audio-volume-slider');
-    const volumePercentage = document.getElementById('volume-percentage');
-    const volumeIcon = document.getElementById('volume-icon');
-
-    if (!dockContainer) return;
-
-    const initialTrack = this.tracks[this.currentTrackIndex];
-    this.bgAudio = new Audio(initialTrack.url);
-    this.bgAudio.loop = true;
-    this.bgAudio.volume = 0.35;
-
-    const updateTrackUI = () => {
-      const cur = this.tracks[this.currentTrackIndex];
-      if (dockTrack) dockTrack.textContent = cur.title;
-    };
-
-    updateTrackUI();
-
-    const changeTrack = (delta = 1) => {
-      this.currentTrackIndex = (this.currentTrackIndex + delta + this.tracks.length) % this.tracks.length;
-      const nextTrack = this.tracks[this.currentTrackIndex];
-      this.bgAudio.src = nextTrack.url;
-      updateTrackUI();
-      if (this.isAudioPlaying) {
-        this.bgAudio.play().catch(() => {});
-      }
-      App.showToast(`📻 Track: ${nextTrack.title}`, 'success');
-    };
-
-    const togglePlayPause = () => {
-      if (this.isAudioPlaying) {
-        this.bgAudio.pause();
-        this.isAudioPlaying = false;
-        if (playPauseDockBtn) playPauseDockBtn.classList.remove('active');
-        if (playDockIcon) playDockIcon.textContent = 'play_arrow';
-        App.showToast('Radio Muted', 'info');
-      } else {
-        this.bgAudio.play().then(() => {
-          this.isAudioPlaying = true;
-          if (playPauseDockBtn) playPauseDockBtn.classList.add('active');
-          if (playDockIcon) playDockIcon.textContent = 'pause';
-          const cur = this.tracks[this.currentTrackIndex];
-          App.showToast(`📻 Playing: ${cur.title}`, 'success');
-        }).catch(err => {
-          console.warn('Audio playback prevented by browser:', err);
-          App.showToast('Click anywhere to start radio', 'error');
-        });
-      }
-    };
-
-    if (playPauseDockBtn) playPauseDockBtn.addEventListener('click', togglePlayPause);
-    if (nextDockBtn) nextDockBtn.addEventListener('click', () => changeTrack(1));
-    if (prevDockBtn) prevDockBtn.addEventListener('click', () => changeTrack(-1));
-
-    // Volume Slider Handler
-    if (volumeSlider) {
-      volumeSlider.addEventListener('input', (e) => {
-        const val = parseFloat(e.target.value);
-        this.bgAudio.volume = val;
-        const pct = Math.round(val * 100);
-        if (volumePercentage) volumePercentage.textContent = `${pct}%`;
-
-        if (volumeIcon) {
-          if (val === 0) volumeIcon.textContent = 'volume_off';
-          else if (val < 0.5) volumeIcon.textContent = 'volume_down';
-          else volumeIcon.textContent = 'volume_up';
-        }
-      });
-    }
-
-    // Dock Minimize / Expand Toggle
-    if (dockToggle && dockContainer) {
-      dockToggle.addEventListener('click', () => {
-        dockContainer.classList.toggle('minimized');
-      });
-    }
-  },
-
-  // ── Scroll Reveal Animations & Card Mouse Spotlights ──
+  // ── Scroll Reveal Animations ──
   initScrollAnimations() {
-    // Card Spotlight Tracking
-    document.querySelectorAll('.bento-card, .event-card, .team-card, .stat-card-modern').forEach(card => {
-      card.addEventListener('mousemove', (e) => {
-        const rect = card.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        card.style.setProperty('--mouse-x', `${x}px`);
-        card.style.setProperty('--mouse-y', `${y}px`);
-      });
-    });
-
     // Disconnect previous observer
     if (this.observer) {
       this.observer.disconnect();
@@ -373,7 +235,7 @@ const App = {
     this.observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
-          entry.target.classList.add('active');
+          entry.target.classList.add('visible');
           this.observer.unobserve(entry.target);
         }
       });
@@ -487,21 +349,6 @@ const App = {
     } catch {
       return dateStr;
     }
-  },
-
-  // ── Scroll to Top Listener ──
-  initScrollTop() {
-    const btn = document.getElementById('back-to-top');
-    if (!btn) return;
-    window.addEventListener('scroll', () => {
-      if (window.scrollY > 300) {
-        btn.style.opacity = '1';
-        btn.style.pointerEvents = 'auto';
-      } else {
-        btn.style.opacity = '0';
-        btn.style.pointerEvents = 'none';
-      }
-    });
   }
 };
 
