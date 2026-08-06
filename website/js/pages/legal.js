@@ -1,48 +1,54 @@
-// RealOps — Legal Page
+// RealOps — Legal Information Page
 
 const LegalPage = {
   render: () => {
     return `
-      <div class="page-transition">
+      <!-- Main Container -->
+      <main class="flex-grow relative z-10 pt-[100px] pb-xl px-4 md:px-lg mx-auto w-full flex flex-col" style="padding-top: 100px; padding-bottom: 80px; max-width: 860px; margin: 0 auto;">
+        
         <!-- Header -->
-        <header class="hero" style="min-height: 40vh; display: flex; align-items: center; justify-content: center; text-align: center; background: linear-gradient(to bottom, rgba(5,5,5,0.8), var(--color-bg)), url('assets/hero-bg.jpg') center/cover; padding-top: 80px;">
-          <div class="container">
-            <h1 class="hero-title" style="font-size: 48px; margin-bottom: 16px;">Legal <span style="color: var(--color-primary);">Information</span></h1>
-            <p class="hero-subtitle" style="font-size: 18px; color: var(--color-text-secondary); max-width: 600px; margin: 0 auto;">
-              Terms of service and legal disclaimers.
-            </p>
+        <div style="text-align: center; margin-bottom: 48px;" class="reveal">
+          <div style="display: inline-flex; align-items: center; gap: 8px; padding: 4px 14px; background: rgba(255, 107, 53, 0.08); border: 1px solid rgba(255, 107, 53, 0.2); border-radius: 999px; margin-bottom: 16px;">
+            <span class="status-beacon" style="width: 6px; height: 6px;"></span>
+            <span style="font-family: var(--font-mono); font-size: 11px; font-weight: 600; color: var(--color-primary-light); text-transform: uppercase; letter-spacing: 0.12em;">LEGAL TERMS & DISCLAIMERS</span>
           </div>
-        </header>
 
-        <!-- Content -->
-        <section class="section" style="padding-top: 40px; padding-bottom: 80px;">
-          <div class="container" style="max-width: 800px; margin: 0 auto;">
-            <div class="glass-panel" style="padding: 40px; text-align: left;">
-              
-              <h2 style="font-size: 24px; color: var(--color-primary); margin-bottom: 16px; border-bottom: 1px solid var(--color-border); padding-bottom: 8px;">1. Terms of Service</h2>
-              <p style="font-size: 16px; color: var(--color-text-secondary); line-height: 1.7; margin-bottom: 24px;">
-                By accessing the RealOps website, dashboard, and services, you agree to be bound by these terms of service, all applicable laws and regulations, and agree that you are responsible for compliance with any applicable local laws. If you do not agree with any of these terms, you are prohibited from using or accessing this site.
-              </p>
+          <h1 style="font-size: clamp(32px, 5vw, 48px); font-weight: 800; color: var(--color-text); margin: 0 0 14px; letter-spacing: -0.03em;">
+            Legal Information
+          </h1>
+          
+          <p style="font-size: 15px; color: var(--color-text-secondary); max-width: 540px; margin: 0 auto; line-height: 1.6;">
+            Terms of service, community disclaimers, and intellectual property statements.
+          </p>
+        </div>
 
-              <h2 style="font-size: 24px; color: var(--color-primary); margin-bottom: 16px; border-bottom: 1px solid var(--color-border); padding-bottom: 8px;">2. Disclaimer of Liability</h2>
-              <p style="font-size: 16px; color: var(--color-text-secondary); line-height: 1.7; margin-bottom: 24px;">
-                RealOps is an independent virtual community operating within the TruckersMP network. We are not officially affiliated with, endorsed by, or sponsored by TruckersMP, SCS Software, or any of their partners. All services provided by RealOps are "as is" without warranty of any kind.
-              </p>
+        <section class="reveal">
+          <div class="bento-card" style="padding: 40px; background: rgba(18, 16, 16, 0.8); border: 1px solid rgba(255, 255, 255, 0.07); border-radius: 24px;">
+            
+            <h2 style="font-size: 20px; font-weight: 700; color: var(--color-primary); margin: 0 0 12px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.06);">1. Terms of Service</h2>
+            <p style="font-size: 14px; color: var(--color-text-secondary); line-height: 1.7; margin-bottom: 24px;">
+              By accessing the RealOps website, dispatch terminal, and community tools, you agree to comply with these terms of service, community guidelines, and all applicable TruckersMP rules.
+            </p>
 
-              <h2 style="font-size: 24px; color: var(--color-primary); margin-bottom: 16px; border-bottom: 1px solid var(--color-border); padding-bottom: 8px;">3. Intellectual Property</h2>
-              <p style="font-size: 16px; color: var(--color-text-secondary); line-height: 1.7; margin-bottom: 24px;">
-                The RealOps name, logos, branding, website design, and custom dashboard software are the intellectual property of the RealOps Group. You may not use, reproduce, or distribute our intellectual property without explicit written permission.
-              </p>
+            <h2 style="font-size: 20px; font-weight: 700; color: var(--color-primary); margin: 0 0 12px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.06);">2. Disclaimer of Affiliation</h2>
+            <p style="font-size: 14px; color: var(--color-text-secondary); line-height: 1.7; margin-bottom: 24px;">
+              RealOps Team is an independent virtual community operating within the TruckersMP network. We are not officially affiliated with, endorsed by, or sponsored by TruckersMP or SCS Software. All trademarks belong to their respective owners.
+            </p>
 
-              <h2 style="font-size: 24px; color: var(--color-primary); margin-bottom: 16px; border-bottom: 1px solid var(--color-border); padding-bottom: 8px;">4. Modifications to Terms</h2>
-              <p style="font-size: 16px; color: var(--color-text-secondary); line-height: 1.7; margin-bottom: 0;">
-                RealOps reserves the right to revise these terms of service at any time without notice. By using this website and our services, you are agreeing to be bound by the then current version of these terms of service.
-              </p>
-              
-            </div>
+            <h2 style="font-size: 20px; font-weight: 700; color: var(--color-primary); margin: 0 0 12px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.06);">3. Intellectual Property</h2>
+            <p style="font-size: 14px; color: var(--color-text-secondary); line-height: 1.7; margin-bottom: 24px;">
+              The RealOps name, logos, website layout, and custom management dashboard code are intellectual property of the RealOps Group. You may not reproduce or redistribute our assets without prior written consent.
+            </p>
+
+            <h2 style="font-size: 20px; font-weight: 700; color: var(--color-primary); margin: 0 0 12px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.06);">4. Updates to Terms</h2>
+            <p style="font-size: 14px; color: var(--color-text-secondary); line-height: 1.7; margin: 0;">
+              RealOps reserves the right to modify these terms at any time. Continued use of our website or services constitutes acceptance of the modified terms.
+            </p>
+
           </div>
         </section>
-      </div>
+
+      </main>
     `;
   }
 };

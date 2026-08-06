@@ -78,141 +78,46 @@
 <body>
   <div class="nav-overlay" id="nav-overlay"></div>
 
-  <!-- Global Background Animation -->
-  <div class="background-animation" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: -2; opacity: 0.4; mix-blend-mode: screen;">
-    <script src="https://ajax.googleapis.com/ajax/libs/threejs/r125/three.min.js"></script>
-    <div id="threejs-container" style="width:100%;height:100%"></div>
-    <script>
-      (function() {
-        const container = document.getElementById('threejs-container');
-        const width = container.clientWidth || window.innerWidth;
-        const height = container.clientHeight || window.innerHeight;
-        
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-        renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.setSize(width, height);
-        container.appendChild(renderer.domElement);
-
-        const primaryColor = 0xff6b35; 
-        const accentColor = 0xf59e0b; 
-
-        const group = new THREE.Group();
-        scene.add(group);
-
-        const coreGeom = new THREE.OctahedronGeometry(1.5, 0);
-        const coreMat = new THREE.MeshPhongMaterial({ 
-          color: primaryColor, 
-          emissive: primaryColor,
-          emissiveIntensity: 0.5,
-          shininess: 100,
-          transparent: true,
-          opacity: 0.9
-        });
-        const coreMesh = new THREE.Mesh(coreGeom, coreMat);
-        group.add(coreMesh);
-
-        const ringGeom = new THREE.TorusGeometry(3, 0.03, 16, 100);
-        const ringMat = new THREE.MeshBasicMaterial({ color: accentColor, transparent: true, opacity: 0.4 });
-        
-        const rings = [];
-        for(let i = 0; i < 3; i++) {
-          const ring = new THREE.Mesh(ringGeom, ringMat);
-          ring.rotation.x = Math.random() * Math.PI;
-          ring.rotation.y = Math.random() * Math.PI;
-          group.add(ring);
-          rings.push({ mesh: ring, speed: 0.01 + Math.random() * 0.02 });
-        }
-
-        const particlesGeom = new THREE.BufferGeometry();
-        const particlesCount = 200;
-        const positions = new Float32Array(particlesCount * 3);
-        for(let i = 0; i < particlesCount * 3; i++) {
-          positions[i] = (Math.random() - 0.5) * 10;
-        }
-        particlesGeom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        const particlesMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.05, transparent: true, opacity: 0.6 });
-        const particles = new THREE.Points(particlesGeom, particlesMat);
-        scene.add(particles);
-
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
-        scene.add(ambientLight);
-        const pointLight = new THREE.PointLight(primaryColor, 2, 20);
-        pointLight.position.set(5, 5, 5);
-        scene.add(pointLight);
-
-        camera.position.z = 8;
-
-        function animate() {
-          requestAnimationFrame(animate);
-          
-          group.rotation.y += 0.005;
-          group.rotation.x += 0.003;
-          
-          rings.forEach(r => {
-            r.mesh.rotation.z += r.speed;
-          });
-
-          const scale = 1 + Math.sin(Date.now() * 0.002) * 0.05;
-          coreMesh.scale.set(scale, scale, scale);
-
-          particles.rotation.y += 0.001;
-
-          renderer.render(scene, camera);
-        }
-
-        window.addEventListener('resize', () => {
-          const w = container.clientWidth || window.innerWidth;
-          const h = container.clientHeight || window.innerHeight;
-          camera.aspect = w / h;
-          camera.updateProjectionMatrix();
-          renderer.setSize(w, h);
-        });
-
-        animate();
-      })();
-    </script>
-  </div>
-  <!-- Dark overlay to ensure text readability -->
-  <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: -1; background: linear-gradient(to bottom, rgba(5,5,5,0.8), rgba(5,5,5,0.5), #050505); pointer-events: none;"></div>
+  <!-- Pure Minimalist Obsidian Studio Background -->
 
   <!-- ═══════════════════════════════════════════ -->
   <!-- Navigation -->
   <!-- ═══════════════════════════════════════════ -->
-  <header class="navbar">
+  <header class="navbar" id="navbar">
     <div class="nav-inner">
-      <div>
-        <a href="/" class="nav-logo" onclick="window.scrollTo(0,0)">
-          <img src="assets/logo.png" alt="RealOps logo">RealOps
-        </a>
-      </div>
+      <a href="/" class="nav-logo" onclick="window.scrollTo(0,0)">
+        <span class="nav-logo-glow"></span>
+        <img src="assets/logo.png" alt="RealOps logo">
+        <span class="nav-logo-text">RealOps</span>
+      </a>
 
       <nav class="nav-links" id="nav-links">
+        <span class="nav-active-indicator" id="nav-active-indicator"></span>
         <a href="/" class="nav-link" onclick="window.scrollTo(0,0)">Home</a>
+        <a href="/about" class="nav-link" onclick="window.scrollTo(0,0)">About</a>
         <a href="/events" class="nav-link" onclick="window.scrollTo(0,0)">Events</a>
         <a href="/team" class="nav-link" onclick="window.scrollTo(0,0)">Team</a>
-        <a href="/about" class="nav-link" onclick="window.scrollTo(0,0)">About</a>
-        <a href="/stats" class="nav-link" onclick="window.scrollTo(0,0)">Stats</a>
         <a href="/recruitment" class="nav-link" onclick="window.scrollTo(0,0)">Recruitment</a>
         <a href="/contact" class="nav-link" onclick="window.scrollTo(0,0)">Contact</a>
       </nav>
 
       <div class="nav-actions">
-        <a href="https://discord.gg/realops" target="_blank" rel="noopener" aria-label="Discord">
+        <a href="https://discord.gg/realops" target="_blank" rel="noopener" aria-label="Discord" class="nav-bell-btn">
           <span class="material-symbols-outlined">notifications</span>
         </a>
-        <a href="https://dashboard.realopsevents.com" target="_blank" rel="noopener" class="btn nav-dashboard-btn">
+        <a href="https://dashboard.realopsevents.com" target="_blank" rel="noopener" class="nav-dashboard-btn">
+          <span class="nav-shimmer"></span>
           Dashboard
+          <span class="material-symbols-outlined nav-dash-arrow">arrow_forward</span>
         </a>
       </div>
 
-      <!-- Mobile Toggle (Keep for responsiveness) -->
-      <div class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">
+      <!-- Mobile Toggle -->
+      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">
         <span></span>
         <span></span>
         <span></span>
-      </div>
+      </button>
     </div>
   </header>
 
@@ -225,6 +130,90 @@
       <div class="spinner"></div>
     </div>
   </main>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- Floating Music Player -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="music-player" id="music-player">
+    <!-- Minimized pill (shown when collapsed) -->
+    <button class="mp-mini-toggle" id="mp-mini-toggle" aria-label="Open music player">
+      <span class="material-symbols-outlined mp-mini-icon">music_note</span>
+      <div class="mp-mini-bars" id="mp-mini-bars">
+        <span></span><span></span><span></span><span></span>
+      </div>
+    </button>
+
+    <!-- Expanded player card -->
+    <div class="mp-card" id="mp-card">
+      <!-- Close / minimize button -->
+      <button class="mp-close" id="mp-close" aria-label="Minimize player">
+        <span class="material-symbols-outlined">keyboard_arrow_down</span>
+      </button>
+
+      <!-- Album art + visualizer -->
+      <div class="mp-art-wrap">
+        <div class="mp-art" id="mp-art">
+          <span class="material-symbols-outlined mp-art-icon">album</span>
+        </div>
+        <div class="mp-visualizer" id="mp-visualizer">
+          <span></span><span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+      </div>
+
+      <!-- Track info -->
+      <div class="mp-info">
+        <div class="mp-title" id="mp-title">Amber Skies</div>
+        <div class="mp-artist" id="mp-artist">RealOps Radio</div>
+      </div>
+
+      <!-- Progress bar -->
+      <div class="mp-progress-wrap" id="mp-progress-wrap">
+        <div class="mp-progress-bar">
+          <div class="mp-progress-fill" id="mp-progress-fill"></div>
+          <div class="mp-progress-thumb" id="mp-progress-thumb"></div>
+        </div>
+        <div class="mp-time">
+          <span id="mp-time-current">0:00</span>
+          <span id="mp-time-total">0:00</span>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="mp-controls">
+        <button class="mp-btn mp-btn-secondary" id="mp-shuffle" aria-label="Shuffle">
+          <span class="material-symbols-outlined">shuffle</span>
+        </button>
+        <button class="mp-btn mp-btn-secondary" id="mp-prev" aria-label="Previous">
+          <span class="material-symbols-outlined">skip_previous</span>
+        </button>
+        <button class="mp-btn mp-btn-play" id="mp-play" aria-label="Play">
+          <span class="material-symbols-outlined" id="mp-play-icon">play_arrow</span>
+        </button>
+        <button class="mp-btn mp-btn-secondary" id="mp-next" aria-label="Next">
+          <span class="material-symbols-outlined">skip_next</span>
+        </button>
+        <button class="mp-btn mp-btn-secondary" id="mp-repeat" aria-label="Repeat">
+          <span class="material-symbols-outlined">repeat</span>
+        </button>
+      </div>
+
+      <!-- Volume -->
+      <div class="mp-volume">
+        <button class="mp-btn mp-btn-secondary" id="mp-vol-btn" aria-label="Mute">
+          <span class="material-symbols-outlined" id="mp-vol-icon">volume_up</span>
+        </button>
+        <div class="mp-volume-bar-wrap" id="mp-volume-bar-wrap">
+          <div class="mp-volume-bar">
+            <div class="mp-volume-fill" id="mp-volume-fill" style="width: 70%"></div>
+            <div class="mp-volume-thumb" id="mp-volume-thumb" style="left: 70%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- ═══════════════════════════════════════════ -->
   <!-- Footer -->
@@ -240,8 +229,6 @@
           <a href="/legal" onclick="window.scrollTo(0,0)">Legal</a>
           <a href="/privacy" onclick="window.scrollTo(0,0)">Privacy Policy</a>
           <a href="/guidelines" onclick="window.scrollTo(0,0)">Community Guidelines</a>
-          <a href="https://api.realopsevents.com/api/public/partnerships" target="_blank" rel="noopener">API</a>
-          <a href="#">System Status</a>
         </nav>
         <div class="footer-meta">
           © <span id="footer-year">2026</span> RealOps Group. All Rights Reserved.
@@ -259,11 +246,11 @@
   <script src="js/pages/events.js"></script>
   <script src="js/pages/team.js"></script>
   <script src="js/pages/recruitment.js"></script>
-  <script src="js/pages/stats.js"></script>
   <script src="js/pages/contact.js"></script>
   <script src="js/pages/privacy.js"></script>
   <script src="js/pages/guidelines.js"></script>
   <script src="js/pages/legal.js"></script>
+  <script src="js/music-player.js"></script>
   <script src="js/app.js"></script>
 
   <!-- Dynamic year for copyright -->

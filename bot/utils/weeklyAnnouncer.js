@@ -1,6 +1,6 @@
 const cron = require('node-cron');
 const { EmbedBuilder } = require('discord.js');
-const { db } = require('../firebase');
+const { db } = require('../firebase') || {};
 
 async function runWeeklyAnnouncement(client) {
     console.log('⏰ Running weekly events announcement job...');
@@ -98,6 +98,10 @@ async function runWeeklyAnnouncement(client) {
 }
 
 function setupWeeklyAnnouncements(client) {
+    if (!db) {
+        console.warn('[WeeklyAnnouncer] Firebase not available, skipping weekly announcements setup.');
+        return;
+    }
     console.log('📅 Setting up Weekly Event Announcements cron job (Sunday 19:00 UTC)...');
     
     // Runs at 19:00 every Sunday in UTC timezone

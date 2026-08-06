@@ -11,7 +11,6 @@ const App = {
     '/events': { page: () => EventsPage, title: 'Events — RealOps', afterRender: () => EventsPage.initFilters() },
     '/team': { page: () => TeamPage, title: 'Team — RealOps', afterRender: () => TeamPage.initFilters() },
     '/recruitment': { page: () => RecruitmentPage, title: 'Recruitment — RealOps', afterRender: null },
-    '/stats': { page: () => StatsPage, title: 'Statistics — RealOps', afterRender: null },
     '/contact': { page: () => ContactPage, title: 'Contact — RealOps', afterRender: null },
     '/privacy': { page: () => PrivacyPage, title: 'Privacy Policy — RealOps', afterRender: null },
     '/guidelines': { page: () => GuidelinesPage, title: 'Community Guidelines — RealOps', afterRender: null },
@@ -163,6 +162,44 @@ const App = {
         link.removeAttribute('aria-current');
       }
     });
+
+    // Position the sliding indicator after a short delay to allow DOM update
+    requestAnimationFrame(() => this.positionActiveIndicator());
+  },
+
+  // ── Sliding Active Indicator ──
+  positionActiveIndicator() {
+    const indicator = document.getElementById('nav-active-indicator');
+    const navLinks = document.getElementById('nav-links');
+    if (!indicator || !navLinks) return;
+
+    // Don't show indicator on mobile (drawer mode)
+    if (window.innerWidth <= 768) {
+      indicator.classList.remove('visible');
+      return;
+    }
+
+    const activeLink = navLinks.querySelector('.nav-link.active');
+    if (!activeLink) {
+      indicator.classList.remove('visible');
+      return;
+    }
+
+    const navRect = navLinks.getBoundingClientRect();
+    const linkRect = activeLink.getBoundingClientRect();
+
+    const left = linkRect.left - navRect.left;
+    const width = linkRect.width;
+
+    indicator.style.left = left + 'px';
+    indicator.style.width = width + 'px';
+
+    // Show with a slight delay on first load for a nice entrance
+    if (!indicator.classList.contains('visible')) {
+      requestAnimationFrame(() => {
+        indicator.classList.add('visible');
+      });
+    }
   },
 
   // ── Navbar Scroll Effect ──
@@ -180,6 +217,13 @@ const App = {
 
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
+
+    // Reposition active indicator on resize (debounced)
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => this.positionActiveIndicator(), 100);
+    });
   },
 
   // ── Mobile Navigation ──
