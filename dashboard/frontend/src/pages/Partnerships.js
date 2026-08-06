@@ -164,18 +164,37 @@ function Partnerships() {
   };
 
   const handleEditClick = (partnership) => {
-    setEditData({ id: partnership.id, logo: partnership.logo || '' });
+    setEditData({
+      id: partnership.id,
+      name: partnership.name || '',
+      serverName: partnership.serverName || partnership.partnerName || partnership.name || '',
+      serverInvite: partnership.serverInvite || partnership.url || '',
+      logo: partnership.logo || '',
+      description: partnership.description || '',
+      status: partnership.status || 'active',
+      type: partnership.type || 'cross-promotion'
+    });
     setShowEditModal(true);
   };
 
   const handleEditSubmit = async () => {
     try {
-      await partnerships.update(editData.id, { logo: editData.logo });
+      await partnerships.update(editData.id, {
+        name: editData.name || `Partnership with ${editData.serverName}`,
+        serverName: editData.serverName,
+        partnerName: editData.serverName,
+        serverInvite: editData.serverInvite,
+        url: editData.serverInvite,
+        logo: editData.logo,
+        description: editData.description,
+        status: editData.status,
+        type: editData.type
+      });
       toast.success('Partnership updated successfully!');
       setShowEditModal(false);
       fetchPartnerships();
     } catch (error) {
-      toast.error('Failed to update partnership');
+      toast.error('Failed to update partnership: ' + (error.response?.data?.error || error.message));
     }
   };
 
@@ -567,30 +586,95 @@ function Partnerships() {
       {/* Edit Modal */}
       {showEditModal && (
         <div className="modal-overlay" onClick={() => setShowEditModal(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '500px' }}>
+          <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '580px', width: '95%', maxHeight: '90vh', overflowY: 'auto' }}>
             <div className="modal-header">
-              <h3>Edit Partnership</h3>
+              <h3>Edit Partnership Details</h3>
               <button className="modal-close" onClick={() => setShowEditModal(false)}>×</button>
             </div>
-            <div className="modal-body">
+            <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              
+              <div className="form-group">
+                <label className="form-label">Partner / Community Name *</label>
+                <input
+                  type="text"
+                  value={editData.serverName}
+                  onChange={(e) => setEditData({ ...editData, serverName: e.target.value })}
+                  placeholder="e.g. NextGen Trucking"
+                  className="form-input"
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Invite Link / Website URL *</label>
+                <input
+                  type="text"
+                  value={editData.serverInvite}
+                  onChange={(e) => setEditData({ ...editData, serverInvite: e.target.value })}
+                  placeholder="https://discord.gg/... or https://..."
+                  className="form-input"
+                />
+              </div>
+
               <div className="form-group">
                 <label className="form-label">Partner Logo URL</label>
                 <input
                   type="text"
                   value={editData.logo}
                   onChange={(e) => setEditData({ ...editData, logo: e.target.value })}
-                  placeholder="https://... (Image URL)"
+                  placeholder="https://i.ibb.co/... (Image URL)"
                   className="form-input"
                 />
               </div>
-              <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
-                <button className="btn" style={{ flex: 1 }} onClick={handleEditSubmit}>
+
+              <div className="form-group">
+                <label className="form-label">Community Description</label>
+                <textarea
+                  value={editData.description}
+                  onChange={(e) => setEditData({ ...editData, description: e.target.value })}
+                  placeholder="Brief description of the partner community..."
+                  className="form-input"
+                  style={{ minHeight: '80px', resize: 'vertical' }}
+                />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+                <div className="form-group">
+                  <label className="form-label">Partnership Status</label>
+                  <select
+                    className="form-select"
+                    value={editData.status}
+                    onChange={(e) => setEditData({ ...editData, status: e.target.value })}
+                  >
+                    <option value="active">Active</option>
+                    <option value="pending">Pending</option>
+                    <option value="inactive">Inactive</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Partnership Type</label>
+                  <select
+                    className="form-select"
+                    value={editData.type}
+                    onChange={(e) => setEditData({ ...editData, type: e.target.value })}
+                  >
+                    <option value="cross-promotion">Cross-Promotion</option>
+                    <option value="event-partner">Event Partner</option>
+                    <option value="community-partner">Community Partner</option>
+                    <option value="official">Official Partner</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
+                <button className="btn" style={{ flex: 1, padding: '12px' }} onClick={handleEditSubmit}>
                   Save Changes
                 </button>
-                <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setShowEditModal(false)}>
+                <button className="btn btn-secondary" style={{ flex: 1, padding: '12px' }} onClick={() => setShowEditModal(false)}>
                   Cancel
                 </button>
               </div>
+
             </div>
           </div>
         </div>
