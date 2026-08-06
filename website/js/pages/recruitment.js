@@ -88,9 +88,9 @@ const RecruitmentPage = {
               <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(255, 107, 53, 0.1); color: var(--color-primary); font-family: var(--font-mono); font-size: 18px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
                 01
               </div>
-              <h3 style="font-size: 18px; font-weight: 600; color: var(--color-text); margin: 0 0 8px;">Submit Application</h3>
+              <h3 style="font-size: 18px; font-weight: 600; color: var(--color-text); margin: 0 0 8px;">Apply for Staff</h3>
               <p style="font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; margin: 0;">
-                Open a ticket in the RealOps Discord server and fill in the pilot application details.
+                Submit your application ticket on our Discord server to apply for an open staff position.
               </p>
             </div>
 
@@ -98,9 +98,9 @@ const RecruitmentPage = {
               <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(255, 107, 53, 0.1); color: var(--color-primary); font-family: var(--font-mono); font-size: 18px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
                 02
               </div>
-              <h3 style="font-size: 18px; font-weight: 600; color: var(--color-text); margin: 0 0 8px;">Driver Assessment</h3>
+              <h3 style="font-size: 18px; font-weight: 600; color: var(--color-text); margin: 0 0 8px;">Application Review</h3>
               <p style="font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; margin: 0;">
-                Undergo an in-game driving evaluation to test escort precision, junction locks, and communications.
+                Your application will be reviewed based on your experience, and a practical driving test will be conducted if required.
               </p>
             </div>
 
@@ -110,7 +110,7 @@ const RecruitmentPage = {
               </div>
               <h3 style="font-size: 18px; font-weight: 600; color: var(--color-text); margin: 0 0 8px;">Crew Onboarding</h3>
               <p style="font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; margin: 0;">
-                Receive RealOps pilot roles, access radio channels, and take part in upcoming convoy dispatches.
+                Receive RealOps staff roles, access radio channels, and begin participating in live operations.
               </p>
             </div>
 
