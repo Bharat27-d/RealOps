@@ -464,11 +464,11 @@ function Partnerships() {
                   }}>
                     <div>
                       <h3 style={{ margin: '0 0 6px 0', color: 'var(--text-primary)', fontSize: '18px', fontWeight: '700' }}>
-                        {partnership.name}
+                        {partnership.serverName || partnership.partnerName || partnership.name}
                       </h3>
                       <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
-                        <span className="badge badge-primary" style={{ fontSize: '12px' }}>
-                          {partnership.serverName || 'Partner'}
+                        <span className="badge badge-primary" style={{ fontSize: '12px', textTransform: 'capitalize' }}>
+                          {partnership.type || 'Partner'}
                         </span>
                         {partnership.announcedAt ? (
                           <span className="badge" style={{ fontSize: '11px', background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
