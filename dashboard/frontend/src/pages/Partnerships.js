@@ -179,14 +179,18 @@ function Partnerships() {
 
   const handleEditSubmit = async () => {
     try {
+      const cleanServerName = (editData.serverName || '').trim();
+      const customTitle = (editData.name || '').trim();
+      const finalName = customTitle || `Partnership with ${cleanServerName}`;
+
       await partnerships.update(editData.id, {
-        name: editData.name || `Partnership with ${editData.serverName}`,
-        serverName: editData.serverName,
-        partnerName: editData.serverName,
-        serverInvite: editData.serverInvite,
-        url: editData.serverInvite,
-        logo: editData.logo,
-        description: editData.description,
+        name: finalName,
+        serverName: cleanServerName,
+        partnerName: cleanServerName,
+        serverInvite: (editData.serverInvite || '').trim(),
+        url: (editData.serverInvite || '').trim(),
+        logo: (editData.logo || '').trim(),
+        description: (editData.description || '').trim(),
         status: editData.status,
         type: editData.type
       });

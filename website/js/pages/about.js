@@ -112,7 +112,7 @@ const AboutPage = {
                       <span class="material-symbols-outlined" style="font-size: 28px; color: var(--color-text-secondary);">handshake</span>
                     </div>
                   `}
-                  <h3 style="font-size: 16px; font-weight: 600; color: var(--color-text); margin-bottom: 4px;">${partner.name || 'Partner'}</h3>
+                  <h3 style="font-size: 16px; font-weight: 600; color: var(--color-text); margin-bottom: 4px;">${partner.serverName || partner.partnerName || partner.name || 'Partner'}</h3>
                   ${partner.description ? `<p style="font-size: 12px; color: var(--color-text-muted); line-height: 1.4; margin: 0;">${partner.description}</p>` : ''}
                 </a>
               `).join('')}
