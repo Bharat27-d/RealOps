@@ -1,9 +1,13 @@
 const express = require('express');
 const router = express.Router();
+const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const { collections } = require('../firebase');
 const { cache, CACHE_TTL } = require('../cache');
 const botManager = require('../discordManager');
+
+// Enable open CORS for all public read endpoints
+router.use(cors());
 
 // Rate limiter for contact submissions — max 5 messages per hour per IP
 const contactLimiter = rateLimit({

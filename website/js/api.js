@@ -6,8 +6,13 @@
 const API = (() => {
   // Configure the base URL dynamically based on environment
   const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-  const BASE_URL = isLocal ? 'http://localhost:3001/api/public' : 'https://realops.cc/api/public';
-  const DASHBOARD_URL = isLocal ? 'http://localhost:3000' : 'https://dashboard.realops.cc';
+  const isFile = window.location.protocol === 'file:';
+  const BASE_URL = isLocal
+    ? 'http://localhost:3001/api/public'
+    : (isFile ? 'https://realops.cc/api/public' : '/api/public');
+  const DASHBOARD_URL = isLocal
+    ? 'http://localhost:3000'
+    : 'https://dashboard.realops.cc';
 
   const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 

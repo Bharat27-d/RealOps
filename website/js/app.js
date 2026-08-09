@@ -4,7 +4,7 @@
 // ============================================================
 
 const App = {
-  siteUrl: 'https://realops.cc',
+  siteUrl: 'https://realopsevents.com',
 
   // ── Route definitions ──
   routes: {

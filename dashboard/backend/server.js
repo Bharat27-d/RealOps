@@ -37,6 +37,11 @@ const allowedOrigins = [
   'https://dashboard.realops.cc',
   'https://realops.cc',
   'https://www.realops.cc',
+  'https://api.realops.cc',
+  'https://dashboard.realopsevents.com',
+  'https://realopsevents.com',
+  'https://www.realopsevents.com',
+  'https://api.realopsevents.com',
   'http://localhost:3000',
   'http://localhost:3001',
   'http://127.0.0.1:3000',
@@ -59,10 +64,17 @@ app.use((req, res, next) => {
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin) || origin.endsWith('.realops.cc')) {
+    if (
+      allowedOrigins.includes(origin) ||
+      origin.endsWith('.realops.cc') ||
+      origin.endsWith('.realopsevents.com') ||
+      origin.includes('localhost') ||
+      origin.includes('127.0.0.1')
+    ) {
       return callback(null, true);
     }
-    return callback(new Error('Blocked by CORS policy'));
+    // Return false without throwing an unhandled exception
+    return callback(null, false);
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
