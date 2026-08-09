@@ -1,75 +1,78 @@
-const CACHE_NAME = 'realops-cache-v2';
+const CACHE_NAME = 'realops-cache-v3';
 
-// Assets to cache on install for offline viewing
-const urlsToCache = [
+// Core assets to pre-cache on install
+const PRECACHE_ASSETS = [
   './',
   './index.html',
-  './css/styles.css',
-  './js/app.js',
-  './js/api.js',
-  './assets/logo.png',
-  'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap'
+  './styles.min.css',
+  './bundle.min.js',
+  './assets/logo.png'
 ];
 
+// Install: pre-cache core assets and activate immediately
 self.addEventListener('install', event => {
+  self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        return cache.addAll(urlsToCache);
-      })
-  );
-});
-
-self.addEventListener('activate', event => {
-  const cacheWhitelist = [CACHE_NAME];
-  event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
-            return caches.delete(cacheName); // Clean up old caches
-          }
-        })
-      );
+    caches.open(CACHE_NAME).then(cache => {
+      return cache.addAll(PRECACHE_ASSETS).catch(err => {
+        console.warn('SW pre-cache warning:', err);
+      });
     })
   );
 });
 
+// Activate: purge old cache versions & take immediate control
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames
+          .filter(name => name !== CACHE_NAME)
+          .map(name => caches.delete(name))
+      );
+    }).then(() => self.clients.claim())
+  );
+});
+
+// Fetch handler: Network-first for navigation/HTML, Stale-while-revalidate for assets
 self.addEventListener('fetch', event => {
-  // Only cache GET requests
-  if (event.request.method !== 'GET') return;
+  const { request } = event;
 
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        // Cache hit - return response
-        if (response) {
-          return response;
-        }
+  // Only handle GET requests and valid http/https schemes (ignore chrome-extension://, etc.)
+  if (request.method !== 'GET' || !request.url.startsWith('http')) {
+    return;
+  }
 
-        // Clone the request for fetch
-        const fetchRequest = event.request.clone();
-
-        return fetch(fetchRequest).then(
-          response => {
-            // Check if we received a valid response
-            if(!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
-            }
-
-            // Clone the response to put in cache
-            const responseToCache = response.clone();
-
-            caches.open(CACHE_NAME)
-              .then(cache => {
-                cache.put(event.request, responseToCache);
-              });
-
-            return response;
+  // Network-First for HTML / Page Navigation requests so updates are always seen
+  if (request.mode === 'navigate' || (request.headers.get('accept') && request.headers.get('accept').includes('text/html'))) {
+    event.respondWith(
+      fetch(request)
+        .then(response => {
+          if (response && response.status === 200) {
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(request, responseClone));
           }
-        ).catch(() => {
-          // If network fails and not in cache, we could return a fallback offline page here if we had one
-        });
-      })
+          return response;
+        })
+        .catch(() => caches.match(request).then(cached => cached || caches.match('./index.html')))
+    );
+    return;
+  }
+
+  // Stale-While-Revalidate for other assets (CSS, JS, images, fonts)
+  event.respondWith(
+    caches.match(request).then(cachedResponse => {
+      const fetchPromise = fetch(request)
+        .then(networkResponse => {
+          if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+            const responseClone = networkResponse.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(request, responseClone));
+          }
+          return networkResponse;
+        })
+        .catch(() => cachedResponse);
+
+      return cachedResponse || fetchPromise;
+    })
   );
 });
