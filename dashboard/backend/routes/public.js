@@ -1,8 +1,18 @@
 const express = require('express');
 const router = express.Router();
+const rateLimit = require('express-rate-limit');
 const { collections } = require('../firebase');
 const { cache, CACHE_TTL } = require('../cache');
 const botManager = require('../discordManager');
+
+// Rate limiter for contact submissions — max 5 messages per hour per IP
+const contactLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many contact submissions. Please try again after an hour.' }
+});
 
 const STAFF_ROLE_IDS = [
   '1291116832308068448', // Founder
@@ -295,8 +305,8 @@ router.get('/recruitment', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch recruitment data' });
   }
 });
-// POST /api/public/contact — Handle contact form submissions
-router.post('/contact', async (req, res) => {
+// POST /api/public/contact — Handle contact form submissions (rate-limited)
+router.post('/contact', contactLimiter, async (req, res) => {
   try {
     const { name, email, discord, subject, message } = req.body;
 

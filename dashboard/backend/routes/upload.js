@@ -96,18 +96,27 @@ router.post('/images', isStaff, upload.array('images', 6), async (req, res) => {
   }
 });
 
-// Delete uploaded image
+// Delete uploaded image (path-traversal protected)
 router.delete('/:filename', isStaff, async (req, res) => {
   try {
-    const filePath = path.join(uploadsDir, req.params.filename);
+    const safeFilename = path.basename(req.params.filename);
     
-    // Security check - make sure the path is within uploads directory
-    if (!filePath.startsWith(uploadsDir)) {
+    // Ensure only valid image extensions can be targeted
+    if (!/\.(jpg|jpeg|png|gif|webp)$/i.test(safeFilename)) {
+      return res.status(400).json({ error: 'Invalid file format' });
+    }
+
+    const filePath = path.join(uploadsDir, safeFilename);
+    
+    // Security check - make sure the path is strictly within uploads directory
+    const resolvedPath = path.resolve(filePath);
+    const resolvedUploadsDir = path.resolve(uploadsDir);
+    if (!resolvedPath.startsWith(resolvedUploadsDir)) {
       return res.status(403).json({ error: 'Invalid file path' });
     }
 
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
+    if (fs.existsSync(resolvedPath)) {
+      fs.unlinkSync(resolvedPath);
       res.json({ success: true, message: 'Image deleted successfully' });
     } else {
       res.status(404).json({ error: 'Image not found' });

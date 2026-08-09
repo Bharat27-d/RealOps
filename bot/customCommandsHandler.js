@@ -256,13 +256,18 @@ function startCustomCommandsListener() {
                             await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
                             // Send the container as a regular channel message (no user attribution)
+                            // Suppress @everyone and @here mentions for security
                             if (resolvedData.content && resolvedData.content.trim()) {
-                                await interaction.channel.send({ content: resolvedData.content.trim() });
+                                await interaction.channel.send({ 
+                                    content: resolvedData.content.trim(),
+                                    allowedMentions: { parse: ['users', 'roles'] }
+                                });
                             }
                             
                             await interaction.channel.send({
                                 components: [container],
-                                flags: MessageFlags.IsComponentsV2
+                                flags: MessageFlags.IsComponentsV2,
+                                allowedMentions: { parse: ['users', 'roles'] }
                             });
 
                             // Delete the ephemeral acknowledgment so nothing remains

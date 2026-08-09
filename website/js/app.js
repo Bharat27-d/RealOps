@@ -4,21 +4,134 @@
 // ============================================================
 
 const App = {
+  siteUrl: 'https://realops.cc',
+
   // ── Route definitions ──
   routes: {
-    '/': { page: () => HomePage, title: 'RealOps — Professional Convoy Control', afterRender: null },
-    '/about': { page: () => AboutPage, title: 'About — RealOps', afterRender: null },
-    '/events': { page: () => EventsPage, title: 'Events — RealOps', afterRender: () => EventsPage.initFilters() },
-    '/team': { page: () => TeamPage, title: 'Team — RealOps', afterRender: () => TeamPage.initFilters() },
-    '/recruitment': { page: () => RecruitmentPage, title: 'Recruitment — RealOps', afterRender: null },
-    '/contact': { page: () => ContactPage, title: 'Contact — RealOps', afterRender: null },
-    '/privacy': { page: () => PrivacyPage, title: 'Privacy Policy — RealOps', afterRender: null },
-    '/guidelines': { page: () => GuidelinesPage, title: 'Community Guidelines — RealOps', afterRender: null },
-    '/legal': { page: () => LegalPage, title: 'Legal — RealOps', afterRender: null }
+    '/': {
+      page: () => HomePage,
+      title: 'RealOps — Professional Convoy Control | TruckersMP',
+      description: 'RealOps is one of the leading Convoy Control teams in the TruckersMP community. Professional, organised, and high-quality convoy management for events of all sizes.',
+      ogTitle: 'RealOps — Professional Convoy Control',
+      ogDescription: 'One of the leading Convoy Control teams in the TruckersMP community. Professional convoy management for events of all sizes.',
+      afterRender: null
+    },
+    '/about': {
+      page: () => AboutPage,
+      title: 'About — RealOps',
+      description: 'Learn about RealOps, our mission, history, core values, and dedicated team providing professional convoy control in TruckersMP.',
+      ogTitle: 'About — RealOps',
+      ogDescription: 'Learn about RealOps, our mission, history, and dedicated convoy control team in TruckersMP.',
+      afterRender: null
+    },
+    '/events': {
+      page: () => EventsPage,
+      title: 'Events — RealOps',
+      description: 'Discover upcoming and past TruckersMP convoy control operations, community events, and joint convoys managed by RealOps.',
+      ogTitle: 'Events & Operations — RealOps',
+      ogDescription: 'Discover upcoming and past TruckersMP convoy control operations and community events managed by RealOps.',
+      afterRender: () => EventsPage.initFilters()
+    },
+    '/team': {
+      page: () => TeamPage,
+      title: 'Team — RealOps',
+      description: 'Meet the RealOps leadership, dispatchers, convoy controllers, media team, and staff members delivering top-tier operations.',
+      ogTitle: 'Our Team — RealOps',
+      ogDescription: 'Meet the RealOps leadership, dispatchers, convoy controllers, and staff members delivering top-tier operations.',
+      afterRender: () => TeamPage.initFilters()
+    },
+    '/recruitment': {
+      page: () => RecruitmentPage,
+      title: 'Recruitment — RealOps',
+      description: 'Join the RealOps team. Apply to become a Convoy Controller, Event Manager, Media Team member, or Staff in TruckersMP.',
+      ogTitle: 'Join the Team — RealOps Recruitment',
+      ogDescription: 'Join RealOps! Apply to become a Convoy Controller, Event Manager, or Media Team member in TruckersMP.',
+      afterRender: null
+    },
+    '/contact': {
+      page: () => ContactPage,
+      title: 'Contact — RealOps',
+      description: 'Get in touch with RealOps for convoy control bookings, event partnerships, feedback, or general inquiries.',
+      ogTitle: 'Contact Us — RealOps',
+      ogDescription: 'Get in touch with RealOps for convoy control bookings, event partnerships, or inquiries.',
+      afterRender: null
+    },
+    '/privacy': {
+      page: () => PrivacyPage,
+      title: 'Privacy Policy — RealOps',
+      description: 'Read the RealOps Privacy Policy to understand how we collect, use, and protect your information.',
+      ogTitle: 'Privacy Policy — RealOps',
+      ogDescription: 'Read the RealOps Privacy Policy to understand how we protect your personal data.',
+      afterRender: null
+    },
+    '/guidelines': {
+      page: () => GuidelinesPage,
+      title: 'Community Guidelines — RealOps',
+      description: 'Review the RealOps Community Guidelines and code of conduct for our events, Discord server, and operations.',
+      ogTitle: 'Community Guidelines — RealOps',
+      ogDescription: 'Review the RealOps Community Guidelines and code of conduct for our operations.',
+      afterRender: null
+    },
+    '/legal': {
+      page: () => LegalPage,
+      title: 'Legal — RealOps',
+      description: 'RealOps legal notices, terms of service, and TruckersMP community disclaimers.',
+      ogTitle: 'Legal & Terms — RealOps',
+      ogDescription: 'RealOps legal notices, terms of service, and TruckersMP community disclaimers.',
+      afterRender: null
+    }
   },
 
   currentRoute: '/',
   observer: null,
+
+  // ── Dynamic Metadata (Canonical, Open Graph, Twitter Cards) ──
+  updateMetadata(route, path) {
+    const canonicalUrl = path === '/' ? `${this.siteUrl}/` : `${this.siteUrl}${path}`;
+    const title = route.title || 'RealOps — Professional Convoy Control';
+    const description = route.description || 'Professional convoy management in TruckersMP.';
+    const ogTitle = route.ogTitle || title;
+    const ogDescription = route.ogDescription || description;
+
+    // Document title
+    document.title = title;
+
+    // Helper to set or create meta tag
+    const setMeta = (attr, key, content) => {
+      let el = document.querySelector(`meta[${attr}="${key}"]`);
+      if (!el) {
+        el = document.createElement('meta');
+        el.setAttribute(attr, key);
+        document.head.appendChild(el);
+      }
+      el.setAttribute('content', content);
+    };
+
+    // Helper to set or create link tag
+    const setLink = (rel, href) => {
+      let el = document.querySelector(`link[rel="${rel}"]`);
+      if (!el) {
+        el = document.createElement('link');
+        el.setAttribute('rel', rel);
+        document.head.appendChild(el);
+      }
+      el.setAttribute('href', href);
+    };
+
+    // Standard SEO
+    setMeta('name', 'description', description);
+    setLink('canonical', canonicalUrl);
+
+    // Open Graph
+    setMeta('property', 'og:url', canonicalUrl);
+    setMeta('property', 'og:title', ogTitle);
+    setMeta('property', 'og:description', ogDescription);
+
+    // Twitter Card
+    setMeta('name', 'twitter:url', canonicalUrl);
+    setMeta('name', 'twitter:title', ogTitle);
+    setMeta('name', 'twitter:description', ogDescription);
+  },
 
   // ── Initialize ──
   async init() {
@@ -50,10 +163,10 @@ const App = {
     API.prefetchAll();
 
     // Update dynamic links in index.html
-    const dashLinks = document.querySelectorAll('a[href="http://localhost:3000"], a[href="https://dashboard.realopsevents.com"]');
+    const dashLinks = document.querySelectorAll('a[href="http://localhost:3000"], a[href="https://dashboard.realopsevents.com"], a[href="https://dashboard.realops.cc"]');
     dashLinks.forEach(link => { link.href = API.getDashboardUrl(); });
 
-    const apiLinks = document.querySelectorAll('a[href="http://localhost:3001/api/public/partnerships"], a[href="https://api.realopsevents.com/api/public/partnerships"]');
+    const apiLinks = document.querySelectorAll('a[href="http://localhost:3001/api/public/partnerships"], a[href="https://api.realopsevents.com/api/public/partnerships"], a[href="https://realops.cc/api/public/partnerships"]');
     apiLinks.forEach(link => { link.href = API.getApiUrl() + '/partnerships'; });
 
     // Register Service Worker for offline PWA support
@@ -91,8 +204,8 @@ const App = {
 
     this.currentRoute = path;
 
-    // Update page title
-    document.title = route.title;
+    // Update page metadata (Title, Canonical, OG URL, Twitter URL, Description)
+    this.updateMetadata(route, path);
 
     // Update active nav link
     this.updateActiveNav(path);

@@ -5,7 +5,8 @@ const {
     REST, 
     Routes,
     Collection,
-    SlashCommandBuilder
+    SlashCommandBuilder,
+    PermissionFlagsBits
 } = require('discord.js');
 const config = require('./config');
 const TOKEN = config.BOT_TOKEN;
@@ -57,26 +58,32 @@ fs.readdirSync(eventsPath)
         }
     });
 
-// Define special panel setup commands
+// Define special panel setup commands (restricted to Administrators only)
 const panelCommands = [
     new SlashCommandBuilder()
         .setName('setup-jointeam')
-        .setDescription('Set up the Join Team panel in the current channel'),
+        .setDescription('Set up the Join Team panel in the current channel')
+        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
     new SlashCommandBuilder()
         .setName('setup-bookus')
-        .setDescription('Set up the Book Us panel in the current channel'),
+        .setDescription('Set up the Book Us panel in the current channel')
+        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
     new SlashCommandBuilder()
         .setName('setup-support')
-        .setDescription('Set up the Support panel in the current channel'),
+        .setDescription('Set up the Support panel in the current channel')
+        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
     new SlashCommandBuilder()
         .setName('setup-partnership')
-        .setDescription('Set up the Partnership panel in the current channel'),
+        .setDescription('Set up the Partnership panel in the current channel')
+        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
     new SlashCommandBuilder()
         .setName('setup-founders')
-        .setDescription('Set up the Founders Manager panel in the current channel'),
+        .setDescription('Set up the Founders Manager panel in the current channel')
+        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
     new SlashCommandBuilder()
         .setName('setup-hr')
         .setDescription('Set up the HR Department panel in the current channel')
+        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
 ];
 
 // Load commands dynamically from the ./commands folder
