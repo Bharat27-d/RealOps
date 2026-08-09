@@ -16,6 +16,7 @@ async function runBuild() {
             minify: true,
             outfile: 'dist/styles.min.css',
         });
+        fs.copyFileSync(path.join(distDir, 'styles.min.css'), path.join(__dirname, 'styles.min.css'));
 
         // 2. Concatenate and Minify JS (Order matters)
         const jsFiles = [
@@ -49,6 +50,7 @@ async function runBuild() {
             minify: true,
             outfile: 'dist/bundle.min.js',
         });
+        fs.copyFileSync(path.join(distDir, 'bundle.min.js'), path.join(__dirname, 'bundle.min.js'));
 
         if (fs.existsSync(tempBundlePath)) {
             fs.unlinkSync(tempBundlePath);
@@ -68,7 +70,7 @@ async function runBuild() {
         const timestamp = Date.now();
         baseHtml = baseHtml.replace('</body>', `  <script src="/bundle.min.js?v=${timestamp}"></script>\n</body>`);
 
-        // Write root index.html
+        // Write root index.html to dist/
         fs.writeFileSync(path.join(distDir, 'index.html'), baseHtml);
 
         // 4. Generate route-specific HTML files for social crawlers & direct requests
