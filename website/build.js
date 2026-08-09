@@ -166,12 +166,21 @@ async function runBuild() {
 
         for (const [routePath, meta] of Object.entries(routesMetadata)) {
           const dirName = routePath.replace(/^\//, '');
+          const routeHtml = generateRouteHtml(baseHtml, meta);
+
+          // 1. Write to dist/<route>/index.html
           const routeDir = path.join(distDir, dirName);
           if (!fs.existsSync(routeDir)) {
             fs.mkdirSync(routeDir, { recursive: true });
           }
-          const routeHtml = generateRouteHtml(baseHtml, meta);
           fs.writeFileSync(path.join(routeDir, 'index.html'), routeHtml);
+
+          // 2. Also write to website/<route>/index.html in case server root points to website/
+          const rootRouteDir = path.join(__dirname, dirName);
+          if (!fs.existsSync(rootRouteDir)) {
+            fs.mkdirSync(rootRouteDir, { recursive: true });
+          }
+          fs.writeFileSync(path.join(rootRouteDir, 'index.html'), routeHtml);
         }
 
         // 5. Copy static assets
