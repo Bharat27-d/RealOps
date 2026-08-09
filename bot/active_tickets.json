@@ -272,27 +272,6 @@
     "channelId": "1517645791697834207",
     "username": "fury_n2o"
   },
-  "1518159047872745572": {
-    "createdAt": "2026-06-21T07:42:03.749Z",
-    "transcript": [],
-    "formData": {
-      "vtcRole": "CCS & EP",
-      "eventId": "35761",
-      "eventStartAt": "2026-11-16 18:00:00",
-      "daysUntilEvent": 149,
-      "eventMeetupTs": 1794848400,
-      "eventStartTs": 1794852000,
-      "submittedAt": "2026-06-21T07:42:02.502Z",
-      "eventMeetupAt": "2026-11-16 17:00:00",
-      "discordName": "ik1znw",
-      "eventLink": "https://truckersmp.com/events/35761",
-      "timestamp": 1782027722
-    },
-    "type": "bookUs",
-    "userId": "774565147217625099",
-    "channelId": "1518159047872745572",
-    "username": "ik1znw"
-  },
   "1518658639446151251": {
     "createdAt": "2026-06-22T16:47:15.705Z",
     "transcript": [],
@@ -306,27 +285,6 @@
     "userId": "1086235243268276355",
     "channelId": "1518658639446151251",
     "username": "thewolf0257"
-  },
-  "1520093324386504815": {
-    "createdAt": "2026-06-26T15:48:11.238Z",
-    "transcript": [],
-    "formData": {
-      "vtcRole": "Event Planner",
-      "eventId": "36447",
-      "eventStartAt": "2026-10-30 19:00:00",
-      "daysUntilEvent": 127,
-      "eventMeetupTs": 1793383200,
-      "eventStartTs": 1793386800,
-      "submittedAt": "2026-06-26T15:48:10.050Z",
-      "eventMeetupAt": "2026-10-30 18:00:00",
-      "discordName": "ik1znw",
-      "eventLink": "https://truckersmp.com/events/36447",
-      "timestamp": 1782488890
-    },
-    "type": "bookUs",
-    "userId": "774565147217625099",
-    "channelId": "1520093324386504815",
-    "username": "ik1znw"
   },
   "1522170498534871060": {
     "createdAt": "2026-07-02T09:22:08.263Z",
@@ -537,20 +495,6 @@
     "channelId": "1527601677115592704",
     "username": "mihawkylz"
   },
-  "1528156844147871744": {
-    "createdAt": "2026-07-18T21:49:44.224Z",
-    "transcript": [],
-    "formData": {
-      "partnershipReason": "We are approaching you with a partnership proposal because we want professional real-ops to be carried out at THE ORIGINAL team’s events. We know how you operate and we appreciate it, which is why we would like you to carry out real-ops at our events as our partners.",
-      "vtcName": "THE ORIGINAL",
-      "submittedAt": "2026-07-18T21:49:43.171Z",
-      "discordName": "mr.menoitios"
-    },
-    "type": "partnership",
-    "userId": "882390043707187221",
-    "channelId": "1528156844147871744",
-    "username": "mr.menoitios"
-  },
   "1529969158454902857": {
     "createdAt": "2026-07-23T21:51:13.615Z",
     "transcript": [],
@@ -628,59 +572,181 @@
     "channelId": "1531016655113551974",
     "username": "boofi_softie"
   },
-  "1531123364100571198": {
-    "createdAt": "2026-07-27T02:17:37.625Z",
+  "1532032658266132622": {
+    "createdAt": "2026-07-29T14:30:50.300Z",
+    "transcript": [],
+    "formData": {
+      "vtcRole": "Owner",
+      "eventId": "33246",
+      "eventStartAt": "2026-11-09 18:00:00",
+      "daysUntilEvent": 104,
+      "eventMeetupTs": 1794243600,
+      "eventStartTs": 1794247200,
+      "submittedAt": "2026-07-29T14:30:49.015Z",
+      "eventMeetupAt": "2026-11-09 17:00:00",
+      "discordName": "mr.menoitios",
+      "eventLink": "https://truckersmp.com/events/33246-the-original%E2%84%A2-monthly-convoy#9",
+      "timestamp": 1785335449
+    },
+    "type": "bookUs",
+    "userId": "882390043707187221",
+    "channelId": "1532032658266132622",
+    "username": "mr.menoitios"
+  },
+  "1533129132995776625": {
+    "createdAt": "2026-08-01T15:07:50.212Z",
     "transcript": [],
     "formData": {
       "vtcRole": "Event Manager",
-      "eventId": "36902",
-      "eventStartAt": "2027-01-26 16:00:00",
+      "eventId": "36797",
+      "eventStartAt": "2027-01-31 16:30:00",
       "daysUntilEvent": 184,
-      "eventMeetupTs": 1800975600,
-      "eventStartTs": 1800979200,
-      "submittedAt": "2026-07-27T02:17:36.353Z",
-      "eventMeetupAt": "2027-01-26 15:00:00",
-      "discordName": "Pramani",
-      "eventLink": "https://truckersmp.com/events/36902",
-      "timestamp": 1785118656
+      "eventMeetupTs": 1801409400,
+      "eventStartTs": 1801413000,
+      "submittedAt": "2026-08-01T15:07:49.074Z",
+      "eventMeetupAt": "2027-01-31 15:30:00",
+      "discordName": "VikasGamerZ",
+      "eventLink": "https://truckersmp.com/events/36797",
+      "timestamp": 1785596869
     },
     "type": "bookUs",
-    "userId": "1036194016942886912",
-    "channelId": "1531123364100571198",
-    "username": "pramani"
+    "userId": "876002282540498944",
+    "channelId": "1533129132995776625",
+    "username": "vikasgamerz"
   },
-  "1531546303329341440": {
-    "createdAt": "2026-07-28T06:18:14.151Z",
+  "1534557085704913063": {
+    "createdAt": "2026-08-05T13:42:00.644Z",
     "transcript": [],
     "formData": {
-      "whyChoose": "Cause I can move with my team teams relationship is my primary",
-      "truckermpId": "6290031",
+      "whyChoose": "I can listen to commands given by the Supervisor/Management and am a very reliable Person",
+      "truckermpId": "1625978",
+      "position": "Team Member",
+      "timeCommitment": "i could attend 1-2 Events per Month.\nAs i work Full Time and am COO at Lime's Logistics i would only be available Friday-Sunday",
+      "experience": "I do not have any experience in doing Real Ops but I am a fast learner.",
+      "submittedAt": "2026-08-05 13:41:59",
+      "timestamp": 1785937319
+    },
+    "type": "joinTeam",
+    "userId": "194204473780994049",
+    "channelId": "1534557085704913063",
+    "username": "dacoge"
+  },
+  "1534665239856025660": {
+    "createdAt": "2026-08-05T20:51:47.283Z",
+    "transcript": [],
+    "formData": {
+      "whyChoose": "I enjoy being part of a community and contributing to it. I believe I can bring value with my experience while continuing to improve myself. I am a responsible and active person, and I always try to deliver high-quality work. Whether it is graphic design or media-related tasks, you can count on me to do my best and complete my work on time.",
+      "truckermpId": "5947030",
+      "position": "Media Team",
+      "timeCommitment": "I am active every day and can dedicate 3-4 hours to this role. I can participate in assigned tasks regularly and make sure they are completed within the given deadlines.",
+      "experience": "I have advanced experience in graphic design. I have worked on graphic design projects for some global companies and different online communities. At the moment, I mainly focus on graphic design and virtual photography. I also work with a company where I create designs for their Instagram and other social media accounts. Graphic design is my strongest skill, and I am confident in my abilities. I also continue to improve my photography skills and always try to create better content. I have attached a portfolio below with some of my previous work if you would like to see examples of my designs and photography.\n\nhttps://drive.google.com/drive/folders/1A7TLTB1KvSUKot-jfgYC9aWD-NqMUMwL?usp=drive_link",
+      "submittedAt": "2026-08-05 20:51:45",
+      "timestamp": 1785963105
+    },
+    "type": "joinTeam",
+    "userId": "958746439796805632",
+    "channelId": "1534665239856025660",
+    "username": "shaderasama"
+  },
+  "1534672004224127046": {
+    "createdAt": "2026-08-05T21:18:39.437Z",
+    "transcript": [],
+    "formData": {
+      "vtcRole": "Event Manager",
+      "eventId": "37103",
+      "eventStartAt": "2027-02-05 18:00:00",
+      "daysUntilEvent": 184,
+      "eventMeetupTs": 1801846800,
+      "eventStartTs": 1801850400,
+      "submittedAt": "2026-08-05T21:18:38.061Z",
+      "eventMeetupAt": "2027-02-05 17:00:00",
+      "discordName": "1012974944814116894",
+      "eventLink": "https://truckersmp.com/events/37103-krypton%7C-february-convoy2027",
+      "timestamp": 1785964718
+    },
+    "type": "bookUs",
+    "userId": "1012974944814116894",
+    "channelId": "1534672004224127046",
+    "username": "dragon_element"
+  },
+  "1535296772786884788": {
+    "createdAt": "2026-08-07T14:41:15.780Z",
+    "transcript": [],
+    "formData": {
+      "vtcRole": "Founder",
+      "eventId": "37136",
+      "eventStartAt": "2027-02-01 18:00:00",
+      "daysUntilEvent": 179,
+      "eventMeetupTs": 1801501200,
+      "eventStartTs": 1801504800,
+      "submittedAt": "2026-08-07T14:41:14.609Z",
+      "eventMeetupAt": "2027-02-01 17:00:00",
+      "discordName": "mihawkylz",
+      "eventLink": "https://truckersmp.com/events/37136-turkishline-x-the-original -february -convoy",
+      "timestamp": 1786113674
+    },
+    "type": "bookUs",
+    "userId": "824213018044530700",
+    "channelId": "1535296772786884788",
+    "username": "mihawkylz"
+  },
+  "1535332384919257108": {
+    "createdAt": "2026-08-07T17:02:46.414Z",
+    "transcript": [],
+    "formData": {
+      "vtcRole": "Event Manager",
+      "eventId": "37148",
+      "eventStartAt": "2026-12-03 18:00:00",
+      "daysUntilEvent": 119,
+      "eventMeetupTs": 1796317200,
+      "eventStartTs": 1796320800,
+      "submittedAt": "2026-08-07T17:02:45.128Z",
+      "eventMeetupAt": "2026-12-03 17:00:00",
+      "discordName": "mihawkylz",
+      "eventLink": "https://truckersmp.com/events/37148-ponc-logistics--december-bus-convoy",
+      "timestamp": 1786122165
+    },
+    "type": "bookUs",
+    "userId": "824213018044530700",
+    "channelId": "1535332384919257108",
+    "username": "mihawkylz"
+  },
+  "1535812187363217409": {
+    "createdAt": "2026-08-09T00:49:20.359Z",
+    "transcript": [],
+    "formData": {
+      "vtcRole": "owner",
+      "eventId": "36963",
+      "eventStartAt": "2027-02-08 18:00:00",
+      "daysUntilEvent": 184,
+      "eventMeetupTs": 1802106000,
+      "eventStartTs": 1802109600,
+      "submittedAt": "2026-08-09T00:49:18.972Z",
+      "eventMeetupAt": "2027-02-08 17:00:00",
+      "discordName": "mr.menoitios",
+      "eventLink": "https://truckersmp.com/events/36963",
+      "timestamp": 1786236558
+    },
+    "type": "bookUs",
+    "userId": "882390043707187221",
+    "channelId": "1535812187363217409",
+    "username": "mr.menoitios"
+  },
+  "1535955954686754927": {
+    "createdAt": "2026-08-09T10:20:37.099Z",
+    "transcript": [],
+    "formData": {
+      "whyChoose": "I have extensive experience that can be of help to you, and I approach every event with the utmost seriousness.",
+      "truckermpId": "5545410",
       "position": "Team member",
-      "timeCommitment": "I can dedicate 20 hours a week if im in house",
-      "experience": "I don't have",
-      "submittedAt": "2026-07-28 06:18:13",
-      "timestamp": 1785219493
+      "timeCommitment": "Every day from 11:00 UTC to 18:00 UTC",
+      "experience": "I have participated in Real Ops operations with other teams.",
+      "submittedAt": "2026-08-09 10:20:36",
+      "timestamp": 1786270836
     },
     "type": "joinTeam",
-    "userId": "1480266601885335694",
-    "channelId": "1531546303329341440",
-    "username": "seb_af24"
-  },
-  "1531620624533950524": {
-    "createdAt": "2026-07-28T11:13:33.692Z",
-    "transcript": [],
-    "formData": {
-      "whyChoose": "Willing to help as long I'm not currently busy.",
-      "truckermpId": "5971695",
-      "position": "Real Ops",
-      "timeCommitment": "Currently, time might not be a issue due to it feeling a little slow but I can attend at least a couple a month. \n\nJust will need to work out a schedule to balance my CC work as well.",
-      "experience": "I have experience with loading saves, disabling DLC's that are required for the profile. \n\nBut also been at United, Elite and other CC groups currently. \n\nIf there is any training I'm open to it if so.",
-      "submittedAt": "2026-07-28 11:13:32",
-      "timestamp": 1785237212
-    },
-    "type": "joinTeam",
-    "userId": "1384237943388114946",
-    "channelId": "1531620624533950524",
-    "username": "theshiftets"
+    "userId": "886435442260574221",
+    "channelId": "1535955954686754927",
+    "username": "pai_gu666"
   }
 }
