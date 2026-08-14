@@ -212,68 +212,56 @@ router.post('/', isStaff, async (req, res) => {
         url: eventData.truckerMpData ? `https://truckersmp.com/events/${eventData.truckerMpData.id}` : null
       };
 
-      // Add fields for date/time or TruckerMP data
+      // Format event announcement details in description so markdown headers render properly
       if (eventData.truckerMpData) {
         const tmp = eventData.truckerMpData;
-        embedData.fields = [
-          { name: 'Server', value: tmp.server?.name || 'N/A', inline: true },
-          { name: 'Game', value: tmp.game || 'N/A', inline: true }
-        ];
+        const lines = [];
 
-        if (tmp.departure?.city) embedData.fields.push({ name: 'Departure', value: tmp.departure.city, inline: true });
-        if (tmp.arrive?.city) embedData.fields.push({ name: 'Arrival', value: tmp.arrive.city, inline: true });
+        if (eventData.description) {
+          lines.push(eventData.description);
+        }
 
-        // Use Discord timestamps for meetup and start times
+        // Meetup & Start Time with timestamps
         if (tmp.meetup_at) {
-          // TruckerMP returns UTC time, ensure it's parsed as UTC
           const utcDate = tmp.meetup_at.includes('Z') ? tmp.meetup_at : tmp.meetup_at.replace(' ', 'T') + 'Z';
           const unix = Math.floor(new Date(utcDate).getTime() / 1000);
-          console.log('Meetup timestamp:', tmp.meetup_at, '-> UTC:', utcDate, '-> Unix:', unix);
-          embedData.fields.push({
-            name: 'Meetup Time',
-            value: `<t:${unix}:F> (<t:${unix}:d>)`,
-            inline: false
-          });
+          lines.push(`**Meetup Time:** <t:${unix}:F> (<t:${unix}:d>)`);
         }
         if (tmp.start_at) {
-          // TruckerMP returns UTC time, ensure it's parsed as UTC
           const utcDate = tmp.start_at.includes('Z') ? tmp.start_at : tmp.start_at.replace(' ', 'T') + 'Z';
           const unix = Math.floor(new Date(utcDate).getTime() / 1000);
-          console.log('Start timestamp:', tmp.start_at, '-> UTC:', utcDate, '-> Unix:', unix);
-          embedData.fields.push({
-            name: 'Start Time',
-            value: `<t:${unix}:F> (<t:${unix}:d>)`,
-            inline: false
-          });
+          lines.push(`**Start Time:** <t:${unix}:F> (<t:${unix}:d>)`);
         }
 
-        embedData.fields.push({ name: 'Event Link', value: `[View on TruckerMP](https://truckersmp.com/events/${tmp.id})` });
+        lines.push(`**Event Link:** [View on TruckerMP](https://truckersmp.com/events/${tmp.id})`);
 
         if (eventData.spreadsheetLink) {
-          embedData.fields.push({ name: 'Spreadsheet Link', value: `[Open Sheet](${eventData.spreadsheetLink})` });
+          lines.push(`**Spreadsheet Link:** [Open Sheet](${eventData.spreadsheetLink})`);
         }
         if (eventData.profileLink) {
-          embedData.fields.push({ name: 'Profile Link', value: `[Open Profile](${eventData.profileLink})` });
+          lines.push(`**Profile Link:** [Open Profile](${eventData.profileLink})`);
         }
 
-        if (tmp.map) embedData.image = tmp.map;
-      } else if (eventData.date && eventData.time) {
-        // Convert manual date/time to Discord timestamp
-        const eventDateTime = new Date(`${eventData.date}T${eventData.time}`);
-        const unix = Math.floor(eventDateTime.getTime() / 1000);
-        embedData.fields = [
-          {
-            name: '📅 Event Time',
-            value: `<t:${unix}:F> (<t:${unix}:R>)`,
-            inline: false
-          }
-        ];
-      }
+        // Add DLC at the very last with large font header
+        if (eventData.dlc) {
+          lines.push(`\n# DLC: ${eventData.dlc}`);
+        }
 
-      // Add DLC at the very last with larger font size (Discord markdown header)
-      if (eventData.dlc) {
-        if (!embedData.fields) embedData.fields = [];
-        embedData.fields.push({ name: 'DLC', value: `## ${eventData.dlc}`, inline: false });
+        embedData.description = lines.join('\n');
+        if (tmp.map) embedData.image = tmp.map;
+        embedData.fields = [];
+      } else {
+        let desc = eventData.description || '';
+        if (eventData.date && eventData.time) {
+          const eventDateTime = new Date(`${eventData.date}T${eventData.time}`);
+          const unix = Math.floor(eventDateTime.getTime() / 1000);
+          desc += `\n\n**Event Time:** <t:${unix}:F> (<t:${unix}:R>)`;
+        }
+        if (eventData.dlc) {
+          desc += `\n\n# DLC: ${eventData.dlc}`;
+        }
+        embedData.description = desc;
+        embedData.fields = [];
       }
 
       // Build role mentions
@@ -329,17 +317,15 @@ async function sendEventAnnouncement(eventId) {
       timestamp: true
     };
 
+    let desc = event.description || '';
     if (event.date && event.time) {
-      embedData.fields = [
-        { name: '📅 Date', value: event.date, inline: true },
-        { name: '🕐 Time', value: event.time, inline: true }
-      ];
+      desc += `\n\n**Date:** ${event.date}\n**Time:** ${event.time}`;
     }
-
     if (event.dlc) {
-      if (!embedData.fields) embedData.fields = [];
-      embedData.fields.push({ name: 'DLC', value: `## ${event.dlc}`, inline: false });
+      desc += `\n\n# DLC: ${event.dlc}`;
     }
+    embedData.description = desc;
+    embedData.fields = [];
 
     const result = await botManager.sendEmbed(event.channelId, embedData);
 
@@ -433,16 +419,17 @@ router.post('/:id/announce', isStaff, async (req, res) => {
         iconURL: 'https://i.ibb.co/FMYFdhk/real-ops-group-logo.png'
       },
       timestamp: true,
-      fields: [
-        { name: '📅 Date', value: event.date, inline: true },
-        { name: '🕐 Time', value: event.time, inline: true }
-      ]
+      fields: []
     };
 
-    if (event.dlc) {
-      if (!embedData.fields) embedData.fields = [];
-      embedData.fields.push({ name: 'DLC', value: `## ${event.dlc}`, inline: false });
+    let desc = event.description || '';
+    if (event.date && event.time) {
+      desc += `\n\n**Date:** ${event.date}\n**Time:** ${event.time}`;
     }
+    if (event.dlc) {
+      desc += `\n\n# DLC: ${event.dlc}`;
+    }
+    embedData.description = desc;
 
     const result = await botManager.sendEmbed(channelId, embedData);
 

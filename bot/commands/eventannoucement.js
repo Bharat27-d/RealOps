@@ -69,31 +69,32 @@ module.exports = {
             const { data } = await axios.get(`https://api.truckersmp.com/v2/events/${eventId}`);
             eventData = data.response;
         } catch {
-            return interaction.editReply('❌ Could not fetch event data. Make sure the link is correct!');
+            return interaction.editReply('Could not fetch event data. Make sure the link is correct!');
         }
 
-        if (!eventData) return interaction.editReply('❌ Event not found!');
+        if (!eventData) return interaction.editReply('Event not found!');
+
+        const lines = [
+            `**Server:** ${eventData.server?.name ?? 'N/A'}`,
+            `**Game:** ${eventData.game ?? 'N/A'}`
+        ];
+
+        if (eventData.departure?.city) lines.push(`**Departure:** ${eventData.departure.city}`);
+        if (eventData.arrive?.city) lines.push(`**Arrival:** ${eventData.arrive.city}`);
+        if (eventData.meetup_at) lines.push(`**Meetup Time:** ${toDiscordTimestamp(eventData.meetup_at, 'F')}`);
+        if (eventData.start_at) lines.push(`**Start Time:** ${toDiscordTimestamp(eventData.start_at, 'F')}`);
+
+        lines.push(`**Event Link:** [View on TruckerMP](https://truckersmp.com/events/${eventId})`);
+
+        if (spreadsheetLink) lines.push(`**Spreadsheet Link:** [Open Sheet](${spreadsheetLink})`);
+        if (profileLink) lines.push(`**Profile Link:** [Open Profile](${profileLink})`);
+        if (dlc) lines.push(`\n# DLC: ${dlc}`);
 
         const embed = new EmbedBuilder()
-            .setTitle(getOverride('staff-resources', 'title', `📅 ${eventData.name}`))
-            .setDescription(getOverride('staff-resources', 'description', DEFAULT_DESCRIPTION))
+            .setTitle(getOverride('staff-resources', 'title', `${eventData.name}`))
+            .setDescription(lines.join('\n'))
             .setURL(`https://truckersmp.com/events/${eventId}`)
-            .setColor(getOverride('staff-resources', 'color', '#3498db'))
-            .addFields(
-                { name: 'Server', value: eventData.server?.name ?? 'N/A', inline: true },
-                { name: 'Game', value: eventData.game ?? 'N/A', inline: true }
-            );
-
-        if (eventData.departure?.city) embed.addFields({ name: 'Departure', value: eventData.departure.city, inline: true });
-        if (eventData.arrive?.city) embed.addFields({ name: 'Arrival', value: eventData.arrive.city, inline: true });
-        if (eventData.meetup_at) embed.addFields({ name: 'Meetup Time', value: toDiscordTimestamp(eventData.meetup_at, 'F'), inline: false });
-        if (eventData.start_at) embed.addFields({ name: 'Start Time', value: toDiscordTimestamp(eventData.start_at, 'F'), inline: false });
-
-        embed.addFields({ name: 'Event Link', value: `[View on TruckerMP](https://truckersmp.com/events/${eventId})` });
-
-        if (spreadsheetLink) embed.addFields({ name: 'Spreadsheet Link', value: `[Open Sheet](${spreadsheetLink})` });
-        if (profileLink) embed.addFields({ name: 'Profile Link', value: `[Open Profile](${profileLink})` });
-        if (dlc) embed.addFields({ name: 'DLC', value: `## ${dlc}`, inline: false });
+            .setColor(getOverride('staff-resources', 'color', '#3498db'));
 
         if (eventData.map) embed.setImage(eventData.map);
 
