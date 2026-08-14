@@ -319,7 +319,12 @@ body {
 .form-select,
 .form-group input,
 .form-group textarea,
-.form-group select {
+.form-group select,
+.modal input[type="text"],
+.modal input[type="url"],
+.modal input[type="datetime-local"],
+.modal textarea,
+.modal select {
   width: 100%;
   background: var(--bg-tertiary);
   border: 1px solid var(--border-secondary);
@@ -337,7 +342,12 @@ body {
 .form-select:focus,
 .form-group input:focus,
 .form-group textarea:focus,
-.form-group select:focus {
+.form-group select:focus,
+.modal input[type="text"]:focus,
+.modal input[type="url"]:focus,
+.modal input[type="datetime-local"]:focus,
+.modal textarea:focus,
+.modal select:focus {
   border-color: var(--primary);
   background: #141A2E;
   box-shadow: 0 0 0 3px var(--primary-subtle);

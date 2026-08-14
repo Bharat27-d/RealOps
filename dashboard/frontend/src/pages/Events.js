@@ -61,6 +61,7 @@ function Events() {
     truckerMpLink: '',
     spreadsheetLink: '',
     profileLink: '',
+    dlc: '',
     roles: []
   });
 
@@ -337,6 +338,7 @@ function Events() {
         truckerMpLink: '',
         spreadsheetLink: '',
         profileLink: '',
+        dlc: '',
         roles: []
       });
       setTruckerMpData(null);
@@ -492,6 +494,7 @@ function Events() {
         truckerMpLink: `https://truckersmp.com/events/${event.truckerMpData.id}`,
         spreadsheetLink: '',
         profileLink: '',
+        dlc: event.dlc || '',
         roles: []
       });
       setShowAnnouncementModal(true);
@@ -1138,10 +1141,11 @@ function Events() {
                 <div style={{ display: 'flex', gap: '10px' }}>
                   <input 
                     type="text"
+                    className="form-input"
                     value={announcement.truckerMpLink}
                     onChange={(e) => setAnnouncement({...announcement, truckerMpLink: e.target.value})}
                     placeholder="https://truckersmp.com/events/12345"
-                    style={{ flex: 1 }}
+                    style={{ flex: 1, background: '#111318', border: '1px solid rgba(255, 255, 255, 0.1)', color: '#F0F1F4', borderRadius: '8px', padding: '12px' }}
                   />
                   <button 
                     className="btn btn-primary" 
@@ -1211,7 +1215,7 @@ function Events() {
                 </div>
               </div>
 
-              {/* Additional Links Section (Only show when TruckerMP data is loaded) */}
+              {/* Additional Links & DLC Section (Only show when TruckerMP data is loaded) */}
               {truckerMpData && (
                 <div style={{ marginBottom: '24px' }}>
                   <h4 style={{ 
@@ -1221,9 +1225,9 @@ function Events() {
                     textTransform: 'uppercase',
                     letterSpacing: '0.8px'
                   }}>
-                    Additional Links
+                    Additional Links & Details
                   </h4>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
                     <div className="form-group" style={{ margin: 0 }}>
                       <label style={{ fontSize: '13px' }}>Spreadsheet Link</label>
                       <input 
@@ -1242,6 +1246,15 @@ function Events() {
                         placeholder="Profile/registration link..."
                       />
                     </div>
+                  </div>
+                  <div className="form-group" style={{ margin: 0 }}>
+                    <label style={{ fontSize: '13px' }}>DLC</label>
+                    <input 
+                      type="text"
+                      value={announcement.dlc}
+                      onChange={(e) => setAnnouncement({...announcement, dlc: e.target.value})}
+                      placeholder="e.g. None or Scandinavia, Going East!, etc."
+                    />
                   </div>
                 </div>
               )}
@@ -1494,10 +1507,11 @@ function Events() {
               <div style={{ display: 'flex', gap: '10px' }}>
                 <input 
                   type="text"
+                  className="form-input"
                   value={calendarEventLink}
                   onChange={(e) => setCalendarEventLink(e.target.value)}
                   placeholder="https://truckersmp.com/events/12345"
-                  style={{ flex: 1 }}
+                  style={{ flex: 1, background: '#111318', border: '1px solid rgba(255, 255, 255, 0.1)', color: '#F0F1F4', borderRadius: '8px', padding: '12px' }}
                 />
                 <button 
                   className="btn btn-primary" 

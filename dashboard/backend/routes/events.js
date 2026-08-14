@@ -270,6 +270,12 @@ router.post('/', isStaff, async (req, res) => {
         ];
       }
 
+      // Add DLC at the very last with larger font size (Discord markdown header)
+      if (eventData.dlc) {
+        if (!embedData.fields) embedData.fields = [];
+        embedData.fields.push({ name: 'DLC', value: `## ${eventData.dlc}`, inline: false });
+      }
+
       // Build role mentions
       let content = null;
       if (eventData.roles && eventData.roles.length > 0) {
@@ -328,6 +334,11 @@ async function sendEventAnnouncement(eventId) {
         { name: '📅 Date', value: event.date, inline: true },
         { name: '🕐 Time', value: event.time, inline: true }
       ];
+    }
+
+    if (event.dlc) {
+      if (!embedData.fields) embedData.fields = [];
+      embedData.fields.push({ name: 'DLC', value: `## ${event.dlc}`, inline: false });
     }
 
     const result = await botManager.sendEmbed(event.channelId, embedData);
@@ -427,6 +438,11 @@ router.post('/:id/announce', isStaff, async (req, res) => {
         { name: '🕐 Time', value: event.time, inline: true }
       ]
     };
+
+    if (event.dlc) {
+      if (!embedData.fields) embedData.fields = [];
+      embedData.fields.push({ name: 'DLC', value: `## ${event.dlc}`, inline: false });
+    }
 
     const result = await botManager.sendEmbed(channelId, embedData);
 

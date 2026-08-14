@@ -31,6 +31,11 @@ module.exports = {
                 .setDescription('Custom profile/registration link')
                 .setRequired(false)
         )
+        .addStringOption(opt =>
+            opt.setName('dlc')
+                .setDescription('DLC requirement (e.g. None or Scandinavia)')
+                .setRequired(false)
+        )
         .addRoleOption(opt =>
             opt.setName('tag_role_1')
                 .setDescription('First role to mention')
@@ -49,6 +54,7 @@ module.exports = {
         const eventLink = interaction.options.getString('event_link');
         const spreadsheetLink = interaction.options.getString('spreadsheet_link');
         const profileLink = interaction.options.getString('profile_link');
+        const dlc = interaction.options.getString('dlc');
         const role1 = interaction.options.getRole('tag_role_1');
         const role2 = interaction.options.getRole('tag_role_2');
 
@@ -87,6 +93,7 @@ module.exports = {
 
         if (spreadsheetLink) embed.addFields({ name: 'Spreadsheet Link', value: `[Open Sheet](${spreadsheetLink})` });
         if (profileLink) embed.addFields({ name: 'Profile Link', value: `[Open Profile](${profileLink})` });
+        if (dlc) embed.addFields({ name: 'DLC', value: `## ${dlc}`, inline: false });
 
         if (eventData.map) embed.setImage(eventData.map);
 
