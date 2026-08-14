@@ -8,78 +8,15 @@ const App = {
 
   // ── Route definitions ──
   routes: {
-    '/': {
-      page: () => HomePage,
-      title: 'RealOps — Professional Convoy Control | TruckersMP',
-      description: 'RealOps is one of the leading Convoy Control teams in the TruckersMP community. Professional, organised, and high-quality convoy management for events of all sizes.',
-      ogTitle: 'RealOps — Professional Convoy Control',
-      ogDescription: 'One of the leading Convoy Control teams in the TruckersMP community. Professional convoy management for events of all sizes.',
-      afterRender: null
-    },
-    '/about': {
-      page: () => AboutPage,
-      title: 'About — RealOps',
-      description: 'Learn about RealOps, our mission, history, core values, and dedicated team providing professional convoy control in TruckersMP.',
-      ogTitle: 'About — RealOps',
-      ogDescription: 'Learn about RealOps, our mission, history, and dedicated convoy control team in TruckersMP.',
-      afterRender: null
-    },
-    '/events': {
-      page: () => EventsPage,
-      title: 'Events — RealOps',
-      description: 'Discover upcoming and past TruckersMP convoy control operations, community events, and joint convoys managed by RealOps.',
-      ogTitle: 'Events & Operations — RealOps',
-      ogDescription: 'Discover upcoming and past TruckersMP convoy control operations and community events managed by RealOps.',
-      afterRender: () => EventsPage.initFilters()
-    },
-    '/team': {
-      page: () => TeamPage,
-      title: 'Team — RealOps',
-      description: 'Meet the RealOps leadership, dispatchers, convoy controllers, media team, and staff members delivering top-tier operations.',
-      ogTitle: 'Our Team — RealOps',
-      ogDescription: 'Meet the RealOps leadership, dispatchers, convoy controllers, and staff members delivering top-tier operations.',
-      afterRender: () => TeamPage.initFilters()
-    },
-    '/recruitment': {
-      page: () => RecruitmentPage,
-      title: 'Recruitment — RealOps',
-      description: 'Join the RealOps team. Apply to become a Convoy Controller, Event Manager, Media Team member, or Staff in TruckersMP.',
-      ogTitle: 'Join the Team — RealOps Recruitment',
-      ogDescription: 'Join RealOps! Apply to become a Convoy Controller, Event Manager, or Media Team member in TruckersMP.',
-      afterRender: null
-    },
-    '/contact': {
-      page: () => ContactPage,
-      title: 'Contact — RealOps',
-      description: 'Get in touch with RealOps for convoy control bookings, event partnerships, feedback, or general inquiries.',
-      ogTitle: 'Contact Us — RealOps',
-      ogDescription: 'Get in touch with RealOps for convoy control bookings, event partnerships, or inquiries.',
-      afterRender: null
-    },
-    '/privacy': {
-      page: () => PrivacyPage,
-      title: 'Privacy Policy — RealOps',
-      description: 'Read the RealOps Privacy Policy to understand how we collect, use, and protect your information.',
-      ogTitle: 'Privacy Policy — RealOps',
-      ogDescription: 'Read the RealOps Privacy Policy to understand how we protect your personal data.',
-      afterRender: null
-    },
-    '/guidelines': {
-      page: () => GuidelinesPage,
-      title: 'Community Guidelines — RealOps',
-      description: 'Review the RealOps Community Guidelines and code of conduct for our events, Discord server, and operations.',
-      ogTitle: 'Community Guidelines — RealOps',
-      ogDescription: 'Review the RealOps Community Guidelines and code of conduct for our operations.',
-      afterRender: null
-    },
-    '/legal': {
-      page: () => LegalPage,
-      title: 'Legal — RealOps',
-      description: 'RealOps legal notices, terms of service, and TruckersMP community disclaimers.',
-      ogTitle: 'Legal & Terms — RealOps',
-      ogDescription: 'RealOps legal notices, terms of service, and TruckersMP community disclaimers.',
-      afterRender: null
-    }
+    '/': { page: () => HomePage, afterRender: null },
+    '/about': { page: () => AboutPage, afterRender: null },
+    '/events': { page: () => EventsPage, afterRender: () => EventsPage.initFilters() },
+    '/team': { page: () => TeamPage, afterRender: () => TeamPage.initFilters() },
+    '/recruitment': { page: () => RecruitmentPage, afterRender: null },
+    '/contact': { page: () => ContactPage, afterRender: null },
+    '/privacy': { page: () => PrivacyPage, afterRender: null },
+    '/guidelines': { page: () => GuidelinesPage, afterRender: null },
+    '/legal': { page: () => LegalPage, afterRender: null }
   },
 
   currentRoute: '/',
@@ -87,11 +24,12 @@ const App = {
 
   // ── Dynamic Metadata (Canonical, Open Graph, Twitter Cards) ──
   updateMetadata(route, path) {
-    const canonicalUrl = path === '/' ? `${this.siteUrl}/` : `${this.siteUrl}${path}`;
-    const title = route.title || 'RealOps — Professional Convoy Control';
-    const description = route.description || 'Professional convoy management in TruckersMP.';
-    const ogTitle = route.ogTitle || title;
-    const ogDescription = route.ogDescription || description;
+    const meta = (typeof ROUTES_META !== 'undefined' && ROUTES_META[path]) || {};
+    const canonicalUrl = meta.canonical || (path === '/' ? `${this.siteUrl}/` : `${this.siteUrl}${path}`);
+    const title = meta.title || 'RealOps — Professional Convoy Control';
+    const description = meta.description || 'Professional convoy management in TruckersMP.';
+    const ogTitle = meta.ogTitle || title;
+    const ogDescription = meta.ogDescription || description;
 
     // Document title
     document.title = title;
@@ -196,9 +134,29 @@ const App = {
     const route = this.routes[path];
 
     if (!route) {
-      // Redirect unknown routes to home
-      window.history.replaceState(null, '', '/');
-      this.handleRoute();
+      // Show 404 page
+      this.currentRoute = path;
+      document.title = 'Page Not Found — RealOps';
+      const content = document.getElementById('app-content');
+      if (content) {
+        content.innerHTML = `
+          <main style="padding-top: 140px; padding-bottom: 80px; max-width: var(--max-width); margin: 0 auto; text-align: center; min-height: 60vh; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <div style="font-size: 80px; margin-bottom: 16px;">🚧</div>
+            <h1 style="font-size: 48px; font-weight: 800; color: var(--color-text); margin-bottom: 12px;">404</h1>
+            <h2 style="font-size: 22px; font-weight: 600; color: var(--color-text-secondary); margin-bottom: 8px;">Page Not Found</h2>
+            <p style="font-size: 15px; color: var(--color-text-muted); max-width: 440px; line-height: 1.6; margin-bottom: 32px;">
+              The road you're looking for doesn't exist. It may have been moved or the URL might be incorrect.
+            </p>
+            <div style="display: flex; gap: 14px; flex-wrap: wrap; justify-content: center;">
+              <a href="/" class="glass-button-primary" style="padding: 12px 28px; font-size: 15px; font-weight: 600; text-decoration: none;">Go Home</a>
+              <a href="/events" onclick="window.scrollTo(0,0)" class="glass-button-secondary" style="padding: 12px 24px; font-size: 15px; font-weight: 500; text-decoration: none;">View Events</a>
+            </div>
+          </main>
+        `;
+        content.style.opacity = '1';
+        content.style.transform = 'translateY(0)';
+      }
+      this.updateActiveNav(path);
       return;
     }
 
@@ -486,10 +444,12 @@ const App = {
   // ── Utility: Escape HTML ──
   escapeHtml(str) {
     if (!str) return '';
-    const text = String(str);
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   },
 
   // ── Utility: Format Date ──

@@ -1,0 +1,62 @@
+name: RealOps CI & Build Validation
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-website:
+    name: Build & Validate Website
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: website/package-lock.json
+
+      - name: Install dependencies
+        working-directory: website
+        run: npm ci
+
+      - name: Run Build
+        working-directory: website
+        run: npm run build
+
+      - name: Verify dist files
+        working-directory: website
+        run: |
+          test -f dist/index.html
+          test -f dist/styles.min.css
+          test -f dist/robots.txt
+          test -f dist/sitemap.xml
+          echo "✅ All required production artifacts generated successfully!"
+
+  lint-and-check:
+    name: Code Health & Syntax Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Syntax check JS files
+        run: |
+          node --check website/build.js
+          node --check website/js/routes-meta.js
+          node --check website/js/api.js
+          node --check website/js/app.js
+          node --check website/sw.js
+          echo "✅ JavaScript syntax validation passed!"

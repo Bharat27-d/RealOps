@@ -59,10 +59,10 @@ const TeamPage = {
             : `<div class="staff-avatar-placeholder" style="width: 72px; height: 72px; border-radius: 18px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,107,53,0.1); margin-bottom: 14px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 700; color: var(--color-primary);">${(member.name || '?').charAt(0).toUpperCase()}</div>`
           }
           
-          <h3 style="font-size: 18px; font-weight: 700; color: var(--color-text); margin: 0 0 4px; line-height: 1.3;">${App.escapeHtml(member.name)}</h3>
+          <h3 class="member-name" style="font-size: 18px; font-weight: 700; margin: 0 0 4px;">${App.escapeHtml(member.name)}</h3>
           
           <div style="margin-bottom: 12px;">
-            <span style="display: inline-block; font-family: var(--font-mono); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-primary); background: rgba(255, 107, 53, 0.12); border: 1px solid rgba(255, 107, 53, 0.25); padding: 4px 10px; border-radius: 6px;">
+            <span class="member-dept" style="padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(255, 107, 53, 0.25);">
               ${App.escapeHtml(member.department)}
             </span>
           </div>
@@ -80,20 +80,20 @@ const TeamPage = {
 
     return `
       <!-- Main Container -->
-      <main class="flex-grow relative z-10 pt-[100px] pb-xl px-4 md:px-lg mx-auto w-full flex flex-col" style="padding-top: 100px; padding-bottom: 80px; max-width: var(--max-width); margin: 0 auto;">
+      <main class="page-container">
         
         <!-- Header -->
-        <div style="text-align: center; margin-bottom: 48px;" class="reveal">
-          <div style="display: inline-flex; align-items: center; gap: 8px; padding: 4px 14px; background: rgba(255, 107, 53, 0.08); border: 1px solid rgba(255, 107, 53, 0.2); border-radius: 999px; margin-bottom: 16px;">
+        <div class="section-header reveal">
+          <div class="status-pill">
             <span class="status-beacon" style="width: 6px; height: 6px;"></span>
-            <span style="font-family: var(--font-mono); font-size: 11px; font-weight: 600; color: var(--color-primary-light); text-transform: uppercase; letter-spacing: 0.12em;">OPERATIONS ROSTER</span>
+            <span class="section-label-sm">OPERATIONS ROSTER</span>
           </div>
 
-          <h1 style="font-size: clamp(32px, 5vw, 54px); font-weight: 800; color: var(--color-text); margin: 0 0 14px; letter-spacing: -0.03em;">
+          <h1 class="page-title">
             RealOps Team Roster
           </h1>
           
-          <p style="font-size: 16px; color: var(--color-text-secondary); max-width: 580px; margin: 0 auto; line-height: 1.6;">
+          <p class="section-desc">
             The dedicated commanders, escort pilots, traffic controllers, and event staff behind RealOps on-road operations.
           </p>
         </div>
@@ -103,13 +103,13 @@ const TeamPage = {
             ${departments.length > 2 ? `
               <div id="team-filters" class="reveal" style="display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-bottom: 40px; padding: 12px; background: rgba(18,16,16,0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px;">
                 ${departments.map(dept => `
-                  <button class="filter-btn ${dept === 'All' ? 'active' : ''}" data-filter="${dept === 'All' ? 'all' : dept}" style="padding: 8px 16px; font-size: 13px; font-weight: 600; font-family: var(--font-mono); border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); background: ${dept === 'All' ? 'var(--color-primary)' : 'transparent'}; color: ${dept === 'All' ? '#fff' : 'var(--color-text-secondary)'}; cursor: pointer; transition: all 0.2s ease;">${App.escapeHtml(dept)}</button>
+                  <button class="filter-btn ${dept === 'All' ? 'active' : ''}" data-filter="${dept === 'All' ? 'all' : dept}">${App.escapeHtml(dept)}</button>
                 `).join('')}
               </div>
             ` : ''}
 
             ${managementTeam.length > 0 ? `
-              <div style="font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--color-primary); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 20px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.06);" class="reveal">
+              <div class="section-label reveal" style="text-align: left; margin-bottom: 20px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.06);">
                 Command & Management
               </div>
               <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; margin-bottom: 56px;" id="management-grid" class="reveal">
@@ -118,7 +118,7 @@ const TeamPage = {
             ` : ''}
 
             ${teamMembers.length > 0 ? `
-              <div style="font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--color-primary-light); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 20px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.06);" class="reveal">
+              <div class="section-label reveal" style="text-align: left; margin-bottom: 20px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.06); color: var(--color-primary-light);">
                 Operations & Escort Crew
               </div>
               <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px;" id="team-grid" class="reveal">
@@ -145,13 +145,9 @@ const TeamPage = {
     filterBtns.forEach(btn => {
       btn.addEventListener('click', () => {
         filterBtns.forEach(b => {
-          b.style.background = 'transparent';
-          b.style.color = 'var(--color-text-secondary)';
-          b.style.borderColor = 'rgba(255,255,255,0.08)';
+          b.classList.remove('active');
         });
-        btn.style.background = 'var(--color-primary)';
-        btn.style.color = '#fff';
-        btn.style.borderColor = 'var(--color-primary)';
+        btn.classList.add('active');
 
         const filter = btn.dataset.filter;
         cards.forEach(card => {
