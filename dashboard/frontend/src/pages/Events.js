@@ -143,8 +143,8 @@ function Events() {
         // Auto-fill announcement fields
         setAnnouncement(prev => ({
           ...prev,
-          title: eventData.name,
-          description: `**Server:** ${eventData.server?.name || 'N/A'}\n**Game:** ${eventData.game || 'N/A'}\n**Departure:** ${eventData.departure?.city || 'N/A'}\n**Arrival:** ${eventData.arrive?.city || 'N/A'}`,
+          title: `📅 ${eventData.name}`,
+          description: 'Staff resources and event information. Please check the event link for more details.',
           image: eventData.map || '',
           date: eventData.start_at ? new Date(eventData.start_at).toISOString().split('T')[0] : '',
           time: eventData.start_at ? new Date(eventData.start_at).toISOString().split('T')[1].substring(0, 5) : ''

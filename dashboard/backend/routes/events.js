@@ -200,8 +200,8 @@ router.post('/', isStaff, async (req, res) => {
 
       // Send immediately (matching /staff-resources command for TruckerMP events)
       const embedData = {
-        title: eventData.title,
-        description: eventData.description,
+        title: eventData.title || (eventData.truckerMpData ? `📅 ${eventData.truckerMpData.name}` : 'Event Announcement'),
+        description: eventData.description || 'Staff resources and event information. Please check the event link for more details.',
         color: eventData.color || '#3498db',
         image: eventData.image,
         footer: {
@@ -212,56 +212,64 @@ router.post('/', isStaff, async (req, res) => {
         url: eventData.truckerMpData ? `https://truckersmp.com/events/${eventData.truckerMpData.id}` : null
       };
 
-      // Format event announcement details in description so markdown headers render properly
+      // Add fields for date/time or TruckerMP data
       if (eventData.truckerMpData) {
         const tmp = eventData.truckerMpData;
-        const lines = [];
+        embedData.fields = [
+          { name: 'Server', value: tmp.server?.name || 'N/A', inline: true },
+          { name: 'Game', value: tmp.game || 'N/A', inline: true }
+        ];
 
-        if (eventData.description) {
-          lines.push(eventData.description);
-        }
+        if (tmp.departure?.city) embedData.fields.push({ name: 'Departure', value: tmp.departure.city, inline: true });
+        if (tmp.arrive?.city) embedData.fields.push({ name: 'Arrival', value: tmp.arrive.city, inline: true });
 
-        // Meetup & Start Time with timestamps
+        // Use Discord timestamps for meetup and start times
         if (tmp.meetup_at) {
           const utcDate = tmp.meetup_at.includes('Z') ? tmp.meetup_at : tmp.meetup_at.replace(' ', 'T') + 'Z';
           const unix = Math.floor(new Date(utcDate).getTime() / 1000);
-          lines.push(`**Meetup Time:** <t:${unix}:F> (<t:${unix}:d>)`);
+          embedData.fields.push({
+            name: 'Meetup Time',
+            value: `<t:${unix}:F>`,
+            inline: false
+          });
         }
         if (tmp.start_at) {
           const utcDate = tmp.start_at.includes('Z') ? tmp.start_at : tmp.start_at.replace(' ', 'T') + 'Z';
           const unix = Math.floor(new Date(utcDate).getTime() / 1000);
-          lines.push(`**Start Time:** <t:${unix}:F> (<t:${unix}:d>)`);
+          embedData.fields.push({
+            name: 'Start Time',
+            value: `<t:${unix}:F>`,
+            inline: false
+          });
         }
 
-        lines.push(`**Event Link:** [View on TruckerMP](https://truckersmp.com/events/${tmp.id})`);
+        embedData.fields.push({ name: 'Event Link', value: `[View on TruckerMP](https://truckersmp.com/events/${tmp.id})` });
 
         if (eventData.spreadsheetLink) {
-          lines.push(`**Spreadsheet Link:** [Open Sheet](${eventData.spreadsheetLink})`);
+          embedData.fields.push({ name: 'Spreadsheet Link', value: `[Open Sheet](${eventData.spreadsheetLink})` });
         }
         if (eventData.profileLink) {
-          lines.push(`**Profile Link:** [Open Profile](${eventData.profileLink})`);
+          embedData.fields.push({ name: 'Profile Link', value: `[Open Profile](${eventData.profileLink})` });
         }
 
-        // Add DLC at the very last with large font header
-        if (eventData.dlc) {
-          lines.push(`\n# DLC: ${eventData.dlc}`);
-        }
-
-        embedData.description = lines.join('\n');
         if (tmp.map) embedData.image = tmp.map;
-        embedData.fields = [];
-      } else {
-        let desc = eventData.description || '';
-        if (eventData.date && eventData.time) {
-          const eventDateTime = new Date(`${eventData.date}T${eventData.time}`);
-          const unix = Math.floor(eventDateTime.getTime() / 1000);
-          desc += `\n\n**Event Time:** <t:${unix}:F> (<t:${unix}:R>)`;
-        }
-        if (eventData.dlc) {
-          desc += `\n\n# DLC: ${eventData.dlc}`;
-        }
-        embedData.description = desc;
-        embedData.fields = [];
+      } else if (eventData.date && eventData.time) {
+        // Convert manual date/time to Discord timestamp
+        const eventDateTime = new Date(`${eventData.date}T${eventData.time}`);
+        const unix = Math.floor(eventDateTime.getTime() / 1000);
+        embedData.fields = [
+          {
+            name: '📅 Event Time',
+            value: `<t:${unix}:F> (<t:${unix}:R>)`,
+            inline: false
+          }
+        ];
+      }
+
+      // Add DLC at the very last with larger font size (Discord markdown header)
+      if (eventData.dlc) {
+        if (!embedData.fields) embedData.fields = [];
+        embedData.fields.push({ name: 'DLC', value: `## ${eventData.dlc}`, inline: false });
       }
 
       // Build role mentions
