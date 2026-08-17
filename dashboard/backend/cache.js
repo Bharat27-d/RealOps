@@ -7,6 +7,26 @@ class FirestoreCache {
   constructor() {
     this.cache = new Map();
     this.defaultTTL = 60 * 1000; // 1 minute default TTL
+    // Sweep expired entries every 5 minutes to prevent memory leaks
+    this._sweepInterval = setInterval(() => this.sweep(), 5 * 60 * 1000);
+    this._sweepInterval.unref(); // Don't prevent process exit
+  }
+
+  /**
+   * Remove all expired entries from the cache
+   */
+  sweep() {
+    const now = Date.now();
+    let swept = 0;
+    for (const [key, entry] of this.cache) {
+      if (now > entry.expiresAt) {
+        this.cache.delete(key);
+        swept++;
+      }
+    }
+    if (swept > 0) {
+      console.log(`🧹 Cache sweep: removed ${swept} expired entries`);
+    }
   }
 
   /**

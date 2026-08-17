@@ -19,6 +19,7 @@ router.get('/', isStaff, async (req, res) => {
     const snapshot = await collections.events.orderBy('date', 'desc').limit(250).get();
     const events = [];
     const now = new Date();
+    const batch = collections.events.firestore.batch();
     let updatedCount = 0;
     let archivedCount = 0;
 
@@ -44,14 +45,14 @@ router.get('/', isStaff, async (req, res) => {
 
         // Auto-complete if date has passed and still scheduled
         if (daysDifference > 0 && eventData.status === 'scheduled') {
-          collections.events.doc(doc.id).update({ status: 'completed' });
+          batch.update(doc.ref, { status: 'completed' });
           eventData.status = 'completed';
           updatedCount++;
         }
 
         // Auto-archive if more than 30 days have passed
         if (daysDifference > 30) {
-          collections.events.doc(doc.id).update({ archived: true });
+          batch.update(doc.ref, { archived: true });
           archivedCount++;
           return; // Don't add to events list
         }
@@ -61,6 +62,7 @@ router.get('/', isStaff, async (req, res) => {
     });
 
     if (updatedCount > 0 || archivedCount > 0) {
+      await batch.commit();
       console.log(`Auto-completed ${updatedCount} events. Auto-archived ${archivedCount} events.`);
       cache.invalidate('analytics:*');
     }
@@ -173,14 +175,15 @@ router.post('/', isStaff, async (req, res) => {
       if (scheduleTime) {
         const docRef = await collections.events.add(fullEventData);
 
-        // Schedule the announcement
+        // Schedule the announcement (cap to Node.js 32-bit max to prevent overflow)
+        const MAX_TIMEOUT = 2147483647;
         const scheduleDate = new Date(scheduleTime);
         const delay = scheduleDate.getTime() - Date.now();
 
         if (delay > 0) {
           setTimeout(async () => {
             await sendEventAnnouncement(docRef.id);
-          }, delay);
+          }, Math.min(delay, MAX_TIMEOUT));
         }
 
         // Schedule reminder if enabled
@@ -191,7 +194,7 @@ router.post('/', isStaff, async (req, res) => {
           if (reminderDelay > 0) {
             setTimeout(async () => {
               await sendEventReminder(docRef.id);
-            }, reminderDelay);
+            }, Math.min(reminderDelay, MAX_TIMEOUT));
           }
         }
 
@@ -498,9 +501,14 @@ router.post('/create-forum', isStaff, async (req, res) => {
 router.get('/truckersmp/:eventId', isStaff, async (req, res) => {
   try {
     const { eventId } = req.params;
-    const axios = require('axios');
 
-    const response = await axios.get(`https://api.truckersmp.com/v2/events/${eventId}`);
+    // Validate eventId is digits only to prevent SSRF
+    if (!/^\d+$/.test(eventId)) {
+      return res.status(400).json({ error: 'Invalid event ID format' });
+    }
+
+    const axios = require('axios');
+    const response = await axios.get(`https://api.truckersmp.com/v2/events/${eventId}`, { timeout: 8000 });
     res.json(response.data);
   } catch (error) {
     if (error.response) {

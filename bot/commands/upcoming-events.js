@@ -25,6 +25,7 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName('upcoming-events')
     .setDescription('Create an event post from a TruckerMP event')
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageEvents)
     .addStringOption(option => 
       option.setName('event_link')
         .setDescription('The TruckerMP event link')
@@ -180,7 +181,7 @@ module.exports = {
   // Function to fetch event data from TruckerMP API using axios
   async fetchEventFromTruckerMP(eventId) {
     try {
-      const response = await axios.get(`https://api.truckersmp.com/v2/events/${eventId}`);
+      const response = await axios.get(`https://api.truckersmp.com/v2/events/${eventId}`, { timeout: 8000 });
       if (response.status !== 200) {
         throw new Error(`Failed to fetch event data: ${response.status}`);
       }      return response.data.response;

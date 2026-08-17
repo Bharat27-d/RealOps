@@ -30,7 +30,7 @@ module.exports = {
         // 2. Fetch event details
         let eventData;
         try {
-            const { data } = await axios.get(`https://api.truckersmp.com/v2/events/${eventId}`);
+            const { data } = await axios.get(`https://api.truckersmp.com/v2/events/${eventId}`, { timeout: 8000 });
             eventData = data.response;
         } catch {
             return interaction.editReply('❌ Could not fetch event data. Make sure the link is correct!');

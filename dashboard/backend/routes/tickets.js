@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { collections } = require('../firebase');
+const { collections, admin } = require('../firebase');
 const { isStaff } = require('../auth');
 const { cache, CACHE_TTL } = require('../cache');
 

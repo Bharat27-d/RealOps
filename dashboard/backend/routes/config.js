@@ -81,9 +81,10 @@ router.put('/', isAdmin, async (req, res) => {
     
     await collections.botConfig.doc('main').set(req.body, { merge: true });
     
-    // Log the update
+    // Log the update to a separate audit collection (not botConfig itself)
     try {
-      await collections.botConfig.add({
+      const { db } = require('../firebase');
+      await db.collection('auditLog').add({
         type: 'config_update',
         updatedBy: req.user.id,
         updatedAt: new Date().toISOString(),

@@ -318,6 +318,18 @@ router.post('/contact', contactLimiter, async (req, res) => {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
+    // Sanitize inputs to prevent Discord mention injection (@everyone, @here, <@...>, <@&...>)
+    const sanitize = (str) => str
+      .replace(/@everyone/gi, '@\u200Beveryone')
+      .replace(/@here/gi, '@\u200Bhere')
+      .replace(/<@[!&]?\d+>/g, '[mention removed]');
+
+    const safeName = sanitize(name);
+    const safeEmail = sanitize(email || '');
+    const safeDiscord = sanitize(discord || '');
+    const safeSubject = sanitize(subject);
+    const safeMessage = sanitize(message);
+
     const channelId = process.env.DISCORD_CONTACT_CHANNEL;
     
     if (!channelId) {
@@ -329,13 +341,13 @@ router.post('/contact', contactLimiter, async (req, res) => {
     const embedData = {
       title: '📬 New Contact Form Submission',
       color: '#ff6b35', // Primary brand color
-      description: message,
+      description: safeMessage,
       timestamp: true,
-      footer: { text: `Subject: ${subject.toUpperCase()}` }
+      footer: { text: `Subject: ${safeSubject.toUpperCase()}` }
     };
 
     // Add fields
-    const content = `**Name:** ${name}\n**Email:** ${email}\n**Discord:** ${discord || 'Not provided'}`;
+    const content = `**Name:** ${safeName}\n**Email:** ${safeEmail}\n**Discord:** ${safeDiscord || 'Not provided'}`;
 
     await botManager.sendEmbed(channelId, embedData, content);
 

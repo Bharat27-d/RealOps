@@ -3,7 +3,7 @@ const router = express.Router();
 const fs = require('fs');
 const path = require('path');
 const { collections } = require('../firebase');
-const { isAuthenticated } = require('../auth');
+const { isAuthenticated, isStaff } = require('../auth');
 
 // ─── In-memory cache to reduce Firebase reads ───
 let customCommandsCache = null;
@@ -305,7 +305,7 @@ router.get('/built-in', isAuthenticated, async (req, res) => {
 });
 
 // Save overrides for a built-in command
-router.put('/built-in/:commandName', isAuthenticated, async (req, res) => {
+router.put('/built-in/:commandName', isStaff, async (req, res) => {
   try {
     const { commandName } = req.params;
     const rawOverrides = req.body;
@@ -370,7 +370,7 @@ router.put('/built-in/:commandName', isAuthenticated, async (req, res) => {
 });
 
 // Reset overrides for a built-in command (back to defaults)
-router.delete('/built-in/:commandName', isAuthenticated, async (req, res) => {
+router.delete('/built-in/:commandName', isStaff, async (req, res) => {
   try {
     const { commandName } = req.params;
     await collections.commandOverrides.doc(commandName).delete();
@@ -411,7 +411,7 @@ router.get('/', isAuthenticated, async (req, res) => {
 });
 
 // Create a new custom command
-router.post('/', isAuthenticated, async (req, res) => {
+router.post('/', isStaff, async (req, res) => {
   try {
     const data = sanitizeEmbedData(req.body);
     
@@ -453,7 +453,7 @@ router.post('/', isAuthenticated, async (req, res) => {
 });
 
 // Update a custom command
-router.put('/:id', isAuthenticated, async (req, res) => {
+router.put('/:id', isStaff, async (req, res) => {
   try {
     const { id } = req.params;
     const data = sanitizeEmbedData(req.body);
@@ -485,7 +485,7 @@ router.put('/:id', isAuthenticated, async (req, res) => {
 });
 
 // Delete a custom command
-router.delete('/:id', isAuthenticated, async (req, res) => {
+router.delete('/:id', isStaff, async (req, res) => {
   try {
     const { id } = req.params;
     await collections.customCommands.doc(id).delete();

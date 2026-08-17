@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } = require('discord.js');
 const { getOverride } = require('../commandConfig');
 
 // Static default description for dashboard editing
@@ -9,7 +9,8 @@ Please note all applications are reviewed by our management team and we will get
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('staffopening')
-    .setDescription('Show staff openings and recruitment information'),
+    .setDescription('Show staff openings and recruitment information')
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages),
   async execute(interaction) {
     try {
       const defaultTitle = 'The Real-Ops Group Recruitment';
@@ -27,7 +28,7 @@ module.exports = {
 
       await interaction.reply({ embeds: [embed] });
     } catch (error) {
-      console.error('Error in /planning2:', error);
+      console.error('Error in /staffopening:', error);
       // Defensive: only reply if not already replied/deferred
       if (!interaction.replied && !interaction.deferred) {
         await interaction.reply({ content: 'An error occurred while displaying the staff openings.', flags: 64 });

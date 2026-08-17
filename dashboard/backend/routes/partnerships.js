@@ -164,6 +164,8 @@ router.put('/:id', isStaff, async (req, res) => {
 router.delete('/:id', isStaff, async (req, res) => {
   try {
     await collections.partnerships.doc(req.params.id).delete();
+    cache.invalidate('partnerships:*');
+    cache.invalidate('public:partnerships');
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: error.message });

@@ -66,13 +66,16 @@ module.exports = {
 
         let eventData;
         try {
-            const { data } = await axios.get(`https://api.truckersmp.com/v2/events/${eventId}`);
+            const { data } = await axios.get(`https://api.truckersmp.com/v2/events/${eventId}`, { timeout: 8000 });
             eventData = data.response;
         } catch {
             return interaction.editReply('Could not fetch event data. Make sure the link is correct!');
         }
 
         if (!eventData) return interaction.editReply('❌ Event not found!');
+
+        // Validate custom link schemes
+        const isValidUrl = (url) => /^https?:\/\//i.test(url);
 
         const embed = new EmbedBuilder()
             .setTitle(getOverride('staff-resources', 'title', `📅 ${eventData.name}`))
@@ -91,8 +94,8 @@ module.exports = {
 
         embed.addFields({ name: 'Event Link', value: `[View on TruckerMP](https://truckersmp.com/events/${eventId})` });
 
-        if (spreadsheetLink) embed.addFields({ name: 'Spreadsheet Link', value: `[Open Sheet](${spreadsheetLink})` });
-        if (profileLink) embed.addFields({ name: 'Profile Link', value: `[Open Profile](${profileLink})` });
+        if (spreadsheetLink && isValidUrl(spreadsheetLink)) embed.addFields({ name: 'Spreadsheet Link', value: `[Open Sheet](${spreadsheetLink})` });
+        if (profileLink && isValidUrl(profileLink)) embed.addFields({ name: 'Profile Link', value: `[Open Profile](${profileLink})` });
         if (dlc) embed.addFields({ name: 'DLC', value: `## ${dlc}`, inline: false });
 
         if (eventData.map) embed.setImage(eventData.map);

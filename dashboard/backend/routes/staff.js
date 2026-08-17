@@ -135,20 +135,6 @@ router.post('/openings', isStaff, async (req, res) => {
   }
 });
 
-// Get staff openings
-router.get('/openings/list', isStaff, async (req, res) => {
-  try {
-    const snapshot = await collections.staff.collection('openings').get();
-    const openings = [];
-    snapshot.forEach(doc => {
-      openings.push({ id: doc.id, ...doc.data() });
-    });
-    res.json(openings);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
 // Update staff roles in Discord
 router.post('/:id/roles', isStaff, async (req, res) => {
   try {

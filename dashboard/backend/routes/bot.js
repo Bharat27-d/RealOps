@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { isStaff } = require('../auth');
+const { isStaff, isAdmin } = require('../auth');
 const { exec, spawn } = require('child_process');
 const path = require('path');
 const botManager = require('../discordManager');
@@ -100,7 +100,7 @@ router.get('/status', isStaff, async (req, res) => {
 });
 
 // Start bot
-router.post('/start', isStaff, async (req, res) => {
+router.post('/start', isAdmin, async (req, res) => {
   const botDir = path.join(__dirname, '..', '..', '..', 'bot');
   const indexPath = path.join(botDir, 'index.js');
   const isWindows = process.platform === 'win32';
@@ -202,7 +202,7 @@ router.post('/start', isStaff, async (req, res) => {
 });
 
 // Stop bot
-router.post('/stop', isStaff, async (req, res) => {
+router.post('/stop', isAdmin, async (req, res) => {
   console.log('=== STOP BOT REQUEST ===');
   console.log('Spawned process exists:', !!botProcess);
   console.log('Spawned process killed:', botProcess ? botProcess.killed : 'N/A');
@@ -315,7 +315,7 @@ router.post('/stop', isStaff, async (req, res) => {
 });
 
 // Restart bot
-router.post('/restart', isStaff, (req, res) => {
+router.post('/restart', isAdmin, (req, res) => {
   console.log('=== RESTART BOT REQUEST ===');
   const botDir = path.join(__dirname, '..', '..', '..', 'bot');
   

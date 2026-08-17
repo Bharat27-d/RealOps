@@ -34,10 +34,6 @@ const PORT = process.env.PORT || 3001;
 // Whitelisted origins for CORS
 const allowedOrigins = [
   process.env.FRONTEND_URL,
-  'https://dashboard.realops.cc',
-  'https://realops.cc',
-  'https://www.realops.cc',
-  'https://api.realops.cc',
   'https://dashboard.realopsevents.com',
   'https://realopsevents.com',
   'https://www.realopsevents.com',
@@ -64,14 +60,21 @@ app.use((req, res, next) => {
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
-    if (
-      allowedOrigins.includes(origin) ||
-      origin.endsWith('.realops.cc') ||
-      origin.endsWith('.realopsevents.com') ||
-      origin.includes('localhost') ||
-      origin.includes('127.0.0.1')
-    ) {
+    if (allowedOrigins.includes(origin)) {
       return callback(null, true);
+    }
+    // Strict hostname-based check to prevent subdomain spoofing
+    try {
+      const originHost = new URL(origin).hostname;
+      if (
+        (originHost.endsWith('.realopsevents.com') && originHost !== '.realopsevents.com') ||
+        originHost === 'localhost' ||
+        originHost === '127.0.0.1'
+      ) {
+        return callback(null, true);
+      }
+    } catch (e) {
+      // Malformed origin — reject
     }
     // Return false without throwing an unhandled exception
     return callback(null, false);

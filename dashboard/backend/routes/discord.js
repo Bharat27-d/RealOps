@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const botManager = require('../discordManager');
-const { isStaff } = require('../auth');
+const { isStaff, isAdmin } = require('../auth');
 
 // Get all channels
 router.get('/channels', isStaff, async (req, res) => {
@@ -85,7 +85,7 @@ router.post('/dm', isStaff, async (req, res) => {
 });
 
 // Add role to member
-router.post('/members/:userId/roles/add', isStaff, async (req, res) => {
+router.post('/members/:userId/roles/add', isAdmin, async (req, res) => {
   try {
     const { userId } = req.params;
     const { roleId } = req.body;
@@ -99,7 +99,7 @@ router.post('/members/:userId/roles/add', isStaff, async (req, res) => {
 });
 
 // Remove role from member
-router.post('/members/:userId/roles/remove', isStaff, async (req, res) => {
+router.post('/members/:userId/roles/remove', isAdmin, async (req, res) => {
   try {
     const { userId } = req.params;
     const { roleId } = req.body;
@@ -149,7 +149,7 @@ router.post('/staff-availability', isStaff, async (req, res) => {
     const eventId = match[1];
 
     // Fetch event data from TruckerMP API
-    const { data } = await axios.get(`https://api.truckersmp.com/v2/events/${eventId}`);
+    const { data } = await axios.get(`https://api.truckersmp.com/v2/events/${eventId}`, { timeout: 8000 });
     const eventData = data.response;
 
     if (!eventData) {

@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } = require('discord.js');
 const { getOverride } = require('../commandConfig');
 
 // Static default description for dashboard editing
@@ -15,7 +15,8 @@ module.exports = {
                 .setName('user')
                 .setDescription('Tag a user outside the embed')
                 .setRequired(false)
-        ),
+        )
+        .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages),
 
     async execute(interaction) {
         try {

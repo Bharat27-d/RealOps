@@ -110,6 +110,8 @@ async function loadFromFirestore() {
 
 const saveQueue = [];
 let isSaving = false;
+let consecutiveErrors = 0;
+const MAX_RETRY_DELAY = 30000; // Cap backoff at 30 seconds
 
 /**
  * Queue a save operation. Writes to both Firestore and local JSON cache.
@@ -153,12 +155,18 @@ async function processNextSave() {
             }
         }
 
+        consecutiveErrors = 0; // Reset on success
         resolve();
     } catch (error) {
         console.error('Error saving active tickets:', error);
+        consecutiveErrors++;
         reject(error);
     } finally {
-        setTimeout(processNextSave, 10);
+        // Exponential backoff on repeated failures to avoid tight error loops
+        const delay = consecutiveErrors > 0
+            ? Math.min(10 * Math.pow(2, consecutiveErrors), MAX_RETRY_DELAY)
+            : 10;
+        setTimeout(processNextSave, delay);
     }
 }
 
